@@ -1639,6 +1639,12 @@ function trackQkUsage(agentId, cmd) {
 // ══════════════════════════════════════
 // NOTE自動投稿パイプライン（確認制）
 // ══════════════════════════════════════
+let pipeRunning = false;
+let pipeResults = {};
+let pipeStatus = {};
+let pipeTimes = {};
+let pipeTimerInterval = null;
+
 const PIPE_STEPS = [
   {id:'mkt', agentId:'mkt', label:'リサーチ（マーケ-AI）がテーマを検証', cl:'#38bdf8',
    buildPrompt:(theme,price)=>'「'+theme+'」というテーマでnote記事を書く予定です。このテーマの市場性・競合状況・想定読者を簡潔に分析してください。問題なければ「GO」、懸念があれば理由を教えてください。'},
@@ -1651,9 +1657,6 @@ const PIPE_STEPS = [
   {id:'ceo', agentId:'coo', label:'マスク（CEO）が最終チェック＆公開GO判定', cl:'#dfff4f',
    buildPrompt:(theme,price)=>'「'+theme+'」のnote記事パイプラインが完了しました。単価'+price+'。第一原理思考で公開前の最終チェックポイントを3つ挙げ、問題なければ率直に「公開してください」と締めてください。'},
 ];
-
-let pipeRunning = false;
-let pipeResults = {};
 
 function openPipeline() {
   try {
@@ -1680,9 +1683,6 @@ function openPipeline() {
 function closePipeline() {
   g('pipeline-modal').classList.remove('on');
 }
-
-let pipeStatus = {}; // id -> 'wait'|'run'|'done'|'err'
-let pipeTimes = {};  // id -> {start, end}
 
 function statusBadge(st) {
   if(st==='run') return '<span class="pipe-status-badge pipe-status-run"><span class="pipe-spinner"></span> 実行中</span>';
@@ -1738,7 +1738,6 @@ function updatePipeProgress() {
   }
 }
 
-let pipeTimerInterval = null;
 function startPipeTimer(stepId) {
   if(pipeTimerInterval) clearInterval(pipeTimerInterval);
   pipeTimerInterval = setInterval(() => {
