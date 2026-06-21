@@ -648,7 +648,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       </div>
       <div id="inp">
         <div id="inp-row">
-          <button id="float-btn" onclick="toggleToday()">📋 <span id="float-badge">0</span></button>
+          <button id="float-btn" onclick="toggleToday(event)">📋 <span id="float-badge">0</span></button>
           <button id="pipe-btn" style="background:rgba(223,255,79,.1);color:var(--acc);border:1px solid rgba(223,255,79,.25);border-radius:7px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">🚀 note生成</button>
           <textarea id="msg-in" placeholder="エージェントに指示を送る… (Shift+Enterで改行)" autocomplete="off" rows="2"></textarea>
           <button id="snd">送信</button>
@@ -1480,6 +1480,7 @@ async function send() {
     }
 
     if(isCEO) {
+      console.log('CEO API response:', JSON.stringify(data, null, 2));
       const toolBlock = data.content?.find(b => b.type === 'tool_use');
       let displayText = '';
       let tasks = [];
@@ -1488,11 +1489,17 @@ async function send() {
         tasks = (toolBlock.input.tasks || [])
           .filter(t => t.agent_id && AG.find(ag => ag.id === t.agent_id))
           .map(t => ({ agentId: t.agent_id, instruction: t.instruction }));
+        console.log('Extracted tasks:', tasks);
       } else {
         // フォールバック：tool_useが無い場合はテキストから旧式タグも一応試す
         const rep = data.content?.map(b => b.text || '').join('') || 'レスポンスが空です。';
         displayText = stripTaskTags(rep);
         tasks = parseTasksFromCEO(rep);
+        console.log('No tool_use block found. Fallback text:', rep.substring(0,200));
+        console.log('Fallback tasks:', tasks);
+      }
+      if(tasks.length === 0) {
+        displayText += '\n\n[デバッグ] tool_use検出: ' + (toolBlock ? 'あり' : 'なし') + ' / stop_reason: ' + (data.stop_reason || '不明');
       }
       hist[a.id].push({r:'assistant', c:displayText});
       styp(false);
@@ -1701,7 +1708,8 @@ function updateFloatBadge() {
   }
 }
 
-function toggleToday() {
+function toggleToday(e) {
+  if(e) e.stopPropagation();
   const panel = g('today-panel');
   if(!panel) return;
   panel.classList.toggle('on');
@@ -1715,8 +1723,9 @@ document.addEventListener('click', function(e) {
   if(!panel || !panel.classList.contains('on')) return;
   if(panel.contains(e.target)) return;
   if(floatBtn && floatBtn.contains(e.target)) return;
+  console.log('Closing today-panel due to outside click on:', e.target);
   panel.classList.remove('on');
-});
+}, true);
 
 // 設定モーダルも外側クリックで閉じる
 document.addEventListener('click', function(e) {
