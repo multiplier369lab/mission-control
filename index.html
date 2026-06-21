@@ -137,11 +137,13 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .ac-hdr h3{font-size:14px;font-weight:800;color:var(--acc);margin-bottom:4px}
 .ac-hdr p{font-size:11px;color:var(--txt3)}
 .ac-body{padding:16px 20px;overflow-y:auto;flex:1}
-.ac-summary{font-size:12px;color:var(--txt2);line-height:1.7;margin-bottom:16px;padding:12px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--brd)}
+.ac-summary{font-size:12px;color:var(--txt2);line-height:1.8;margin-bottom:16px;padding:14px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--brd);white-space:pre-wrap;word-break:break-word}
 .ac-list{display:flex;flex-direction:column;gap:8px}
 .ac-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:rgba(223,255,79,.04);border:1px solid rgba(223,255,79,.15);border-radius:8px}
 .ac-item-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--acc);background:rgba(223,255,79,.15);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--acc);font-weight:800}
-.ac-item-text{font-size:12px;color:var(--txt);line-height:1.6;flex:1}
+.ac-item-text{font-size:12px;color:var(--txt);line-height:1.6;flex:1;white-space:pre-wrap;word-break:break-word}
+.ac-item-copy{background:none;border:1px solid var(--brd);border-radius:5px;color:var(--txt3);font-size:10px;padding:3px 8px;cursor:pointer;font-family:inherit;flex-shrink:0;transition:all .12s}
+.ac-item-copy:hover{border-color:var(--acc);color:var(--acc)}
 .ac-ftr{padding:14px 20px;border-top:1px solid var(--brd);flex-shrink:0;display:flex;gap:8px}
 .ac-btn{flex:1;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s}
 .ac-btn-add{background:var(--acc);color:#0a0e1a}
@@ -303,6 +305,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .tp-task-ceo-badge{font-size:8px;color:var(--acc);font-weight:700;background:rgba(223,255,79,.12);border-radius:3px;padding:1px 5px;margin-left:4px}
 .tp-task-time{font-size:9px;color:var(--txt3);margin-top:2px}
 .tp-task-del{background:none;border:none;color:var(--txt3);font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
+.tp-task-copy{background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer;padding:2px 4px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
+.tp-task:hover .tp-task-copy{opacity:1}
+.tp-task-copy:hover{color:var(--acc)}
 .tp-task:hover .tp-task-del{opacity:1}
 .tp-task-del:hover{color:#f43f5e}
 .tp-task-row{display:flex;align-items:flex-start;gap:6px}
@@ -589,7 +594,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div id="hdr">
   <div class="logo">
     <div class="logo-dot"></div>
-    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-2</span></span>
+    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-3</span></span>
   </div>
   <div class="hdr-rev">
     <span class="rev-s">月商</span>
@@ -806,10 +811,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div id="tp-notelog"></div>
       <button class="tp-add-btn" onclick="addNoteLog()">＋ note投稿を記録する</button>
       <button class="tp-add-btn" style="background:rgba(244,63,94,.06);border-color:rgba(244,63,94,.2);color:#f43f5e;margin-top:6px" onclick="clearCompletedTasks()">🗑 完了済みタスクを一括削除</button>
-    </div>
-    <div class="tp-sec">
-      <div class="tp-sec-title">エージェント連携</div>
-      <div style="font-size:11px;color:var(--txt2);line-height:1.7;margin-bottom:8px">AIの返答を別のエージェントに転送して連携できます。返答の下の「転送」ボタンを使ってください。</div>
     </div>
   </div>
 </div>
@@ -1723,9 +1724,9 @@ function renderTodayPanel() {
       + (ag ? '<div class="tp-task-ag" style="color:'+ag.cl+'">→ '+ag.lb+'</div>' : '')
       + (timeStr ? '<div class="tp-task-time">追加：' + timeStr + '</div>' : '')
       + '</div>'
+      + '<button class="tp-task-copy" title="コピー">📋</button>'
       + '<button class="tp-task-del" title="削除">✕</button>';
 
-    const checkAndBody = row.querySelector('.tp-check, .tp-task-body');
     row.addEventListener('click', (e) => {
       if(e.target.classList.contains('tp-task-del')) {
         e.stopPropagation();
@@ -1733,6 +1734,14 @@ function renderTodayPanel() {
         saveTodayData();
         renderTodayPanel();
         updateFloatBadge();
+        return;
+      }
+      if(e.target.classList.contains('tp-task-copy')) {
+        e.stopPropagation();
+        navigator.clipboard.writeText(t.text).then(() => {
+          e.target.textContent = '✓';
+          setTimeout(() => { e.target.textContent = '📋'; }, 1200);
+        });
         return;
       }
       todayTasks[i].done = !todayTasks[i].done;
@@ -2406,7 +2415,14 @@ function showActionConfirm(summary, actions) {
     actions.forEach(actionText => {
       const div = document.createElement('div');
       div.className = 'ac-item';
-      div.innerHTML = '<div class="ac-item-check">✓</div><div class="ac-item-text">' + actionText + '</div>';
+      div.innerHTML = '<div class="ac-item-check">✓</div><div class="ac-item-text">' + actionText + '</div><button class="ac-item-copy">📋</button>';
+      const copyBtn = div.querySelector('.ac-item-copy');
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(actionText).then(() => {
+          copyBtn.textContent = '✓';
+          setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
+        });
+      });
       listEl.appendChild(div);
     });
   }
