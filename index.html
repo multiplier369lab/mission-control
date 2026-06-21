@@ -109,6 +109,18 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .settings-danger{background:rgba(244,63,94,.08);border-color:rgba(244,63,94,.2);color:#f43f5e}
 .settings-danger:hover{background:rgba(244,63,94,.15)}
 
+.sns-status-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.sns-chip{font-size:10px;font-weight:700;border-radius:999px;padding:4px 10px}
+.sns-chip.on{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.25)}
+.sns-chip.off{background:rgba(255,255,255,.04);color:var(--txt3);border:1px solid var(--brd)}
+
+.post-x-btn{
+  background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);
+  border-radius:5px;padding:3px 10px;font-size:10px;
+  color:var(--txt);cursor:pointer;font-family:inherit;
+}
+.post-x-btn:hover{background:rgba(255,255,255,.08)}
+
 /* ── BODY ── */
 #body{flex:1;display:flex;overflow:hidden}
 
@@ -790,6 +802,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         </div>
       </div>
       <div class="settings-sec">
+        <label>𝕏 SNS連携（X投稿用GAS URL）</label>
+        <input id="x-gas-url" type="text" placeholder="https://script.google.com/macros/s/...（X投稿専用）" onchange="saveToLS()">
+        <span class="settings-hint">GASでOAuth署名を代行し、Xへ自動投稿します（準備中）</span>
+        <div class="sns-status-row">
+          <span class="sns-chip on">𝕏 X</span>
+          <span class="sns-chip off">📷 Instagram（準備中）</span>
+          <span class="sns-chip off">🎵 TikTok（準備中）</span>
+        </div>
+      </div>
+      <div class="settings-sec">
         <label>📊 KPI手動更新</label>
         <button onclick="showKPIEditor()" id="kpi-edit-btn" class="settings-wide-btn">KPIエディタを開く</button>
         <div id="kpi-editor" style="display:none">
@@ -861,7 +883,7 @@ const AG = [
    pr:"あなたの名前は「サーチ」、乗数ラボのSEO担当です。AIエージェント受託・デザイン×AI・noteの見込み客をSEOで集めます。X・note・Obélisqueサイトへの流入施策を具体的に300字以内で。"},
   {id:"sns",persona:"ソーシャル",lb:"SNS-AI",nm:"SNSエージェント",ic:"◈",cl:"#ff5ea8",pl:0,dp:"集客部",ms:"X・Instagram・TikTokで「AIで会社を動かす経営者」として自動発信",kl:"フォロワー",ku:"人",kc:0,kt:10000,rc:0,rt:0,
    qk:["今週のX投稿3本","バズりやすいテーマ","Instagram投稿案","フォロワー増加施策"],
-   pr:"あなたの名前は「ソーシャル」、乗数ラボのSNS担当です。「AIで会社を動かす経営者・恭介」ブランドでX・Instagram・TikTokを運用します。台本・ハッシュタグ・スケジュールを300字以内で。"},
+   pr:"あなたの名前は「ソーシャル」、乗数ラボのSNS担当です。「AIで会社を動かす経営者・恭介」ブランドでX・Instagram・TikTokを運用します。【重要】X投稿を作る場合は必ず280文字（日本語は140字目安）以内に収め、最後に投稿用の完成形を「---投稿文---」の区切り線の後にそのまま貼り付けられる形で1つだけ提示してください。ハッシュタグは2〜3個まで。台本・スケジュールも300字以内で提案。"},
   {id:"content",persona:"エディ",lb:"コンテンツ-AI",nm:"コンテンツエージェント",ic:"▣",cl:"#b18cff",pl:1,dp:"商品部",ms:"note有料記事・プロンプト集・テンプレートの生成・量産",kl:"記事本数",ku:"本",kc:0,kt:50,rc:0,rt:200,
    qk:["今週のnote記事を書いて","売れるタイトル5本","プロンプト集の構成案","SNS告知文を作って"],
    pr:"あなたの名前は「エディ」、乗数ラボのコンテンツ編集長です。note有料記事・AIプロンプト集・業務テンプレートを生成します。恭介さんの強み：コールセンター経営×AI活用×内製ツールの実体験。記事構成・本文・タイトルを300字以内で。"},
@@ -972,6 +994,7 @@ function saveToLS() {
   });
   data._apikey = g('api-key').value;
   data._gasurl = g('gas-url') ? g('gas-url').value : '';
+  data._xgasurl = g('x-gas-url') ? g('x-gas-url').value : '';
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
 }
 
@@ -997,6 +1020,7 @@ function loadFromLS() {
     });
     if(data._apikey && g('api-key')) g('api-key').value = data._apikey;
     if(data._gasurl && g('gas-url')) g('gas-url').value = data._gasurl;
+    if(data._xgasurl && g('x-gas-url')) g('x-gas-url').value = data._xgasurl;
     const el = g('gas-status');
     if(el){
       el.textContent = restoredChats > 0 ? '復元済（' + restoredChats + '件のログ）' : 'データ復元済';
@@ -1287,7 +1311,18 @@ function bubble(role,txt,doScr=true){
     });
     const ib=document.createElement('button'); ib.className='improve-btn'; ib.textContent='⚠ 改善メモ';
     ib.addEventListener('click',()=>{ openImprove(aid); });
-    acts.appendChild(cp); acts.appendChild(np); acts.appendChild(ib); wrap.appendChild(acts);
+    acts.appendChild(cp); acts.appendChild(np); acts.appendChild(ib);
+
+    // SNS-AIの返答にはXへの投稿ボタンを追加
+    if(aid === 'sns') {
+      const xb = document.createElement('button');
+      xb.className = 'post-x-btn';
+      xb.textContent = '𝕏 Xに投稿';
+      xb.addEventListener('click', () => { postToX(txt); });
+      acts.appendChild(xb);
+    }
+
+    wrap.appendChild(acts);
   }
   d.appendChild(av); d.appendChild(wrap);
   ch.insertBefore(d,ty); if(doScr)scr();
@@ -1391,6 +1426,42 @@ async function send() {
     const msgs = hist[a.id].slice(0, -1).map(m => ({role:m.r, content:m.c}));
     msgs.push({role:'user', content: attachedFiles.length > 0 ? userContent : userTxt});
 
+    const isCEO = (a.id === 'coo');
+    const requestBody = {
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2000,
+      system: a.pr,
+      messages: msgs
+    };
+
+    // CEO（マスク）の場合はtool_useで確実に構造化出力させる
+    if(isCEO) {
+      requestBody.tools = [{
+        name: 'dispatch_tasks',
+        description: '恭介さんへの返答テキストと、各エージェントへ振り分けるタスク一覧を出力する',
+        input_schema: {
+          type: 'object',
+          properties: {
+            message: { type: 'string', description: '恭介さんへ表示する説明文（根本課題の特定・状況説明など）' },
+            tasks: {
+              type: 'array',
+              description: '各エージェントへの指示。タスクが不要な場合は空配列でよい',
+              items: {
+                type: 'object',
+                properties: {
+                  agent_id: { type: 'string', description: 'エージェントID（seo, sns, content, design, biz, ec, ops, fin, nft, inbound, mkt, copy, img, sched, anal のいずれか）' },
+                  instruction: { type: 'string', description: 'そのエージェントへの具体的な指示文' }
+                },
+                required: ['agent_id', 'instruction']
+              }
+            }
+          },
+          required: ['message', 'tasks']
+        }
+      }];
+      requestBody.tool_choice = { type: 'tool', name: 'dispatch_tasks' };
+    }
+
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -1399,12 +1470,7 @@ async function send() {
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2000,
-        system: a.pr,
-        messages: msgs
-      })
+      body: JSON.stringify(requestBody)
     });
     const data = await res.json();
     if(data.error) {
@@ -1412,11 +1478,22 @@ async function send() {
       bubble('assistant', 'APIエラー：' + data.error.type + '\n' + data.error.message);
       attachedFiles = []; renderFileChips(); return;
     }
-    const rep = data.content?.map(b => b.text || '').join('') || 'レスポンスが空です。';
 
-    if(a.id === 'coo') {
-      const tasks = parseTasksFromCEO(rep);
-      const displayText = tasks.length > 0 ? stripTaskTags(rep) : rep;
+    if(isCEO) {
+      const toolBlock = data.content?.find(b => b.type === 'tool_use');
+      let displayText = '';
+      let tasks = [];
+      if(toolBlock && toolBlock.input) {
+        displayText = toolBlock.input.message || '（メッセージなし）';
+        tasks = (toolBlock.input.tasks || [])
+          .filter(t => t.agent_id && AG.find(ag => ag.id === t.agent_id))
+          .map(t => ({ agentId: t.agent_id, instruction: t.instruction }));
+      } else {
+        // フォールバック：tool_useが無い場合はテキストから旧式タグも一応試す
+        const rep = data.content?.map(b => b.text || '').join('') || 'レスポンスが空です。';
+        displayText = stripTaskTags(rep);
+        tasks = parseTasksFromCEO(rep);
+      }
       hist[a.id].push({r:'assistant', c:displayText});
       styp(false);
       bubble('assistant', displayText);
@@ -1427,6 +1504,7 @@ async function send() {
         dispatchTasksFromCEO(tasks);
       }
     } else {
+      const rep = data.content?.map(b => b.text || '').join('') || 'レスポンスが空です。';
       hist[a.id].push({r:'assistant', c:rep});
       styp(false);
       bubble('assistant', rep);
@@ -1629,6 +1707,25 @@ function toggleToday() {
   panel.classList.toggle('on');
   if(panel.classList.contains('on')) renderTodayPanel();
 }
+
+// パネル外クリックで閉じる
+document.addEventListener('click', function(e) {
+  const panel = g('today-panel');
+  const floatBtn = g('float-btn');
+  if(!panel || !panel.classList.contains('on')) return;
+  if(panel.contains(e.target)) return;
+  if(floatBtn && floatBtn.contains(e.target)) return;
+  panel.classList.remove('on');
+});
+
+// 設定モーダルも外側クリックで閉じる
+document.addEventListener('click', function(e) {
+  const modal = g('settings-modal');
+  if(!modal || !modal.classList.contains('on')) return;
+  if(e.target === modal) {
+    modal.classList.remove('on');
+  }
+});
 
 function addNoteLog() {
   const title = prompt('記事タイトルを入力してください：');
@@ -2054,7 +2151,8 @@ async function dispatchTasksFromCEO(tasks) {
 
   // Show dispatch notice in CEO chat
   const notice = '⚡ ' + tasks.length + '件のタスクを各エージェントに自動送信しました：' +
-    tasks.map(t => (AG.find(a=>a.id===t.agentId)||{}).lb).join('・');
+    tasks.map(t => (AG.find(a=>a.id===t.agentId)||{}).lb).join('・') +
+    '\n\n全工程が完了したら、結果をまとめて恭介さんがやるべきことを📋タスクパネルに追加します。';
   hist['coo'].push({r:'assistant', c: notice});
   if(aid === 'coo') renderChat();
   saveToLS();
@@ -2075,7 +2173,7 @@ async function dispatchTasksFromCEO(tasks) {
 async function requestCompletionReport(results, apiKey) {
   if(!apiKey || results.length === 0) return;
 
-  const summaryPrompt = '以下、各エージェントの作業が完了しました。結果を要約し、恭介さんがやるべき次のアクションをACTIONタグで出力してください：\n\n' +
+  const summaryPrompt = '以下、各エージェントの作業が完了しました。結果を要約し、恭介さんがやるべき次のアクションを抽出してください：\n\n' +
     results.map(r => '【' + r.agentLabel + '】指示：' + r.instruction + '\n結果：' + (r.reply||'').substring(0,400)).join('\n\n');
 
   const ceoAg = AG.find(a => a.id === 'coo');
@@ -2097,14 +2195,44 @@ async function requestCompletionReport(results, apiKey) {
         model: 'claude-sonnet-4-6',
         max_tokens: 1200,
         system: ceoAg.pr,
-        messages: msgs
+        messages: msgs,
+        tools: [{
+          name: 'report_completion',
+          description: '完了報告の要約と、恭介さんがやるべきアクション一覧を出力する',
+          input_schema: {
+            type: 'object',
+            properties: {
+              summary: { type: 'string', description: '各エージェントの作業結果を要約した文章' },
+              actions: {
+                type: 'array',
+                description: '恭介さんが手を動かすべき具体的なアクション一覧',
+                items: { type: 'string' }
+              }
+            },
+            required: ['summary', 'actions']
+          }
+        }],
+        tool_choice: { type: 'tool', name: 'report_completion' }
       })
     });
     const data = await res.json();
-    const rep = data.error ? ('APIエラー: ' + data.error.message) : (data.content?.map(b=>b.text||'').join('') || '');
+    if(data.error) {
+      hist['coo'].push({r:'assistant', c: 'APIエラー: ' + data.error.message});
+      if(aid === 'coo') renderChat();
+      return;
+    }
 
-    const actions = parseActionsFromCEO(rep);
-    const displayText = stripActionTags(rep);
+    const toolBlock = data.content?.find(b => b.type === 'tool_use');
+    let displayText = '';
+    let actions = [];
+    if(toolBlock && toolBlock.input) {
+      displayText = toolBlock.input.summary || '完了報告を受信しました。';
+      actions = (toolBlock.input.actions || []).filter(x => x && x.trim());
+    } else {
+      const rep = data.content?.map(b=>b.text||'').join('') || '';
+      displayText = stripActionTags(rep) || rep;
+      actions = parseActionsFromCEO(rep);
+    }
 
     hist['coo'].push({r:'assistant', c: displayText});
     saveToLS();
@@ -2112,9 +2240,13 @@ async function requestCompletionReport(results, apiKey) {
 
     if(actions.length > 0) {
       addActionsToTodayPanel(actions);
+    } else if(displayText) {
+      addActionsToTodayPanel(['完了報告を確認する：' + displayText.substring(0,80) + (displayText.length>80?'...':'')]);
     }
   } catch(e) {
     console.error('Completion report error:', e);
+    hist['coo'].push({r:'assistant', c: '完了報告の取得中にエラーが発生しました: ' + e.message});
+    if(aid === 'coo') renderChat();
   }
 }
 
@@ -2170,6 +2302,62 @@ function openSettings() {
 }
 function closeSettings() {
   g('settings-modal').classList.remove('on');
+}
+
+
+// ══════════════════════════════════════
+// X（旧Twitter）自動投稿連携
+// ══════════════════════════════════════
+async function postToX(text) {
+  const xGasUrl = g('x-gas-url') ? g('x-gas-url').value.trim() : '';
+  if(!xGasUrl) {
+    alert('⚙ 設定画面で「X投稿用GAS URL」を入力してください。\n\n準備手順は乗数ラボの運用ガイドを参照してください。');
+    openSettings();
+    return;
+  }
+  if(!text || text.length === 0) {
+    alert('投稿するテキストがありません。');
+    return;
+  }
+  if(text.length > 280) {
+    if(!confirm('投稿文が280文字を超えています（' + text.length + '文字）。X側で自動的に切り詰められる場合があります。続行しますか？')) return;
+  }
+
+  return new Promise((resolve) => {
+    const cbName = 'xPostCallback_' + Date.now();
+    const timer = setTimeout(() => {
+      delete window[cbName];
+      const s = document.getElementById('x-post-script-tag');
+      if(s) s.remove();
+      alert('投稿がタイムアウトしました。GAS URLを確認してください。');
+      resolve();
+    }, 15000);
+
+    window[cbName] = function(data) {
+      clearTimeout(timer);
+      delete window[cbName];
+      const s = document.getElementById('x-post-script-tag');
+      if(s) s.remove();
+      if(data && data.success) {
+        alert('✓ Xへの投稿が完了しました！');
+      } else {
+        alert('投稿エラー: ' + (data && data.error ? data.error : '不明なエラー'));
+      }
+      resolve();
+    };
+
+    const script = document.createElement('script');
+    script.id = 'x-post-script-tag';
+    const separator = xGasUrl.includes('?') ? '&' : '?';
+    script.src = xGasUrl + separator + 'callback=' + cbName + '&action=post&text=' + encodeURIComponent(text);
+    script.onerror = function() {
+      clearTimeout(timer);
+      delete window[cbName];
+      alert('GAS連携エラー：URLを確認してください。');
+      resolve();
+    };
+    document.head.appendChild(script);
+  });
 }
 
 function showKPIEditor() {
