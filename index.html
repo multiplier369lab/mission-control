@@ -121,6 +121,34 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 }
 .post-x-btn:hover{background:rgba(255,255,255,.08)}
 
+/* ACTION CONFIRM MODAL */
+#action-confirm-modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:300;align-items:center;justify-content:center;padding:20px;
+}
+#action-confirm-modal.on{display:flex}
+.ac-box{
+  background:rgba(10,16,32,.98);border:1px solid var(--brd);
+  border-radius:18px;padding:0;width:100%;max-width:480px;
+  max-height:85vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,.5);overflow:hidden;
+}
+.ac-hdr{padding:16px 20px;border-bottom:1px solid var(--brd);flex-shrink:0}
+.ac-hdr h3{font-size:14px;font-weight:800;color:var(--acc);margin-bottom:4px}
+.ac-hdr p{font-size:11px;color:var(--txt3)}
+.ac-body{padding:16px 20px;overflow-y:auto;flex:1}
+.ac-summary{font-size:12px;color:var(--txt2);line-height:1.7;margin-bottom:16px;padding:12px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--brd)}
+.ac-list{display:flex;flex-direction:column;gap:8px}
+.ac-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:rgba(223,255,79,.04);border:1px solid rgba(223,255,79,.15);border-radius:8px}
+.ac-item-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--acc);background:rgba(223,255,79,.15);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--acc);font-weight:800}
+.ac-item-text{font-size:12px;color:var(--txt);line-height:1.6;flex:1}
+.ac-ftr{padding:14px 20px;border-top:1px solid var(--brd);flex-shrink:0;display:flex;gap:8px}
+.ac-btn{flex:1;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s}
+.ac-btn-add{background:var(--acc);color:#0a0e1a}
+.ac-btn-add:hover{background:#eeff70}
+.ac-btn-skip{background:rgba(255,255,255,.05);border:1px solid var(--brd);color:var(--txt2)}
+.ac-btn-skip:hover{background:rgba(255,255,255,.1)}
+
 /* ── BODY ── */
 #body{flex:1;display:flex;overflow:hidden}
 
@@ -776,6 +804,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="tp-sec">
       <div class="tp-sec-title">エージェント連携</div>
       <div style="font-size:11px;color:var(--txt2);line-height:1.7;margin-bottom:8px">AIの返答を別のエージェントに転送して連携できます。返答の下の「転送」ボタンを使ってください。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTION CONFIRM MODAL -->
+<div id="action-confirm-modal">
+  <div class="ac-box">
+    <div class="ac-hdr">
+      <h3>📋 タスク追加の確認</h3>
+      <p>マスクが完了報告をまとめました。タスクパネルに追加しますか？</p>
+    </div>
+    <div class="ac-body">
+      <div class="ac-summary" id="ac-summary"></div>
+      <div class="ac-list" id="ac-list"></div>
+    </div>
+    <div class="ac-ftr">
+      <button class="ac-btn ac-btn-skip" onclick="skipActionConfirm()">追加しない</button>
+      <button class="ac-btn ac-btn-add" onclick="confirmAddActions()">📋 タスクに追加する</button>
     </div>
   </div>
 </div>
@@ -1736,6 +1782,8 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// アクション確認モーダルは外側クリックでは閉じない（誤操作防止のため明示的なボタン操作のみ）
+
 function addNoteLog() {
   const title = prompt('記事タイトルを入力してください：');
   if(!title) return;
@@ -2179,81 +2227,115 @@ async function dispatchTasksFromCEO(tasks) {
   await requestCompletionReport(results, apiKey);
 }
 
+const REPORT_TOOL = {
+  name: 'report_completion',
+  description: '完了報告の要約と、恭介さんがやるべきアクション一覧を出力する',
+  input_schema: {
+    type: 'object',
+    properties: {
+      summary: { type: 'string', description: '各エージェントの作業結果を要約した文章' },
+      actions: {
+        type: 'array',
+        description: '恭介さんが手を動かすべき具体的なアクション一覧',
+        items: { type: 'string' }
+      }
+    },
+    required: ['summary', 'actions']
+  }
+};
+
+async function callClaudeTool(systemPrompt, userMessage, apiKey, tool) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1500,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+      tools: [tool],
+      tool_choice: { type: 'tool', name: tool.name }
+    })
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message);
+  const toolBlock = data.content?.find(b => b.type === 'tool_use');
+  if(!toolBlock || !toolBlock.input) throw new Error('tool_useブロックが取得できませんでした');
+  return toolBlock.input;
+}
+
 async function requestCompletionReport(results, apiKey) {
   if(!apiKey || results.length === 0) return;
 
-  const summaryPrompt = '以下、各エージェントの作業が完了しました。結果を要約し、恭介さんがやるべき次のアクションを抽出してください：\n\n' +
-    results.map(r => '【' + r.agentLabel + '】指示：' + r.instruction + '\n結果：' + (r.reply||'').substring(0,400)).join('\n\n');
-
   const ceoAg = AG.find(a => a.id === 'coo');
+  const taskSummary = results.map(r => '【' + r.agentLabel + '】指示：' + r.instruction + '\n結果：' + (r.reply||'').substring(0,400)).join('\n\n');
+
   hist['coo'].push({r:'user', c: '【自動】全タスク完了報告依頼'});
+  hist['coo'].push({r:'assistant', c: '🧠 各エージェントの結果を第一原理思考でレビュー中…（初稿を作成→自己批判→最終版を作ります）'});
+  if(aid === 'coo') renderChat();
 
   try {
-    // 完了報告は独立した会話として送信（直前のtool_use応答との不整合を避けるため履歴を引き継がない）
-    const msgs = [{role:'user', content: summaryPrompt}];
+    // ── Step 1: 初稿を作る ──
+    const draftPrompt = '以下、各エージェントの作業が完了しました。結果を要約し、恭介さんがやるべき次のアクションを抽出してください：\n\n' + taskSummary;
+    const draft = await callClaudeTool(ceoAg.pr, draftPrompt, apiKey, REPORT_TOOL);
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1200,
-        system: ceoAg.pr,
-        messages: msgs,
-        tools: [{
-          name: 'report_completion',
-          description: '完了報告の要約と、恭介さんがやるべきアクション一覧を出力する',
-          input_schema: {
-            type: 'object',
-            properties: {
-              summary: { type: 'string', description: '各エージェントの作業結果を要約した文章' },
-              actions: {
-                type: 'array',
-                description: '恭介さんが手を動かすべき具体的なアクション一覧',
-                items: { type: 'string' }
-              }
-            },
-            required: ['summary', 'actions']
+    // ── Step 2: マスク自身の原則で自己レビュー ──
+    const reviewPrompt = '以下はあなた自身が作成した完了報告の初稿です。あなたの行動原則（第一原理思考・本質的なボトルネック特定・10倍思考・直接的な物言い）に照らして、この初稿を厳しく自己批判してください。\n\n' +
+      '【初稿】\nサマリー：' + draft.summary + '\nアクション：' + (draft.actions||[]).join(' / ') + '\n\n' +
+      '【批判の観点】\n' +
+      '・これは表面的な対症療法になっていないか？根本課題を突いているか？\n' +
+      '・本当のボトルネックを特定できているか？\n' +
+      '・10倍の成果につながる優先順位になっているか？\n' +
+      '・恭介さんの時間を無駄にする曖昧な指示はないか？具体性は十分か？\n\n' +
+      '批判点を3つ以内で簡潔に指摘してください。';
+
+    const REVIEW_TOOL = {
+      name: 'critique_draft',
+      description: '初稿への自己批判を出力する',
+      input_schema: {
+        type: 'object',
+        properties: {
+          critique_points: {
+            type: 'array',
+            description: '初稿の弱点・改善点（最大3つ）',
+            items: { type: 'string' }
           }
-        }],
-        tool_choice: { type: 'tool', name: 'report_completion' }
-      })
-    });
-    const data = await res.json();
-    if(data.error) {
-      hist['coo'].push({r:'assistant', c: 'APIエラー: ' + data.error.message});
-      if(aid === 'coo') renderChat();
-      return;
-    }
+        },
+        required: ['critique_points']
+      }
+    };
+    const review = await callClaudeTool(ceoAg.pr, reviewPrompt, apiKey, REVIEW_TOOL);
 
-    const toolBlock = data.content?.find(b => b.type === 'tool_use');
-    let displayText = '';
-    let actions = [];
-    if(toolBlock && toolBlock.input) {
-      displayText = toolBlock.input.summary || '完了報告を受信しました。';
-      actions = (toolBlock.input.actions || []).filter(x => x && x.trim());
-    } else {
-      const rep = data.content?.map(b=>b.text||'').join('') || '';
-      displayText = stripActionTags(rep) || rep;
-      actions = parseActionsFromCEO(rep);
-    }
+    // ── Step 3: 批判を踏まえた最終版を作る ──
+    const finalPrompt = '初稿と、それに対するあなた自身の批判点を踏まえて、より鋭く具体的な完了報告の最終版を作ってください。\n\n' +
+      '【初稿】\n' + draft.summary + '\n\n' +
+      '【自己批判】\n' + (review.critique_points||[]).map((c,i)=>(i+1)+'. '+c).join('\n') + '\n\n' +
+      '批判点を解消した、本質的でより具体的な最終版を出力してください。';
 
+    const final = await callClaudeTool(ceoAg.pr, finalPrompt, apiKey, REPORT_TOOL);
+
+    const displayText = final.summary || draft.summary || '完了報告を受信しました。';
+    const actions = ((final.actions && final.actions.length > 0) ? final.actions : draft.actions || []).filter(x => x && x.trim());
+
+    // 練り直しの過程をhistから一旦消して、最終結果だけ残す
+    hist['coo'].pop(); // 「レビュー中…」メッセージを削除
     hist['coo'].push({r:'assistant', c: displayText});
     saveToLS();
     if(aid === 'coo') renderChat();
 
     if(actions.length > 0) {
-      addActionsToTodayPanel(actions);
+      addActionsToTodayPanel(actions, displayText);
     } else if(displayText) {
-      addActionsToTodayPanel(['完了報告を確認する：' + displayText.substring(0,80) + (displayText.length>80?'...':'')]);
+      addActionsToTodayPanel(['完了報告を確認する：' + displayText.substring(0,80) + (displayText.length>80?'...':'')], displayText);
     }
   } catch(e) {
     console.error('Completion report error:', e);
+    hist['coo'].pop(); // 「レビュー中…」メッセージを削除
     hist['coo'].push({r:'assistant', c: '完了報告の取得中にエラーが発生しました: ' + e.message});
     if(aid === 'coo') renderChat();
   }
@@ -2273,8 +2355,33 @@ function stripActionTags(text) {
   return text.replace(/【ACTION】[^\n【]+\n?/g, '').trim();
 }
 
-function addActionsToTodayPanel(actions) {
-  actions.forEach((actionText, i) => {
+let pendingActions = [];
+let pendingSummary = '';
+
+function showActionConfirm(summary, actions) {
+  pendingActions = actions;
+  pendingSummary = summary;
+
+  const summaryEl = g('ac-summary');
+  if(summaryEl) summaryEl.textContent = summary;
+
+  const listEl = g('ac-list');
+  if(listEl) {
+    listEl.innerHTML = '';
+    actions.forEach(actionText => {
+      const div = document.createElement('div');
+      div.className = 'ac-item';
+      div.innerHTML = '<div class="ac-item-check">✓</div><div class="ac-item-text">' + actionText + '</div>';
+      listEl.appendChild(div);
+    });
+  }
+
+  const modal = g('action-confirm-modal');
+  if(modal) modal.classList.add('on');
+}
+
+function confirmAddActions() {
+  pendingActions.forEach((actionText, i) => {
     const newId = 'ceo_action_' + Date.now() + '_' + i;
     todayTasks.push({ id: newId, text: actionText, ag: '', done: false, fromCEO: true });
   });
@@ -2282,9 +2389,28 @@ function addActionsToTodayPanel(actions) {
   updateFloatBadge();
   const badge = g('float-badge');
   if(badge) { badge.classList.add('new'); setTimeout(() => badge.classList.remove('new'), 900); }
+
+  closeActionConfirm();
+
   // タスクパネルを自動で開いて知らせる
   const panel = g('today-panel');
   if(panel) { panel.classList.add('on'); renderTodayPanel(); }
+}
+
+function skipActionConfirm() {
+  closeActionConfirm();
+}
+
+function closeActionConfirm() {
+  const modal = g('action-confirm-modal');
+  if(modal) modal.classList.remove('on');
+  pendingActions = [];
+  pendingSummary = '';
+}
+
+function addActionsToTodayPanel(actions, summary) {
+  // 互換用：呼び出し元から確認モーダルを開く
+  showActionConfirm(summary || '完了報告', actions);
 }
 
 function updateTaskBar() {
