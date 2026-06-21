@@ -247,6 +247,19 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 #msg-in:focus{border-color:var(--acc)}
 #snd{background:var(--acc);color:#0b1018;border:none;border-radius:7px;padding:9px 20px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;flex-shrink:0}
 #snd:hover{background:#eeff70}
+#jump-nav{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+#jump-nav button{
+  background:rgba(255,255,255,.05);border:1px solid var(--brd);
+  border-radius:5px;color:var(--txt3);font-size:11px;font-weight:700;
+  width:28px;height:23px;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+#jump-nav button:hover{border-color:var(--acc);color:var(--acc);background:rgba(223,255,79,.06)}
+#jump-nav button:disabled{opacity:.25;cursor:not-allowed}
+#jump-nav button:disabled:hover{border-color:var(--brd);color:var(--txt3);background:rgba(255,255,255,.05)}
+.bub.jump-highlight{animation:jumpFlash 1s ease}
+@keyframes jumpFlash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 2px rgba(223,255,79,.5)}}
 #inp-hint{font-size:9px;color:var(--txt3);margin-top:5px}
 
 /* TODAY PANEL */
@@ -265,8 +278,10 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 #tp-body{overflow-y:auto;flex:1}
 .tp-sec{padding:10px 14px;border-bottom:1px solid var(--brd2,rgba(255,255,255,.05))}
 .tp-sec-title{font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--txt3);margin-bottom:8px}
-.tp-task{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;cursor:pointer}
-.tp-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--brd);background:transparent;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tp-task{margin-bottom:8px;border-radius:8px;transition:background .15s}
+.tp-task:hover{background:rgba(255,255,255,.025)}
+.tp-task-row{padding:4px 6px}
+.tp-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--brd);background:transparent;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;cursor:pointer}
 .tp-task.done .tp-check{background:var(--acc);border-color:var(--acc)}
 .tp-task.done .tp-check::after{content:'✓';font-size:10px;color:#0a0e1a;font-weight:800}
 .tp-task-txt{font-size:11px;color:var(--txt2);line-height:1.5}
@@ -279,13 +294,13 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .tp-priority.high{background:rgba(244,63,94,.15);color:#f43f5e}
 .tp-priority.mid{background:rgba(245,158,11,.15);color:#f59e0b}
 .tp-priority.low{background:rgba(255,255,255,.06);color:var(--txt3)}
-.tp-task-del{background:none;border:none;color:var(--txt3);font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
-.tp-task-copy{background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer;padding:2px 4px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
-.tp-task:hover .tp-task-copy{opacity:1}
-.tp-task-copy:hover{color:var(--acc)}
-.tp-task:hover .tp-task-del{opacity:1}
-.tp-task-del:hover{color:#f43f5e}
-.tp-task-row{display:flex;align-items:flex-start;gap:6px}
+.tp-task-row{display:flex;align-items:flex-start;gap:8px}
+.tp-task-content{flex:1;min-width:0;cursor:pointer}
+.tp-task-actions{display:flex;gap:12px;margin-top:6px;padding-left:24px;opacity:0;max-height:0;overflow:hidden;transition:opacity .15s,max-height .15s}
+.tp-task:hover .tp-task-actions{opacity:1;max-height:30px}
+.tp-task-action-btn{background:none;border:none;color:var(--txt3);font-size:10px;cursor:pointer;padding:3px 6px;display:flex;align-items:center;gap:3px;border-radius:4px}
+.tp-task-action-btn:hover{color:var(--acc);background:rgba(223,255,79,.06)}
+.tp-task-action-btn.danger:hover{color:#f43f5e;background:rgba(244,63,94,.06)}
 @keyframes badgePop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 #float-badge.new{animation:badgePop .4s ease 2}
 
@@ -298,6 +313,29 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .tp-log-meta{font-size:9px;color:var(--txt3)}
 .tp-add-btn{width:100%;background:rgba(223,255,79,.08);border:1px dashed rgba(223,255,79,.25);border-radius:8px;padding:7px;font-size:11px;color:var(--acc);cursor:pointer;font-family:inherit;transition:all .12s}
 .tp-add-btn:hover{background:rgba(223,255,79,.15)}
+
+/* TASK DETAIL PANEL */
+#task-detail-modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:300;align-items:center;justify-content:center;padding:20px;
+}
+#task-detail-modal.on{display:flex}
+.td-box{
+  background:rgba(10,16,32,.98);border:1px solid var(--brd);
+  border-radius:18px;padding:0;width:100%;max-width:480px;
+  max-height:85vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,.5);overflow:hidden;
+}
+.td-hdr{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-shrink:0}
+.td-hdr-title{font-size:13px;font-weight:800;color:var(--txt);line-height:1.5}
+.td-close{background:none;border:none;color:var(--txt3);font-size:18px;cursor:pointer;flex-shrink:0}
+.td-body{padding:16px 20px;overflow-y:auto;flex:1}
+.td-loading{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt3);padding:20px 0;justify-content:center}
+.td-spinner{width:14px;height:14px;border:2px solid rgba(223,255,79,.2);border-top-color:var(--acc);border-radius:50%;animation:pipeSpin .7s linear infinite}
+.td-content{font-size:12px;color:var(--txt2);line-height:1.8;white-space:pre-wrap;word-break:break-word}
+.td-ftr{padding:14px 20px;border-top:1px solid var(--brd);flex-shrink:0;display:flex;gap:8px}
+.td-copy-btn{flex:1;background:rgba(223,255,79,.1);border:1px solid rgba(223,255,79,.2);border-radius:8px;padding:10px;font-size:12px;font-weight:700;color:var(--acc);cursor:pointer;font-family:inherit}
+.td-copy-btn:hover{background:rgba(223,255,79,.18)}
 
 /* FLOAT BTN */
 #float-btn{
@@ -569,7 +607,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div id="hdr">
   <div class="logo">
     <div class="logo-dot"></div>
-    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-5</span></span>
+    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-7</span></span>
   </div>
   <div class="hdr-rev">
     <span class="rev-s">月商</span>
@@ -664,6 +702,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
           <button id="float-btn" onclick="toggleToday(event)">📋 <span id="float-badge">0</span></button>
           <button id="pipe-btn" style="background:rgba(223,255,79,.1);color:var(--acc);border:1px solid rgba(223,255,79,.25);border-radius:7px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">🚀 note生成</button>
           <textarea id="msg-in" placeholder="エージェントに指示を送る… (Shift+Enterで改行)" autocomplete="off" rows="2"></textarea>
+          <div id="jump-nav">
+            <button id="jump-up" title="前の送信メッセージへ">↑</button>
+            <button id="jump-down" title="次の送信メッセージへ">↓</button>
+          </div>
           <button id="snd">送信</button>
         </div>
         <div id="inp-hint">Enter で送信 / Shift+Enter で改行 — APIキー未入力時はデモモードで動作</div>
@@ -786,6 +828,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div id="tp-notelog"></div>
       <button class="tp-add-btn" onclick="addNoteLog()">＋ note投稿を記録する</button>
       <button class="tp-add-btn" style="background:rgba(244,63,94,.06);border-color:rgba(244,63,94,.2);color:#f43f5e;margin-top:6px" onclick="clearCompletedTasks()">🗑 完了済みタスクを一括削除</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASK DETAIL MODAL -->
+<div id="task-detail-modal">
+  <div class="td-box">
+    <div class="td-hdr">
+      <div class="td-hdr-title" id="td-title"></div>
+      <button class="td-close" onclick="closeTaskDetail()">✕</button>
+    </div>
+    <div class="td-body" id="td-body">
+      <div class="td-loading"><div class="td-spinner"></div>マスクが手順を考えています…</div>
+    </div>
+    <div class="td-ftr">
+      <button class="td-copy-btn" onclick="copyTaskDetail()">📋 説明をコピー</button>
     </div>
   </div>
 </div>
@@ -1282,10 +1340,12 @@ function renderChat() {
   if(h.length===0){bubble('assistant',a.nm+'です。\n'+a.ms+'\n\n指示をください。',false);}
   else{h.forEach(m=>bubble(m.r,m.c,false));}
   scr();
+  resetJumpIndex();
+  updateJumpButtons();
 }
 function bubble(role,txt,doScr=true){
   const ch=g('chat'); const ty=g('typ');
-  const d=document.createElement('div'); d.className='msg'+(role==='user'?' u':'');
+  const d=document.createElement('div'); d.className='msg'+(role==='user'?' u':''); if(role==='user') d.setAttribute('data-user-msg','1');
   const av=document.createElement('div'); av.className='mav'; av.textContent=role==='user'?'K':'AI';
   const wrap=document.createElement('div'); wrap.className='bub-wrap';
   const b=document.createElement('div'); b.className='bub'; b.textContent=txt;
@@ -1336,6 +1396,7 @@ function bubble(role,txt,doScr=true){
   }
   d.appendChild(av); d.appendChild(wrap);
   ch.insertBefore(d,ty); if(doScr)scr();
+  if(role==='user') updateJumpButtons();
 }
 function scr(){const c=g('chat');c.scrollTop=c.scrollHeight;}
 function styp(on){g('typ').classList.toggle('on',on);if(on)scr();}
@@ -1679,31 +1740,20 @@ function renderTodayPanel() {
     const row = document.createElement('div');
     row.className = 'tp-task-row';
     row.innerHTML = '<div class="tp-check"></div>'
-      + '<div class="tp-task-body">'
+      + '<div class="tp-task-content">'
       + '<div class="tp-task-txt">' + priorityBadge + ' ' + t.text + (t.fromCEO ? '<span class="tp-task-ceo-badge">マスクより</span>' : '') + '</div>'
       + (ag ? '<div class="tp-task-ag" style="color:'+ag.cl+'">→ '+ag.lb+'</div>' : '')
       + (timeStr ? '<div class="tp-task-time">追加：' + timeStr + '</div>' : '')
+      + '<div class="tp-task-actions">'
+      + '<button class="tp-task-action-btn tp-detail-btn">🧠 マスクに聞く</button>'
+      + '<button class="tp-task-action-btn tp-copy-btn">📋 コピー</button>'
+      + '<button class="tp-task-action-btn danger tp-del-btn">✕ 削除</button>'
       + '</div>'
-      + '<button class="tp-task-copy" title="コピー">📋</button>'
-      + '<button class="tp-task-del" title="削除">✕</button>';
+      + '</div>';
 
-    row.addEventListener('click', (e) => {
-      if(e.target.classList.contains('tp-task-del')) {
-        e.stopPropagation();
-        todayTasks.splice(i, 1);
-        saveTodayData();
-        renderTodayPanel();
-        updateFloatBadge();
-        return;
-      }
-      if(e.target.classList.contains('tp-task-copy')) {
-        e.stopPropagation();
-        navigator.clipboard.writeText(t.text).then(() => {
-          e.target.textContent = '✓';
-          setTimeout(() => { e.target.textContent = '📋'; }, 1200);
-        });
-        return;
-      }
+    const checkEl = row.querySelector('.tp-check');
+    checkEl.addEventListener('click', (e) => {
+      e.stopPropagation();
       todayTasks[i].done = !todayTasks[i].done;
       sortTasksByPriority();
       saveTodayData();
@@ -1713,6 +1763,34 @@ function renderTodayPanel() {
         selAg(ag.id);
       }
     });
+
+    const contentEl = row.querySelector('.tp-task-content');
+    contentEl.addEventListener('click', (e) => {
+      if(e.target.classList.contains('tp-detail-btn')) {
+        e.stopPropagation();
+        openTaskDetail(t);
+        return;
+      }
+      if(e.target.classList.contains('tp-copy-btn')) {
+        e.stopPropagation();
+        navigator.clipboard.writeText(t.text).then(() => {
+          e.target.textContent = '✓ コピー済';
+          setTimeout(() => { e.target.textContent = '📋 コピー'; }, 1200);
+        });
+        return;
+      }
+      if(e.target.classList.contains('tp-del-btn')) {
+        e.stopPropagation();
+        if(confirm('このタスクを削除しますか？\n\n「' + t.text.substring(0,40) + (t.text.length>40?'...':'') + '」')) {
+          todayTasks.splice(i, 1);
+          saveTodayData();
+          renderTodayPanel();
+          updateFloatBadge();
+        }
+        return;
+      }
+    });
+
     div.appendChild(row);
     tasksEl.appendChild(div);
   });
@@ -1788,6 +1866,15 @@ document.addEventListener('click', function(e) {
 });
 
 // アクション確認モーダルは外側クリックでは閉じない（誤操作防止のため明示的なボタン操作のみ）
+
+// タスク詳細モーダルは外側クリックで閉じる
+document.addEventListener('click', function(e) {
+  const modal = g('task-detail-modal');
+  if(!modal || !modal.classList.contains('on')) return;
+  if(e.target === modal) {
+    modal.classList.remove('on');
+  }
+});
 
 function addNoteLog() {
   const title = prompt('記事タイトルを入力してください：');
@@ -2440,6 +2527,134 @@ function updateTaskBar() {
   from.textContent = a.taskFrom || '';
 }
 
+let currentTaskDetailText = '';
+
+async function openTaskDetail(task) {
+  const modal = g('task-detail-modal');
+  const titleEl = g('td-title');
+  const bodyEl = g('td-body');
+  if(!modal) return;
+
+  titleEl.textContent = task.text;
+  bodyEl.innerHTML = '<div class="td-loading"><div class="td-spinner"></div>マスクが手順を考えています…</div>';
+  currentTaskDetailText = '';
+  modal.classList.add('on');
+
+  const apiKey = g('api-key').value.trim();
+  if(!apiKey) {
+    bodyEl.innerHTML = '<div class="td-content">🔑 APIキーが未設定です。⚙ 設定画面でAPIキーを入力すると、マスクが具体的な進め方を説明します。</div>';
+    return;
+  }
+
+  const ceoAg = AG.find(a => a.id === 'coo');
+  const prompt = '以下のタスクについて、恭介さんに向けて「なぜこれが必要か」「具体的にどう進めればよいか」を第一原理思考で簡潔に説明してください。手順がある場合は番号付きで。\n\nタスク：' + task.text + (task.priority ? '\n優先度：' + task.priority : '');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 800,
+        system: ceoAg.pr,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    if(data.error) {
+      bodyEl.innerHTML = '<div class="td-content">APIエラー: ' + data.error.message + '</div>';
+      return;
+    }
+    const rep = data.content?.map(b => b.text || '').join('') || '回答が空でした。';
+    currentTaskDetailText = rep;
+    bodyEl.innerHTML = '<div class="td-content"></div>';
+    bodyEl.querySelector('.td-content').textContent = rep;
+  } catch(e) {
+    bodyEl.innerHTML = '<div class="td-content">通信エラー: ' + e.message + '</div>';
+  }
+}
+
+function closeTaskDetail() {
+  const modal = g('task-detail-modal');
+  if(modal) modal.classList.remove('on');
+}
+
+function copyTaskDetail() {
+  if(!currentTaskDetailText) return;
+  navigator.clipboard.writeText(currentTaskDetailText).then(() => {
+    const btn = document.querySelector('.td-copy-btn');
+    if(btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ コピーしました';
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    }
+  });
+}
+
+// ══════════════════════════════════════
+// チャット内ジャンプナビゲーション
+// ══════════════════════════════════════
+let currentJumpIndex = -1;
+
+function getUserMsgEls() {
+  return Array.from(g('chat').querySelectorAll('[data-user-msg="1"]'));
+}
+
+function jumpToMsg(direction) {
+  const msgs = getUserMsgEls();
+  if(msgs.length === 0) return;
+
+  const chatEl = g('chat');
+  const chatTop = chatEl.scrollTop;
+
+  if(currentJumpIndex === -1) {
+    // 初回：現在の表示位置に最も近いメッセージを探す
+    let closestIdx = 0;
+    let closestDist = Infinity;
+    msgs.forEach((el, i) => {
+      const dist = Math.abs(el.offsetTop - chatTop);
+      if(dist < closestDist) { closestDist = dist; closestIdx = i; }
+    });
+    currentJumpIndex = closestIdx;
+  }
+
+  if(direction === 'up') {
+    currentJumpIndex = Math.max(0, currentJumpIndex - 1);
+  } else {
+    currentJumpIndex = Math.min(msgs.length - 1, currentJumpIndex + 1);
+  }
+
+  const target = msgs[currentJumpIndex];
+  if(target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const bub = target.querySelector('.bub');
+    if(bub) {
+      bub.classList.remove('jump-highlight');
+      void bub.offsetWidth; // reflow
+      bub.classList.add('jump-highlight');
+    }
+  }
+  updateJumpButtons();
+}
+
+function updateJumpButtons() {
+  const msgs = getUserMsgEls();
+  const upBtn = g('jump-up');
+  const downBtn = g('jump-down');
+  if(!upBtn || !downBtn) return;
+  upBtn.disabled = msgs.length === 0 || currentJumpIndex <= 0;
+  downBtn.disabled = msgs.length === 0 || currentJumpIndex >= msgs.length - 1;
+}
+
+function resetJumpIndex() {
+  currentJumpIndex = -1;
+}
+
 function openSettings() {
   g('settings-modal').classList.add('on');
 }
@@ -2552,6 +2767,11 @@ function init(){
   if(gu) gu.addEventListener('change', saveToLS);
   const pb = g('pipe-btn');
   if(pb) pb.addEventListener('click', openPipeline);
+  const jUp = g('jump-up');
+  const jDown = g('jump-down');
+  if(jUp) jUp.addEventListener('click', () => jumpToMsg('up'));
+  if(jDown) jDown.addEventListener('click', () => jumpToMsg('down'));
+  updateJumpButtons();
 }
 init();
 </script>
