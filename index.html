@@ -301,6 +301,11 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .tp-task-ag{font-size:9px;font-weight:700;margin-top:2px}
 .tp-task.from-ceo{background:rgba(223,255,79,.04);border-left:2px solid var(--acc);padding-left:6px;margin-left:-8px}
 .tp-task-ceo-badge{font-size:8px;color:var(--acc);font-weight:700;background:rgba(223,255,79,.12);border-radius:3px;padding:1px 5px;margin-left:4px}
+.tp-task-time{font-size:9px;color:var(--txt3);margin-top:2px}
+.tp-task-del{background:none;border:none;color:var(--txt3);font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
+.tp-task:hover .tp-task-del{opacity:1}
+.tp-task-del:hover{color:#f43f5e}
+.tp-task-row{display:flex;align-items:flex-start;gap:6px}
 @keyframes badgePop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 #float-badge.new{animation:badgePop .4s ease 2}
 
@@ -584,7 +589,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div id="hdr">
   <div class="logo">
     <div class="logo-dot"></div>
-    <span class="logo-txt">乗数ラボ — MISSION CONTROL</span>
+    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-2</span></span>
   </div>
   <div class="hdr-rev">
     <span class="rev-s">月商</span>
@@ -800,6 +805,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div class="tp-sec-title">NOTE 投稿ログ</div>
       <div id="tp-notelog"></div>
       <button class="tp-add-btn" onclick="addNoteLog()">＋ note投稿を記録する</button>
+      <button class="tp-add-btn" style="background:rgba(244,63,94,.06);border-color:rgba(244,63,94,.2);color:#f43f5e;margin-top:6px" onclick="clearCompletedTasks()">🗑 完了済みタスクを一括削除</button>
     </div>
     <div class="tp-sec">
       <div class="tp-sec-title">エージェント連携</div>
@@ -1670,17 +1676,19 @@ function loadTodayData() {
       const savedDate = parsed._date;
       const today = new Date().toDateString();
       if(savedDate !== today) {
-        todayTasks = DEFAULT_TASKS.map(t => ({...t, done:false}));
+        todayTasks = DEFAULT_TASKS.map(t => ({...t, done:false, createdAt: Date.now()}));
       } else {
-        todayTasks = parsed.tasks || DEFAULT_TASKS.map(t => ({...t}));
+        todayTasks = parsed.tasks || DEFAULT_TASKS.map(t => ({...t, createdAt: Date.now()}));
       }
     } else {
-      todayTasks = DEFAULT_TASKS.map(t => ({...t}));
+      todayTasks = DEFAULT_TASKS.map(t => ({...t, createdAt: Date.now()}));
     }
+    // 既存タスクにcreatedAtが無ければ補完（旧データ互換）
+    todayTasks.forEach(t => { if(!t.createdAt) t.createdAt = Date.now(); });
     const nl = localStorage.getItem(LS_NOTELOG);
     if(nl) noteLog = JSON.parse(nl);
   } catch(e) {
-    todayTasks = DEFAULT_TASKS.map(t => ({...t}));
+    todayTasks = DEFAULT_TASKS.map(t => ({...t, createdAt: Date.now()}));
   }
 }
 
@@ -1705,23 +1713,37 @@ function renderTodayPanel() {
     const div = document.createElement('div');
     div.className = 'tp-task' + (t.done ? ' done' : '') + (t.fromCEO ? ' from-ceo' : '');
     const ag = t.ag ? AG.find(a => a.id === t.ag) : null;
-    div.innerHTML = '<div class="tp-check"></div>'
+    const timeStr = t.createdAt ? new Date(t.createdAt).toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+
+    const row = document.createElement('div');
+    row.className = 'tp-task-row';
+    row.innerHTML = '<div class="tp-check"></div>'
       + '<div class="tp-task-body">'
       + '<div class="tp-task-txt">' + t.text + (t.fromCEO ? '<span class="tp-task-ceo-badge">マスクより</span>' : '') + '</div>'
       + (ag ? '<div class="tp-task-ag" style="color:'+ag.cl+'">→ '+ag.lb+'</div>' : '')
-      + '</div>';
-    div.addEventListener('click', () => {
+      + (timeStr ? '<div class="tp-task-time">追加：' + timeStr + '</div>' : '')
+      + '</div>'
+      + '<button class="tp-task-del" title="削除">✕</button>';
+
+    const checkAndBody = row.querySelector('.tp-check, .tp-task-body');
+    row.addEventListener('click', (e) => {
+      if(e.target.classList.contains('tp-task-del')) {
+        e.stopPropagation();
+        todayTasks.splice(i, 1);
+        saveTodayData();
+        renderTodayPanel();
+        updateFloatBadge();
+        return;
+      }
       todayTasks[i].done = !todayTasks[i].done;
       saveTodayData();
       renderTodayPanel();
       updateFloatBadge();
-      if(ag && !todayTasks[i].done === false) {
-        // Auto-switch to agent when task undone
-      }
       if(ag && todayTasks[i].done === false) {
         selAg(ag.id);
       }
     });
+    div.appendChild(row);
     tasksEl.appendChild(div);
   });
 
@@ -1742,6 +1764,19 @@ function renderTodayPanel() {
     });
   }
 
+  updateFloatBadge();
+}
+
+function clearCompletedTasks() {
+  const completedCount = todayTasks.filter(t => t.done).length;
+  if(completedCount === 0) {
+    alert('完了済みのタスクはありません。');
+    return;
+  }
+  if(!confirm('完了済みタスク（' + completedCount + '件）を削除しますか？')) return;
+  todayTasks = todayTasks.filter(t => !t.done);
+  saveTodayData();
+  renderTodayPanel();
   updateFloatBadge();
 }
 
@@ -2383,7 +2418,7 @@ function showActionConfirm(summary, actions) {
 function confirmAddActions() {
   pendingActions.forEach((actionText, i) => {
     const newId = 'ceo_action_' + Date.now() + '_' + i;
-    todayTasks.push({ id: newId, text: actionText, ag: '', done: false, fromCEO: true });
+    todayTasks.push({ id: newId, text: actionText, ag: '', done: false, fromCEO: true, createdAt: Date.now() });
   });
   saveTodayData();
   updateFloatBadge();
