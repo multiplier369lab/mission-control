@@ -122,6 +122,49 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .post-x-btn:hover{background:rgba(255,255,255,.08)}
 
 
+/* GOAL BAR */
+#goal-bar{
+  position:relative;display:flex;align-items:center;gap:10px;
+  padding:8px 20px;background:linear-gradient(90deg,rgba(223,255,79,.06),rgba(140,140,255,.04));
+  border-bottom:1px solid var(--brd);flex-shrink:0;
+}
+#goal-current{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+#goal-icon{font-size:13px;flex-shrink:0}
+#goal-text{font-size:12px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#goal-actions{display:flex;gap:6px;flex-shrink:0}
+#goal-actions button{
+  background:rgba(255,255,255,.05);border:1px solid var(--brd);
+  border-radius:6px;padding:4px 10px;font-size:10px;font-weight:700;
+  color:var(--txt2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;
+}
+#goal-actions button:hover{border-color:var(--acc);color:var(--acc)}
+#goal-switcher{
+  display:none;position:absolute;top:100%;left:20px;right:20px;
+  background:rgba(10,16,32,.98);border:1px solid var(--brd);
+  border-radius:12px;margin-top:6px;padding:8px;z-index:150;
+  box-shadow:0 16px 40px rgba(0,0,0,.5);max-height:280px;overflow-y:auto;
+}
+#goal-switcher.on{display:block}
+.goal-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  border-radius:8px;cursor:pointer;transition:background .15s;
+}
+.goal-item:hover{background:rgba(255,255,255,.05)}
+.goal-item.active{background:rgba(223,255,79,.08);border:1px solid rgba(223,255,79,.2)}
+.goal-item-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.goal-item-text{font-size:11px;color:var(--txt2);flex:1}
+.goal-item.active .goal-item-text{color:var(--txt);font-weight:700}
+.goal-item-meta{font-size:9px;color:var(--txt3);flex-shrink:0}
+.goal-item-del{background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer;padding:2px 4px;flex-shrink:0}
+.goal-item-del:hover{color:#f43f5e}
+
+/* GOAL TAG on tasks */
+.tp-task-goal{font-size:9px;color:var(--violet);margin-top:2px;display:flex;align-items:center;gap:3px}
+
+/* GOAL GROUP HEADER in task panel */
+.tp-goal-group{font-size:10px;font-weight:800;color:var(--violet);letter-spacing:.06em;padding:10px 4px 6px;border-top:1px solid var(--brd2,rgba(255,255,255,.05));margin-top:4px}
+.tp-goal-group:first-child{border-top:none;margin-top:0;padding-top:0}
+
 /* ── BODY ── */
 #body{flex:1;display:flex;overflow:hidden}
 
@@ -607,7 +650,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div id="hdr">
   <div class="logo">
     <div class="logo-dot"></div>
-    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-7</span></span>
+    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-8</span></span>
   </div>
   <div class="hdr-rev">
     <span class="rev-s">月商</span>
@@ -633,6 +676,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="ptab-r" id="p2r">0万</div>
   </div>
   <button id="settings-btn" onclick="openSettings()" title="設定（APIキー・GAS連携）">⚙</button>
+</div>
+
+<!-- GOAL BAR -->
+<div id="goal-bar">
+  <div id="goal-current">
+    <span id="goal-icon">🎯</span>
+    <span id="goal-text">目標が設定されていません</span>
+  </div>
+  <div id="goal-actions">
+    <button id="goal-switch-btn" onclick="toggleGoalSwitcher()" title="目標を切り替え">⇄ 切替</button>
+    <button id="goal-new-btn" onclick="openNewGoalPrompt()" title="新しい目標を追加">＋ 新規</button>
+  </div>
+  <div id="goal-switcher"></div>
 </div>
 
 <!-- BODY -->
@@ -1578,6 +1634,7 @@ async function send() {
       attachedFiles = [];
       renderFileChips();
       saveToLS();
+      detectOrUpdateGoal(userTxt, key);
       if(tasks.length > 0) {
         dispatchTasksFromCEO(tasks);
       }
@@ -1721,79 +1778,124 @@ function saveTodayData() {
   } catch(e) {}
 }
 
+function buildTaskRow(t, i) {
+  const div = document.createElement('div');
+  div.className = 'tp-task' + (t.done ? ' done' : '') + (t.fromCEO ? ' from-ceo' : '');
+  const ag = t.ag ? AG.find(a => a.id === t.ag) : null;
+  const goal = t.goalId ? goals.find(g2 => g2.id === t.goalId) : null;
+  const timeStr = t.createdAt ? new Date(t.createdAt).toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+
+  const priorityClass = t.priority === '高' ? 'high' : t.priority === '低' ? 'low' : 'mid';
+  const priorityBadge = t.priority ? '<span class="tp-priority ' + priorityClass + '">' + t.priority + '</span>' : '';
+
+  const row = document.createElement('div');
+  row.className = 'tp-task-row';
+  row.innerHTML = '<div class="tp-check"></div>'
+    + '<div class="tp-task-content">'
+    + '<div class="tp-task-txt">' + priorityBadge + ' ' + t.text + (t.fromCEO ? '<span class="tp-task-ceo-badge">マスクより</span>' : '') + '</div>'
+    + (ag ? '<div class="tp-task-ag" style="color:'+ag.cl+'">→ '+ag.lb+'</div>' : '')
+    + (goal ? '<div class="tp-task-goal" style="color:'+goal.color+'">🎯 '+goal.text+'</div>' : '')
+    + (timeStr ? '<div class="tp-task-time">追加：' + timeStr + '</div>' : '')
+    + '<div class="tp-task-actions">'
+    + '<button class="tp-task-action-btn tp-detail-btn">🧠 マスクに聞く</button>'
+    + '<button class="tp-task-action-btn tp-copy-btn">📋 コピー</button>'
+    + '<button class="tp-task-action-btn danger tp-del-btn">✕ 削除</button>'
+    + '</div>'
+    + '</div>';
+
+  const checkEl = row.querySelector('.tp-check');
+  checkEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    todayTasks[i].done = !todayTasks[i].done;
+    sortTasksByPriority();
+    saveTodayData();
+    renderTodayPanel();
+    updateFloatBadge();
+    if(ag && todayTasks[i].done === false) {
+      selAg(ag.id);
+    }
+  });
+
+  const contentEl = row.querySelector('.tp-task-content');
+  contentEl.addEventListener('click', (e) => {
+    if(e.target.classList.contains('tp-detail-btn')) {
+      e.stopPropagation();
+      openTaskDetail(t);
+      return;
+    }
+    if(e.target.classList.contains('tp-copy-btn')) {
+      e.stopPropagation();
+      navigator.clipboard.writeText(t.text).then(() => {
+        e.target.textContent = '✓ コピー済';
+        setTimeout(() => { e.target.textContent = '📋 コピー'; }, 1200);
+      });
+      return;
+    }
+    if(e.target.classList.contains('tp-del-btn')) {
+      e.stopPropagation();
+      if(confirm('このタスクを削除しますか？\n\n「' + t.text.substring(0,40) + (t.text.length>40?'...':'') + '」')) {
+        todayTasks.splice(i, 1);
+        saveTodayData();
+        renderTodayPanel();
+        updateFloatBadge();
+      }
+      return;
+    }
+  });
+
+  div.appendChild(row);
+  return div;
+}
+
 function renderTodayPanel() {
   const tasksEl = g('tp-tasks');
   const noteEl = g('tp-notelog');
   if(!tasksEl || !noteEl) return;
 
-  // Tasks
+  // Tasks - 目標ごとにグループ化して表示
   tasksEl.innerHTML = '';
-  todayTasks.forEach((t,i) => {
-    const div = document.createElement('div');
-    div.className = 'tp-task' + (t.done ? ' done' : '') + (t.fromCEO ? ' from-ceo' : '');
-    const ag = t.ag ? AG.find(a => a.id === t.ag) : null;
-    const timeStr = t.createdAt ? new Date(t.createdAt).toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
 
-    const priorityClass = t.priority === '高' ? 'high' : t.priority === '低' ? 'low' : 'mid';
-    const priorityBadge = t.priority ? '<span class="tp-priority ' + priorityClass + '">' + t.priority + '</span>' : '';
-
-    const row = document.createElement('div');
-    row.className = 'tp-task-row';
-    row.innerHTML = '<div class="tp-check"></div>'
-      + '<div class="tp-task-content">'
-      + '<div class="tp-task-txt">' + priorityBadge + ' ' + t.text + (t.fromCEO ? '<span class="tp-task-ceo-badge">マスクより</span>' : '') + '</div>'
-      + (ag ? '<div class="tp-task-ag" style="color:'+ag.cl+'">→ '+ag.lb+'</div>' : '')
-      + (timeStr ? '<div class="tp-task-time">追加：' + timeStr + '</div>' : '')
-      + '<div class="tp-task-actions">'
-      + '<button class="tp-task-action-btn tp-detail-btn">🧠 マスクに聞く</button>'
-      + '<button class="tp-task-action-btn tp-copy-btn">📋 コピー</button>'
-      + '<button class="tp-task-action-btn danger tp-del-btn">✕ 削除</button>'
-      + '</div>'
-      + '</div>';
-
-    const checkEl = row.querySelector('.tp-check');
-    checkEl.addEventListener('click', (e) => {
-      e.stopPropagation();
-      todayTasks[i].done = !todayTasks[i].done;
-      sortTasksByPriority();
-      saveTodayData();
-      renderTodayPanel();
-      updateFloatBadge();
-      if(ag && todayTasks[i].done === false) {
-        selAg(ag.id);
-      }
-    });
-
-    const contentEl = row.querySelector('.tp-task-content');
-    contentEl.addEventListener('click', (e) => {
-      if(e.target.classList.contains('tp-detail-btn')) {
-        e.stopPropagation();
-        openTaskDetail(t);
-        return;
-      }
-      if(e.target.classList.contains('tp-copy-btn')) {
-        e.stopPropagation();
-        navigator.clipboard.writeText(t.text).then(() => {
-          e.target.textContent = '✓ コピー済';
-          setTimeout(() => { e.target.textContent = '📋 コピー'; }, 1200);
-        });
-        return;
-      }
-      if(e.target.classList.contains('tp-del-btn')) {
-        e.stopPropagation();
-        if(confirm('このタスクを削除しますか？\n\n「' + t.text.substring(0,40) + (t.text.length>40?'...':'') + '」')) {
-          todayTasks.splice(i, 1);
-          saveTodayData();
-          renderTodayPanel();
-          updateFloatBadge();
-        }
-        return;
-      }
-    });
-
-    div.appendChild(row);
-    tasksEl.appendChild(div);
+  const grouped = {};
+  const noGoalTasks = [];
+  todayTasks.forEach((t, i) => {
+    if(t.goalId && goals.find(g2 => g2.id === t.goalId)) {
+      if(!grouped[t.goalId]) grouped[t.goalId] = [];
+      grouped[t.goalId].push({ t, i });
+    } else {
+      noGoalTasks.push({ t, i });
+    }
   });
+
+  // アクティブな目標を先頭に、それ以外は目標の新しい順
+  const goalIdsInUse = Object.keys(grouped);
+  goalIdsInUse.sort((a, b) => {
+    if(a === activeGoalId) return -1;
+    if(b === activeGoalId) return 1;
+    const ga = goals.find(g2 => g2.id === a);
+    const gb = goals.find(g2 => g2.id === b);
+    return (gb ? gb.createdAt : 0) - (ga ? ga.createdAt : 0);
+  });
+
+  goalIdsInUse.forEach(goalId => {
+    const goal = goals.find(g2 => g2.id === goalId);
+    if(!goal) return;
+    const header = document.createElement('div');
+    header.className = 'tp-goal-group';
+    header.style.color = goal.color;
+    header.textContent = '🎯 ' + goal.text;
+    tasksEl.appendChild(header);
+    grouped[goalId].forEach(({t,i}) => tasksEl.appendChild(buildTaskRow(t, i)));
+  });
+
+  if(noGoalTasks.length > 0) {
+    if(goalIdsInUse.length > 0) {
+      const header = document.createElement('div');
+      header.className = 'tp-goal-group';
+      header.textContent = 'その他';
+      tasksEl.appendChild(header);
+    }
+    noGoalTasks.forEach(({t,i}) => tasksEl.appendChild(buildTaskRow(t, i)));
+  }
 
   // Note log
   noteEl.innerHTML = '';
@@ -1874,6 +1976,15 @@ document.addEventListener('click', function(e) {
   if(e.target === modal) {
     modal.classList.remove('on');
   }
+});
+
+// 目標切替メニューは外側クリックで閉じる
+document.addEventListener('click', function(e) {
+  const sw = g('goal-switcher');
+  const bar = g('goal-bar');
+  if(!sw || !sw.classList.contains('on')) return;
+  if(bar && bar.contains(e.target)) return;
+  sw.classList.remove('on');
 });
 
 function addNoteLog() {
@@ -2482,7 +2593,7 @@ function addActionsToTodayPanel(actions, summary) {
     const newId = 'ceo_action_' + Date.now() + '_' + i;
     const text = typeof a === 'string' ? a : a.text;
     const priority = typeof a === 'string' ? '中' : (a.priority || '中');
-    todayTasks.push({ id: newId, text: text, priority: priority, ag: '', done: false, fromCEO: true, createdAt: Date.now() });
+    todayTasks.push({ id: newId, text: text, priority: priority, ag: '', done: false, fromCEO: true, createdAt: Date.now(), goalId: activeGoalId });
   });
 
   sortTasksByPriority();
@@ -2528,6 +2639,169 @@ function updateTaskBar() {
 }
 
 let currentTaskDetailText = '';
+
+async // ══════════════════════════════════════
+// 目標（GOALS）管理
+// ══════════════════════════════════════
+const LS_GOALS = 'josulab_goals_v1';
+const GOAL_COLORS = ['#dfff4f','#8c8cff','#ff5ea8','#3ddc91','#ff9b54','#56d8ff'];
+let goals = [];
+let activeGoalId = null;
+
+function loadGoals() {
+  try {
+    const raw = localStorage.getItem(LS_GOALS);
+    if(raw) {
+      const data = JSON.parse(raw);
+      goals = data.goals || [];
+      activeGoalId = data.activeGoalId || (goals[0] ? goals[0].id : null);
+    }
+  } catch(e) { goals = []; activeGoalId = null; }
+  renderGoalBar();
+}
+
+function saveGoals() {
+  try { localStorage.setItem(LS_GOALS, JSON.stringify({ goals, activeGoalId })); } catch(e) {}
+}
+
+function createGoal(text) {
+  const newGoal = {
+    id: 'goal_' + Date.now(),
+    text: text,
+    color: GOAL_COLORS[goals.length % GOAL_COLORS.length],
+    createdAt: Date.now()
+  };
+  goals.push(newGoal);
+  activeGoalId = newGoal.id;
+  saveGoals();
+  renderGoalBar();
+  return newGoal;
+}
+
+function getActiveGoal() {
+  return goals.find(g2 => g2.id === activeGoalId) || null;
+}
+
+function setActiveGoal(goalId) {
+  activeGoalId = goalId;
+  saveGoals();
+  renderGoalBar();
+  closeGoalSwitcher();
+}
+
+function deleteGoal(goalId, e) {
+  if(e) e.stopPropagation();
+  if(!confirm('この目標を削除しますか？\n紐づくタスクの目標表示は外れます（タスク自体は残ります）。')) return;
+  goals = goals.filter(g2 => g2.id !== goalId);
+  if(activeGoalId === goalId) {
+    activeGoalId = goals.length > 0 ? goals[0].id : null;
+  }
+  saveGoals();
+  renderGoalBar();
+  renderGoalSwitcherList();
+}
+
+function renderGoalBar() {
+  const iconEl = g('goal-icon');
+  const textEl = g('goal-text');
+  if(!textEl) return;
+  const active = getActiveGoal();
+  if(active) {
+    textEl.textContent = active.text;
+    textEl.style.color = 'var(--txt)';
+    if(iconEl) iconEl.style.color = active.color;
+  } else {
+    textEl.textContent = '目標が設定されていません（マスクに方針を伝えると自動で設定されます）';
+    textEl.style.color = 'var(--txt3)';
+  }
+}
+
+function toggleGoalSwitcher() {
+  const sw = g('goal-switcher');
+  if(!sw) return;
+  sw.classList.toggle('on');
+  if(sw.classList.contains('on')) renderGoalSwitcherList();
+}
+
+function closeGoalSwitcher() {
+  const sw = g('goal-switcher');
+  if(sw) sw.classList.remove('on');
+}
+
+function renderGoalSwitcherList() {
+  const sw = g('goal-switcher');
+  if(!sw) return;
+  if(goals.length === 0) {
+    sw.innerHTML = '<div style="font-size:11px;color:var(--txt3);padding:10px">まだ目標がありません。「＋ 新規」から追加するか、マスクに方針を伝えてください。</div>';
+    return;
+  }
+  sw.innerHTML = '';
+  goals.slice().reverse().forEach(g2 => {
+    const div = document.createElement('div');
+    div.className = 'goal-item' + (g2.id === activeGoalId ? ' active' : '');
+    const taskCount = todayTasks.filter(t => t.goalId === g2.id).length;
+    div.innerHTML = '<div class="goal-item-dot" style="background:'+g2.color+'"></div>'
+      + '<div class="goal-item-text">'+g2.text+'</div>'
+      + '<div class="goal-item-meta">'+taskCount+'件</div>'
+      + '<button class="goal-item-del">✕</button>';
+    div.addEventListener('click', (e) => {
+      if(e.target.classList.contains('goal-item-del')) {
+        deleteGoal(g2.id, e);
+        return;
+      }
+      setActiveGoal(g2.id);
+    });
+    sw.appendChild(div);
+  });
+}
+
+function openNewGoalPrompt() {
+  const text = prompt('新しい目標を入力してください：\n（例：note収益を月20万にする / 受託案件を3件獲得する）');
+  if(!text || !text.trim()) return;
+  createGoal(text.trim());
+  closeGoalSwitcher();
+}
+
+// マスクへの最初の指示から目標を自動検出・更新するか判定
+async function detectOrUpdateGoal(userMessage, apiKey) {
+  if(!apiKey) return;
+
+  const existingGoalsText = goals.length > 0
+    ? goals.map((g2,i) => (i+1)+'. '+g2.text + (g2.id===activeGoalId?'（現在アクティブ）':'')).join('\n')
+    : '（まだ目標は設定されていません）';
+
+  const GOAL_TOOL = {
+    name: 'judge_goal',
+    description: 'ユーザーの発言が新しい目標か、既存目標の継続かを判定する',
+    input_schema: {
+      type: 'object',
+      properties: {
+        is_new_goal: { type: 'boolean', description: 'これは新しい目標を表す発言か（単なる雑談・質問・既存目標の延長作業ならfalse）' },
+        goal_text: { type: 'string', description: '新しい目標の場合、簡潔な目標文（15文字程度）。新しい目標でない場合は空文字' },
+        matched_existing_goal_index: { type: 'number', description: '既存目標のいずれかに合致する場合、その番号（1始まり）。合致しなければ0' }
+      },
+      required: ['is_new_goal', 'goal_text', 'matched_existing_goal_index']
+    }
+  };
+
+  const judgePrompt = '恭介さんの発言：「' + userMessage + '」\n\n' +
+    '現在設定されている目標一覧：\n' + existingGoalsText + '\n\n' +
+    'この発言は、新しい独立した目標を表していますか？それとも既存目標のいずれかの続き・延長作業ですか？判定してください。';
+
+  try {
+    const ceoAg = AG.find(a => a.id === 'coo');
+    const result = await callClaudeTool(ceoAg.pr, judgePrompt, apiKey, GOAL_TOOL);
+    if(result.is_new_goal && result.goal_text) {
+      createGoal(result.goal_text);
+    } else if(result.matched_existing_goal_index > 0 && goals[result.matched_existing_goal_index - 1]) {
+      activeGoalId = goals[result.matched_existing_goal_index - 1].id;
+      saveGoals();
+      renderGoalBar();
+    }
+  } catch(e) {
+    console.error('Goal detection error:', e);
+  }
+}
 
 async function openTaskDetail(task) {
   const modal = g('task-detail-modal');
@@ -2750,6 +3024,7 @@ function init(){
   loadTodayData();
   loadImproveLog();
   loadQkStats();
+  loadGoals();
   buildSpine(); upHdr(); buildSb(); selAg('coo'); upSpine(); updateTaskBar();
   updateFloatBadge();
   g('snd').addEventListener('click', send);
