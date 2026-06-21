@@ -65,6 +65,50 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .ptab-r{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--txt3)}
 .ptab.on .ptab-r{color:var(--acc)}
 
+#settings-btn{
+  background:rgba(255,255,255,.04);border:none;border-left:1px solid var(--brd);
+  color:var(--txt3);font-size:15px;padding:0 16px;cursor:pointer;
+  transition:all .15s;flex-shrink:0;
+}
+#settings-btn:hover{background:rgba(255,255,255,.08);color:var(--acc)}
+
+/* SETTINGS MODAL */
+#settings-modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:300;align-items:center;justify-content:center;padding:20px;
+}
+#settings-modal.on{display:flex}
+.settings-box{
+  background:rgba(10,16,32,.98);border:1px solid var(--brd);
+  border-radius:18px;padding:0;width:100%;max-width:480px;
+  max-height:85vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,.5);overflow:hidden;
+}
+.settings-hdr{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.settings-hdr h3{font-size:14px;font-weight:800;color:var(--acc)}
+.settings-close{background:none;border:none;color:var(--txt3);font-size:18px;cursor:pointer}
+.settings-body{padding:18px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px}
+.settings-sec{display:flex;flex-direction:column;gap:7px}
+.settings-sec label{font-size:11px;font-weight:700;color:var(--txt2)}
+.settings-sec input{
+  width:100%;background:rgba(0,0,0,.3);border:1px solid var(--brd);
+  border-radius:8px;padding:9px 12px;color:var(--txt);font-size:12px;
+  font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .15s;
+}
+.settings-sec input:focus{border-color:var(--acc)}
+.settings-hint{font-size:10px;color:var(--txt3)}
+.settings-row-btns{display:flex;align-items:center;gap:10px}
+#gas-fetch-btn{background:rgba(61,220,145,.12);border:1px solid rgba(61,220,145,.25);border-radius:6px;padding:6px 14px;font-size:11px;color:var(--green);cursor:pointer;font-family:inherit}
+#gas-status{font-size:10px;color:var(--txt3)}
+.settings-wide-btn{
+  width:100%;background:rgba(223,255,79,.1);border:1px solid rgba(223,255,79,.2);
+  border-radius:8px;padding:10px;font-size:12px;font-weight:700;color:var(--acc);
+  cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.settings-wide-btn:hover{background:rgba(223,255,79,.18)}
+.settings-danger{background:rgba(244,63,94,.08);border-color:rgba(244,63,94,.2);color:#f43f5e}
+.settings-danger:hover{background:rgba(244,63,94,.15)}
+
 /* ── BODY ── */
 #body{flex:1;display:flex;overflow:hidden}
 
@@ -351,6 +395,25 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .pipe-spinner{display:inline-block;width:10px;height:10px;border:1.5px solid rgba(56,189,248,.3);border-top-color:#38bdf8;border-radius:50%;animation:pipeSpin .7s linear infinite;flex-shrink:0}
 @keyframes pipeSpin{to{transform:rotate(360deg)}}
 
+/* CURRENT TASK DISPLAY */
+#ag-task-bar{display:none;align-items:center;gap:8px;padding:7px 18px;border-bottom:1px solid var(--brd);flex-shrink:0}
+#ag-task-bar.on{display:flex}
+.task-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.task-status-dot.running{background:#38bdf8;box-shadow:0 0 8px #38bdf8;animation:pipePulse 1.2s ease-in-out infinite}
+.task-status-dot.done{background:#22c55e}
+.task-status-dot.idle{background:var(--txt3)}
+#ag-task-text{font-size:11px;color:var(--txt2);flex:1}
+#ag-task-text b{color:var(--txt);font-weight:700}
+#ag-task-from{font-size:9px;color:var(--txt3)}
+
+/* CEO DISPATCH NOTICE */
+.dispatch-notice{
+  background:rgba(223,255,79,.06);border:1px solid rgba(223,255,79,.18);
+  border-radius:8px;padding:8px 12px;margin-bottom:8px;
+  font-size:10px;color:var(--acc);display:flex;align-items:center;gap:6px;
+}
+.dispatch-notice .dn-icon{font-size:12px}
+
 /* FILE ATTACHMENT */
 #file-area{padding:6px 14px;border-bottom:1px solid var(--brd);flex-shrink:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:0}
 #file-area.has-file{background:rgba(223,255,79,.04);border-bottom-color:rgba(223,255,79,.15)}
@@ -502,6 +565,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="ptab-l"><div class="ptab-n">PILLAR 03</div><div class="ptab-t">note × デジタル販売</div></div>
     <div class="ptab-r" id="p2r">0万</div>
   </div>
+  <button id="settings-btn" onclick="openSettings()" title="設定（APIキー・GAS連携）">⚙</button>
 </div>
 
 <!-- BODY -->
@@ -530,7 +594,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div id="agent-view">
       <div id="coo-bn">
         <div class="coo-dot"></div>
-        <div><div class="coo-t">統括AI（COO）モード</div><div class="coo-s">全7部署を横断管理</div></div>
+        <div><div class="coo-t">統括AI（CEO）マスク モード</div><div class="coo-s">方針を伝えると各エージェントへ自動でタスクを振り分けます</div></div>
       </div>
       <div id="ag-hdr">
         <div id="ag-hdr-row">
@@ -547,24 +611,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         </div>
         <div id="ag-kbar"><div id="ag-kfill"></div></div>
       </div>
-      <div id="qk"></div>
-      <div id="api-bar">
-        <label>🔑 API Key</label>
-        <input id="api-key" type="password" placeholder="sk-ant-..." onchange="saveToLS()">
-        <span id="api-note">ブラウザのみ・外部送信なし</span>
+      <div id="ag-task-bar">
+        <div class="task-status-dot idle" id="ag-task-dot"></div>
+        <div id="ag-task-text">待機中</div>
+        <div id="ag-task-from"></div>
       </div>
-      <div id="gas-bar">
-        <label>⚡ GAS URL</label>
-        <input id="gas-url" type="text" placeholder="https://script.google.com/macros/s/..." onchange="saveToLS()">
-        <button onclick="startGASPolling()" id="gas-fetch-btn">同期</button>
-        <span id="gas-status">未接続</span>
-        <button onclick="showKPIEditor()" id="kpi-edit-btn">📊 KPI更新</button>
-        <button onclick="resetLS()" id="reset-btn">リセット</button>
-      </div>
-      <div id="kpi-editor" style="display:none">
-        <div id="kpi-editor-inner"></div>
-        <button onclick="g('kpi-editor').style.display='none'">閉じる</button>
-      </div>
+      <!-- qk div removed -->
       <div id="file-area">
         <label id="file-label" for="file-input">📎 ファイルを添付</label>
         <input id="file-input" type="file" accept=".pdf,.txt,.md,.csv,image/*" multiple>
@@ -712,6 +764,42 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
 </div>
 
+<!-- SETTINGS MODAL -->
+<div id="settings-modal">
+  <div class="settings-box">
+    <div class="settings-hdr">
+      <h3>⚙ 設定</h3>
+      <button class="settings-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-sec">
+        <label>🔑 Anthropic API Key</label>
+        <input id="api-key" type="password" placeholder="sk-ant-..." onchange="saveToLS()">
+        <span class="settings-hint" id="api-note">ブラウザのみ保存・外部送信なし</span>
+      </div>
+      <div class="settings-sec">
+        <label>⚡ GAS URL（スプレッドシート連携）</label>
+        <input id="gas-url" type="text" placeholder="https://script.google.com/macros/s/..." onchange="saveToLS()">
+        <div class="settings-row-btns">
+          <button onclick="startGASPolling()" id="gas-fetch-btn">同期する</button>
+          <span id="gas-status">未接続</span>
+        </div>
+      </div>
+      <div class="settings-sec">
+        <label>📊 KPI手動更新</label>
+        <button onclick="showKPIEditor()" id="kpi-edit-btn" class="settings-wide-btn">KPIエディタを開く</button>
+        <div id="kpi-editor" style="display:none">
+          <div id="kpi-editor-inner"></div>
+        </div>
+      </div>
+      <div class="settings-sec">
+        <label>⚠ データリセット</label>
+        <button onclick="resetLS()" id="reset-btn" class="settings-wide-btn settings-danger">全データをリセット</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- IMPROVEMENT LOG MODAL -->
 <div id="improve-modal">
   <div class="improve-box">
@@ -763,7 +851,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 const AG = [
   {id:"coo",persona:"マスク",lb:"統括AI",nm:"統括AI（CEO）マスク",ic:"◉",cl:"#dfff4f",pl:-1,dp:"統括部",ms:"第一原理思考で恭介さんの方針を分解し、各エージェントに大胆かつ高速に実行指示を出す実行指揮官",kl:"月商達成率",ku:"%",kc:0,kt:100,rc:0,rt:0,
    qk:["この方針を各部署のタスクに分解して","note公開フローを今すぐ開始して","今のボトルネックは何？","10倍の成果を出すには？"],
-   pr:"あなたの名前は「マスク」、乗数ラボのAI CEOです。著名起業家イーロン・マスク氏の経営哲学・思考スタイルを参照してください（本人ではなくスタイルの参照）。特徴：①第一原理思考＝『なぜそうなのか』を根本から問い直し、慣習を疑う②スピード最優先＝完璧な計画より高速な実行と修正を重視③大胆な目標設定＝現実的な数値より『10倍を狙えるか』を問う④ボトルネック特定＝『今いちばんの制約は何か』を常に問う⑤直接的で簡潔な物言い＝遠回しな表現を避け、率直に結論から話す。恭介さんは経営者として大方針だけを伝えます。あなたの役割は『調整』ではなく『実行指揮』。方針を受け取ったら①根本課題を一言で特定②どのエージェントが何をすべきか分解③実行順序④恭介さんの代わりに各エージェントへの指示文を書く、という4ステップで回答してください。16エージェント：統括マスク・SEOサーチ・SNSソーシャル・コンテンツエディ・デザインアート・受託セールス・ECストア・運用オプス・経理マネー・NFTクリプト・マーケリサーチ・コピーワード・画像ビジュアル・スケジュールカレンダー・分析データ・CSリセプション。3本柱：①AIエージェント受託（月500万）②Obélisqueデザイン×AI（月300万）③note×デジタル販売（月200万）。月商目標1,000万円。箇条書きで300〜400字、率直に。"},
+   pr:"あなたの名前は「マスク」、乗数ラボのAI CEOです。著名起業家イーロン・マスク氏の経営哲学・思考スタイルを参照してください（本人ではなくスタイルの参照）。特徴：①第一原理思考＝『なぜそうなのか』を根本から問い直し、慣習を疑う②スピード最優先＝完璧な計画より高速な実行と修正を重視③大胆な目標設定＝現実的な数値より『10倍を狙えるか』を問う④ボトルネック特定＝『今いちばんの制約は何か』を常に問う⑤直接的で簡潔な物言い＝遠回しな表現を避け、率直に結論から話す。恭介さんは経営者として大方針だけを伝えます。あなたの役割は『調整』ではなく『実行指揮』。\n\n16エージェントID一覧（指示送信に使う）：seo, sns, content, design, biz, ec, ops, fin, nft, inbound, mkt, copy, img, sched, anal\n\n【重要】恭介さんの方針を受け取ったら、必ず以下を行ってください：\n1. 根本課題を一言で特定\n2. 実行すべきエージェントへの具体的タスクを以下の形式で必ず出力する（1〜4個程度）：\n【TASK:agent_id】そのエージェントへの具体的な指示文\n例：\n【TASK:mkt】今週のnoteで売れるテーマを3つ提案して\n【TASK:content】「ChatGPT営業活用」をテーマにnote記事を書いて\n3. 各TASKタグの後に、簡潔な状況説明を箇条書きで添える\n\nTASKタグは必ず行頭に配置し、agent_idは上記一覧の中から実在するものだけを使ってください。300〜500字、率直に。"},
   {id:"seo",persona:"サーチ",lb:"SEO-AI",nm:"SEOエージェント",ic:"✦",cl:"#8c8cff",pl:0,dp:"集客部",ms:"Obélisqueサイト・note・X発信で受託の見込み客を集める",kl:"月間流入",ku:"PV",kc:0,kt:10000,rc:0,rt:0,
    qk:["今週書くべきテーマ","受託獲得に効くキーワード","サイト改善点","差別化コンテンツ案"],
    pr:"あなたの名前は「サーチ」、乗数ラボのSEO担当です。AIエージェント受託・デザイン×AI・noteの見込み客をSEOで集めます。X・note・Obélisqueサイトへの流入施策を具体的に300字以内で。"},
@@ -813,6 +901,18 @@ const AG = [
 
 // DEMOSは廃止 - APIキーが必須
 const DEMOS = {};
+
+// ══════════════════════════════════════
+// AGENT TASK STATE（稼働進捗トラッキング）
+// ══════════════════════════════════════
+// 各エージェントの稼働状態: idle(待機) / running(実行中) / done(完了)
+AG.forEach(a => {
+  a.taskStatus = 'idle';
+  a.currentTask = '';
+  a.taskFrom = '';
+  a.tasksCompleted = 0;
+  a.tasksTotal = 0;
+});
 
 const GENRES = [
   {rank:1,nm:"テクノロジー・AI活用",g:"+268%",p:"3,000〜19,800円",cl:"#8c8cff",tags:["最注目","競合少"],m:95,b:100},
@@ -1066,7 +1166,7 @@ function buildSb() {
     const sec = document.createElement('div');
     sec.className='sb-sec'; sec.textContent=dp; list.appendChild(sec);
     ags.forEach(a => {
-      const rp = a.rt>0 ? pct(a.rc,a.rt) : 0;
+      const rp = a.tasksTotal>0 ? pct(a.tasksCompleted,a.tasksTotal) : (a.rt>0 ? pct(a.rc,a.rt) : 0);
       const isA = a.id===aid && curPillar!==2;
       const div = document.createElement('div');
       div.className = 'ag' + (isA?' on':'');
@@ -1078,9 +1178,9 @@ function buildSb() {
         + '<div class="ag-lb" style="color:'+(isA?'var(--txt)':'var(--txt2)')+'">'+a.lb+(a.persona?' <span style="color:'+a.cl+';font-weight:400;font-size:9px">('+a.persona+')</span>':'')+'</div>'
         + '<div class="ag-rv">'+(a.rc>0?fmt(a.rc)+'万':'—')+'</div>'
         + '</div>'
-        + (a.rt>0?'<div class="ag-ring" style="border-color:'+(isA?a.cl:'rgba(255,255,255,.12)')+';color:'+(isA?a.cl:'var(--txt3)')+'">'+Math.round(rp*100)+'%</div>':'')
+        + ((a.rt>0||a.tasksTotal>0)?'<div class="ag-ring" style="border-color:'+(isA?a.cl:'rgba(255,255,255,.12)')+';color:'+(isA?a.cl:'var(--txt3)')+'">'+Math.round(rp*100)+'%</div>':'')
         + '</div>'
-        + (a.rt>0?'<div class="ag-bar"><div class="ag-bar-fill" style="width:'+(rp*100)+'%;background:'+a.cl+'"></div></div>':'');
+        + ((a.rt>0||a.tasksTotal>0)?'<div class="ag-bar"><div class="ag-bar-fill" style="width:'+(rp*100)+'%;background:'+a.cl+'"></div></div>':'');
       div.addEventListener('click', (function(agent){
         return function(){
           if(agent.pl===2){ selPillar(2); return; }
@@ -1132,16 +1232,7 @@ function upAgHdr() {
 // ══════════════════════════════════════
 // QUICK COMMANDS
 // ══════════════════════════════════════
-function buildQk() {
-  const a=cur(); const w=g('qk'); w.innerHTML='';
-  a.qk.forEach(cmd=>{
-    const b=document.createElement('button'); b.className='qb'; b.textContent=cmd;
-    b.addEventListener('click',()=>{g('msg-in').value=cmd; trackQkUsage(a.id, cmd); send();});
-    b.addEventListener('mouseenter',()=>{b.style.borderColor=a.cl;b.style.color=a.cl;});
-    b.addEventListener('mouseleave',()=>{b.style.borderColor='var(--brd)';b.style.color='var(--txt3)';});
-    w.appendChild(b);
-  });
-}
+// buildQk: クイックコマンドは廃止（CEO自動指示に統合）
 
 // ══════════════════════════════════════
 // CHAT
@@ -1318,12 +1409,27 @@ async function send() {
       attachedFiles = []; renderFileChips(); return;
     }
     const rep = data.content?.map(b => b.text || '').join('') || 'レスポンスが空です。';
-    hist[a.id].push({r:'assistant', c:rep});
-    styp(false);
-    bubble('assistant', rep);
-    attachedFiles = [];
-    renderFileChips();
-    saveToLS();
+
+    if(a.id === 'coo') {
+      const tasks = parseTasksFromCEO(rep);
+      const displayText = tasks.length > 0 ? stripTaskTags(rep) : rep;
+      hist[a.id].push({r:'assistant', c:displayText});
+      styp(false);
+      bubble('assistant', displayText);
+      attachedFiles = [];
+      renderFileChips();
+      saveToLS();
+      if(tasks.length > 0) {
+        dispatchTasksFromCEO(tasks);
+      }
+    } else {
+      hist[a.id].push({r:'assistant', c:rep});
+      styp(false);
+      bubble('assistant', rep);
+      attachedFiles = [];
+      renderFileChips();
+      saveToLS();
+    }
   } catch(e) {
     styp(false);
     bubble('assistant', '通信エラー：' + e.message);
@@ -1333,7 +1439,7 @@ async function send() {
 }
 
 function selAg(id) {
-  aid=id; upAgHdr(); buildQk(); renderChat();
+  aid=id; upAgHdr(); renderChat(); updateTaskBar();
 }
 
 // ══════════════════════════════════════
@@ -1850,6 +1956,135 @@ async function startPipeline() {
   }
 }
 
+
+// ══════════════════════════════════════
+// CEO DISPATCH（CEOの返答からタスクを抽出して自動実行）
+// ══════════════════════════════════════
+function parseTasksFromCEO(text) {
+  const regex = /【TASK:(\w+)】([^\n【]+)/g;
+  const tasks = [];
+  let m;
+  while((m = regex.exec(text)) !== null) {
+    const agentId = m[1].trim();
+    const instruction = m[2].trim();
+    if(AG.find(a => a.id === agentId)) {
+      tasks.push({ agentId, instruction });
+    }
+  }
+  return tasks;
+}
+
+function stripTaskTags(text) {
+  return text.replace(/【TASK:\w+】[^\n【]+\n?/g, '').trim();
+}
+
+async function dispatchToAgent(agentId, instruction, apiKey) {
+  const agent = AG.find(a => a.id === agentId);
+  if(!agent) return;
+
+  agent.taskStatus = 'running';
+  agent.currentTask = instruction;
+  agent.taskFrom = 'マスク（CEO）からの指示';
+  agent.tasksTotal = (agent.tasksTotal || 0) + 1;
+  buildSb();
+  if(aid === agentId) updateTaskBar();
+
+  hist[agent.id].push({r:'user', c: '【マスクCEOからの指示】' + instruction});
+
+  if(!apiKey) {
+    const demo = '【デモモード】CEOからの指示「' + instruction + '」を受信しました。APIキーを設定すると実際にClaudeが処理します。';
+    hist[agent.id].push({r:'assistant', c: demo});
+    agent.taskStatus = 'done';
+    agent.tasksCompleted = (agent.tasksCompleted || 0) + 1;
+    agent.currentTask = instruction;
+    buildSb();
+    if(aid === agentId) { renderChat(); updateTaskBar(); }
+    return;
+  }
+
+  try {
+    const msgs = hist[agent.id].slice(0,-1).map(m => ({role:m.r, content:m.c}));
+    msgs.push({role:'user', content: instruction});
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        system: agent.pr,
+        messages: msgs
+      })
+    });
+    const data = await res.json();
+    const reply = data.error
+      ? 'APIエラー: ' + data.error.message
+      : (data.content?.map(b=>b.text||'').join('') || 'レスポンスが空です');
+
+    hist[agent.id].push({r:'assistant', c: reply});
+    agent.taskStatus = 'done';
+    agent.tasksCompleted = (agent.tasksCompleted || 0) + 1;
+    agent.currentTask = instruction;
+    saveToLS();
+    buildSb();
+    if(aid === agentId) { renderChat(); updateTaskBar(); }
+  } catch(e) {
+    hist[agent.id].push({r:'assistant', c: '通信エラー: ' + e.message});
+    agent.taskStatus = 'idle';
+    buildSb();
+    if(aid === agentId) { renderChat(); updateTaskBar(); }
+  }
+}
+
+async function dispatchTasksFromCEO(tasks) {
+  const apiKey = g('api-key').value.trim();
+  if(tasks.length === 0) return;
+
+  // Show dispatch notice in CEO chat
+  const notice = '⚡ ' + tasks.length + '件のタスクを各エージェントに自動送信しました：' +
+    tasks.map(t => (AG.find(a=>a.id===t.agentId)||{}).lb).join('・');
+  hist['coo'].push({r:'assistant', c: notice});
+  if(aid === 'coo') renderChat();
+  saveToLS();
+
+  // Dispatch sequentially to avoid rate limit issues
+  for(const task of tasks) {
+    await dispatchToAgent(task.agentId, task.instruction, apiKey);
+    await new Promise(r => setTimeout(r, 400));
+  }
+}
+
+function updateTaskBar() {
+  const a = cur();
+  const bar = g('ag-task-bar');
+  const dot = g('ag-task-dot');
+  const text = g('ag-task-text');
+  const from = g('ag-task-from');
+  if(!bar) return;
+
+  if(!a.currentTask && a.taskStatus === 'idle') {
+    bar.classList.remove('on');
+    return;
+  }
+  bar.classList.add('on');
+  dot.className = 'task-status-dot ' + a.taskStatus;
+  const statusLabel = a.taskStatus === 'running' ? '実行中：' : a.taskStatus === 'done' ? '完了：' : '';
+  text.innerHTML = statusLabel + '<b>' + (a.currentTask || '待機中') + '</b>';
+  from.textContent = a.taskFrom || '';
+}
+
+function openSettings() {
+  g('settings-modal').classList.add('on');
+}
+function closeSettings() {
+  g('settings-modal').classList.remove('on');
+}
+
 function showKPIEditor() {
   const editor = g('kpi-editor');
   const inner = g('kpi-editor-inner');
@@ -1882,7 +2117,7 @@ function init(){
   loadTodayData();
   loadImproveLog();
   loadQkStats();
-  buildSpine(); upHdr(); buildSb(); selAg('coo'); upSpine();
+  buildSpine(); upHdr(); buildSb(); selAg('coo'); upSpine(); updateTaskBar();
   updateFloatBadge();
   g('snd').addEventListener('click', send);
   initFileInput();
