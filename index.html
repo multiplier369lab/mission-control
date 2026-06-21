@@ -2189,8 +2189,8 @@ async function requestCompletionReport(results, apiKey) {
   hist['coo'].push({r:'user', c: '【自動】全タスク完了報告依頼'});
 
   try {
-    const msgs = hist['coo'].slice(0,-1).map(m => ({role:m.r, content:m.c}));
-    msgs.push({role:'user', content: summaryPrompt});
+    // 完了報告は独立した会話として送信（直前のtool_use応答との不整合を避けるため履歴を引き継がない）
+    const msgs = [{role:'user', content: summaryPrompt}];
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
