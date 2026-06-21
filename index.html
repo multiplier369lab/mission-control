@@ -121,35 +121,6 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 }
 .post-x-btn:hover{background:rgba(255,255,255,.08)}
 
-/* ACTION CONFIRM MODAL */
-#action-confirm-modal{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
-  z-index:300;align-items:center;justify-content:center;padding:20px;
-}
-#action-confirm-modal.on{display:flex}
-.ac-box{
-  background:rgba(10,16,32,.98);border:1px solid var(--brd);
-  border-radius:18px;padding:0;width:100%;max-width:480px;
-  max-height:85vh;display:flex;flex-direction:column;
-  box-shadow:0 24px 64px rgba(0,0,0,.5);overflow:hidden;
-}
-.ac-hdr{padding:16px 20px;border-bottom:1px solid var(--brd);flex-shrink:0}
-.ac-hdr h3{font-size:14px;font-weight:800;color:var(--acc);margin-bottom:4px}
-.ac-hdr p{font-size:11px;color:var(--txt3)}
-.ac-body{padding:16px 20px;overflow-y:auto;flex:1}
-.ac-summary{font-size:12px;color:var(--txt2);line-height:1.8;margin-bottom:16px;padding:14px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--brd);white-space:pre-wrap;word-break:break-word}
-.ac-list{display:flex;flex-direction:column;gap:8px}
-.ac-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:rgba(223,255,79,.04);border:1px solid rgba(223,255,79,.15);border-radius:8px}
-.ac-item-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--acc);background:rgba(223,255,79,.15);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--acc);font-weight:800}
-.ac-item-text{font-size:12px;color:var(--txt);line-height:1.6;flex:1;white-space:pre-wrap;word-break:break-word}
-.ac-item-copy{background:none;border:1px solid var(--brd);border-radius:5px;color:var(--txt3);font-size:10px;padding:3px 8px;cursor:pointer;font-family:inherit;flex-shrink:0;transition:all .12s}
-.ac-item-copy:hover{border-color:var(--acc);color:var(--acc)}
-.ac-ftr{padding:14px 20px;border-top:1px solid var(--brd);flex-shrink:0;display:flex;gap:8px}
-.ac-btn{flex:1;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s}
-.ac-btn-add{background:var(--acc);color:#0a0e1a}
-.ac-btn-add:hover{background:#eeff70}
-.ac-btn-skip{background:rgba(255,255,255,.05);border:1px solid var(--brd);color:var(--txt2)}
-.ac-btn-skip:hover{background:rgba(255,255,255,.1)}
 
 /* ── BODY ── */
 #body{flex:1;display:flex;overflow:hidden}
@@ -304,6 +275,10 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .tp-task.from-ceo{background:rgba(223,255,79,.04);border-left:2px solid var(--acc);padding-left:6px;margin-left:-8px}
 .tp-task-ceo-badge{font-size:8px;color:var(--acc);font-weight:700;background:rgba(223,255,79,.12);border-radius:3px;padding:1px 5px;margin-left:4px}
 .tp-task-time{font-size:9px;color:var(--txt3);margin-top:2px}
+.tp-priority{font-size:8px;font-weight:800;border-radius:3px;padding:1px 5px;margin-left:4px}
+.tp-priority.high{background:rgba(244,63,94,.15);color:#f43f5e}
+.tp-priority.mid{background:rgba(245,158,11,.15);color:#f59e0b}
+.tp-priority.low{background:rgba(255,255,255,.06);color:var(--txt3)}
 .tp-task-del{background:none;border:none;color:var(--txt3);font-size:13px;cursor:pointer;padding:2px 4px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
 .tp-task-copy{background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer;padding:2px 4px;flex-shrink:0;align-self:flex-start;opacity:0;transition:opacity .15s}
 .tp-task:hover .tp-task-copy{opacity:1}
@@ -594,7 +569,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div id="hdr">
   <div class="logo">
     <div class="logo-dot"></div>
-    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-3</span></span>
+    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-5</span></span>
   </div>
   <div class="hdr-rev">
     <span class="rev-s">月商</span>
@@ -811,24 +786,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div id="tp-notelog"></div>
       <button class="tp-add-btn" onclick="addNoteLog()">＋ note投稿を記録する</button>
       <button class="tp-add-btn" style="background:rgba(244,63,94,.06);border-color:rgba(244,63,94,.2);color:#f43f5e;margin-top:6px" onclick="clearCompletedTasks()">🗑 完了済みタスクを一括削除</button>
-    </div>
-  </div>
-</div>
-
-<!-- ACTION CONFIRM MODAL -->
-<div id="action-confirm-modal">
-  <div class="ac-box">
-    <div class="ac-hdr">
-      <h3>📋 タスク追加の確認</h3>
-      <p>マスクが完了報告をまとめました。タスクパネルに追加しますか？</p>
-    </div>
-    <div class="ac-body">
-      <div class="ac-summary" id="ac-summary"></div>
-      <div class="ac-list" id="ac-list"></div>
-    </div>
-    <div class="ac-ftr">
-      <button class="ac-btn ac-btn-skip" onclick="skipActionConfirm()">追加しない</button>
-      <button class="ac-btn ac-btn-add" onclick="confirmAddActions()">📋 タスクに追加する</button>
     </div>
   </div>
 </div>
@@ -1716,11 +1673,14 @@ function renderTodayPanel() {
     const ag = t.ag ? AG.find(a => a.id === t.ag) : null;
     const timeStr = t.createdAt ? new Date(t.createdAt).toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
 
+    const priorityClass = t.priority === '高' ? 'high' : t.priority === '低' ? 'low' : 'mid';
+    const priorityBadge = t.priority ? '<span class="tp-priority ' + priorityClass + '">' + t.priority + '</span>' : '';
+
     const row = document.createElement('div');
     row.className = 'tp-task-row';
     row.innerHTML = '<div class="tp-check"></div>'
       + '<div class="tp-task-body">'
-      + '<div class="tp-task-txt">' + t.text + (t.fromCEO ? '<span class="tp-task-ceo-badge">マスクより</span>' : '') + '</div>'
+      + '<div class="tp-task-txt">' + priorityBadge + ' ' + t.text + (t.fromCEO ? '<span class="tp-task-ceo-badge">マスクより</span>' : '') + '</div>'
       + (ag ? '<div class="tp-task-ag" style="color:'+ag.cl+'">→ '+ag.lb+'</div>' : '')
       + (timeStr ? '<div class="tp-task-time">追加：' + timeStr + '</div>' : '')
       + '</div>'
@@ -1745,6 +1705,7 @@ function renderTodayPanel() {
         return;
       }
       todayTasks[i].done = !todayTasks[i].done;
+      sortTasksByPriority();
       saveTodayData();
       renderTodayPanel();
       updateFloatBadge();
@@ -2273,15 +2234,22 @@ async function dispatchTasksFromCEO(tasks) {
 
 const REPORT_TOOL = {
   name: 'report_completion',
-  description: '完了報告の要約と、恭介さんがやるべきアクション一覧を出力する',
+  description: '完了報告の要約と、恭介さん「本人」が実際に手を動かす必要があるアクションのみを厳選して出力する',
   input_schema: {
     type: 'object',
     properties: {
       summary: { type: 'string', description: '各エージェントの作業結果を要約した文章' },
       actions: {
         type: 'array',
-        description: '恭介さんが手を動かすべき具体的なアクション一覧',
-        items: { type: 'string' }
+        description: '恭介さんが人間として実際に操作・判断・確認しなければならないアクションのみ。AIエージェントに再指示すれば完結する内容（記事の再生成、文章の修正依頼など）は一切含めないこと。すでに既存タスク一覧に同様の内容がある場合も含めないこと（重複禁止）。本当に何もなければ空配列でよい',
+        items: {
+          type: 'object',
+          properties: {
+            text: { type: 'string', description: 'アクションの内容（恭介さん本人の操作が必要な理由が明確なもの）' },
+            priority: { type: 'string', enum: ['高','中','低'], description: '優先度。ボトルネック解消・10倍成果に直結するものは高、それ以外は状況に応じて中/低' }
+          },
+          required: ['text', 'priority']
+        }
       }
     },
     required: ['summary', 'actions']
@@ -2313,11 +2281,21 @@ async function callClaudeTool(systemPrompt, userMessage, apiKey, tool) {
   return toolBlock.input;
 }
 
+function actionsToText(actions) {
+  return (actions||[]).map(a => typeof a === 'string' ? a : ('[' + (a.priority||'中') + '] ' + a.text)).join(' / ');
+}
+
 async function requestCompletionReport(results, apiKey) {
   if(!apiKey || results.length === 0) return;
 
   const ceoAg = AG.find(a => a.id === 'coo');
   const taskSummary = results.map(r => '【' + r.agentLabel + '】指示：' + r.instruction + '\n結果：' + (r.reply||'').substring(0,400)).join('\n\n');
+
+  // 既存の未完了タスク一覧（重複防止用）
+  const existingTasks = todayTasks.filter(t => !t.done).map(t => t.text);
+  const existingTasksText = existingTasks.length > 0
+    ? existingTasks.map((t,i) => (i+1)+'. '+t).join('\n')
+    : '（現在、未完了タスクはありません）';
 
   hist['coo'].push({r:'user', c: '【自動】全タスク完了報告依頼'});
   hist['coo'].push({r:'assistant', c: '🧠 各エージェントの結果を第一原理思考でレビュー中…（初稿を作成→自己批判→最終版を作ります）'});
@@ -2325,16 +2303,24 @@ async function requestCompletionReport(results, apiKey) {
 
   try {
     // ── Step 1: 初稿を作る ──
-    const draftPrompt = '以下、各エージェントの作業が完了しました。結果を要約し、恭介さんがやるべき次のアクションを抽出してください：\n\n' + taskSummary;
+    const draftPrompt = '以下、各エージェントの作業が完了しました。結果を要約してください。\n\n' +
+      '【今回の作業結果】\n' + taskSummary + '\n\n' +
+      '【現在の未完了タスク一覧（重複させないこと）】\n' + existingTasksText + '\n\n' +
+      '【アクション抽出のルール】\n' +
+      '・恭介さん「本人」が物理的に操作・判断・確認しなければ前に進まないものだけを挙げる\n' +
+      '・「もう一度AIに指示すれば終わる内容」は絶対に含めない（それはあなたが各エージェントに再指示すればよい）\n' +
+      '・上記の未完了タスク一覧と同じ・似た内容は重複として除外する\n' +
+      '・本当に何も無ければactionsは空配列でよい。無理に何か出す必要はない\n' +
+      '優先度（高・中・低）も付けて出力してください。';
     const draft = await callClaudeTool(ceoAg.pr, draftPrompt, apiKey, REPORT_TOOL);
 
     // ── Step 2: マスク自身の原則で自己レビュー ──
     const reviewPrompt = '以下はあなた自身が作成した完了報告の初稿です。あなたの行動原則（第一原理思考・本質的なボトルネック特定・10倍思考・直接的な物言い）に照らして、この初稿を厳しく自己批判してください。\n\n' +
-      '【初稿】\nサマリー：' + draft.summary + '\nアクション：' + (draft.actions||[]).join(' / ') + '\n\n' +
+      '【初稿】\nサマリー：' + draft.summary + '\nアクション：' + actionsToText(draft.actions) + '\n\n' +
       '【批判の観点】\n' +
       '・これは表面的な対症療法になっていないか？根本課題を突いているか？\n' +
       '・本当のボトルネックを特定できているか？\n' +
-      '・10倍の成果につながる優先順位になっているか？\n' +
+      '・優先度の判定は10倍の成果につながる順序になっているか？高ばかり/低ばかりに偏っていないか？\n' +
       '・恭介さんの時間を無駄にする曖昧な指示はないか？具体性は十分か？\n\n' +
       '批判点を3つ以内で簡潔に指摘してください。';
 
@@ -2356,15 +2342,18 @@ async function requestCompletionReport(results, apiKey) {
     const review = await callClaudeTool(ceoAg.pr, reviewPrompt, apiKey, REVIEW_TOOL);
 
     // ── Step 3: 批判を踏まえた最終版を作る ──
-    const finalPrompt = '初稿と、それに対するあなた自身の批判点を踏まえて、より鋭く具体的な完了報告の最終版を作ってください。\n\n' +
+    const finalPrompt = '初稿と、それに対するあなた自身の批判点を踏まえて、より鋭く具体的な完了報告の最終版（優先度付きアクション含む）を作ってください。\n\n' +
       '【初稿】\n' + draft.summary + '\n\n' +
       '【自己批判】\n' + (review.critique_points||[]).map((c,i)=>(i+1)+'. '+c).join('\n') + '\n\n' +
-      '批判点を解消した、本質的でより具体的な最終版を出力してください。';
+      '批判点を解消した、本質的でより具体的な最終版を出力してください。優先度も改めて精査してください。';
 
     const final = await callClaudeTool(ceoAg.pr, finalPrompt, apiKey, REPORT_TOOL);
 
     const displayText = final.summary || draft.summary || '完了報告を受信しました。';
-    const actions = ((final.actions && final.actions.length > 0) ? final.actions : draft.actions || []).filter(x => x && x.trim());
+    const rawActions = ((final.actions && final.actions.length > 0) ? final.actions : draft.actions || []);
+    const actions = rawActions
+      .filter(x => x && (typeof x === 'string' ? x.trim() : x.text))
+      .map(x => typeof x === 'string' ? { text: x, priority: '中' } : { text: x.text, priority: x.priority || '中' });
 
     // 練り直しの過程をhistから一旦消して、最終結果だけ残す
     hist['coo'].pop(); // 「レビュー中…」メッセージを削除
@@ -2374,9 +2363,8 @@ async function requestCompletionReport(results, apiKey) {
 
     if(actions.length > 0) {
       addActionsToTodayPanel(actions, displayText);
-    } else if(displayText) {
-      addActionsToTodayPanel(['完了報告を確認する：' + displayText.substring(0,80) + (displayText.length>80?'...':'')], displayText);
     }
+    // actionsが空の場合は何も追加しない（恭介さんがやるべきことが本当に無い、という判断を尊重）
   } catch(e) {
     console.error('Completion report error:', e);
     hist['coo'].pop(); // 「レビュー中…」メッセージを削除
@@ -2399,69 +2387,38 @@ function stripActionTags(text) {
   return text.replace(/【ACTION】[^\n【]+\n?/g, '').trim();
 }
 
-let pendingActions = [];
-let pendingSummary = '';
+const PRIORITY_ORDER = { '高': 0, '中': 1, '低': 2 };
 
-function showActionConfirm(summary, actions) {
-  pendingActions = actions;
-  pendingSummary = summary;
-
-  const summaryEl = g('ac-summary');
-  if(summaryEl) summaryEl.textContent = summary;
-
-  const listEl = g('ac-list');
-  if(listEl) {
-    listEl.innerHTML = '';
-    actions.forEach(actionText => {
-      const div = document.createElement('div');
-      div.className = 'ac-item';
-      div.innerHTML = '<div class="ac-item-check">✓</div><div class="ac-item-text">' + actionText + '</div><button class="ac-item-copy">📋</button>';
-      const copyBtn = div.querySelector('.ac-item-copy');
-      copyBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(actionText).then(() => {
-          copyBtn.textContent = '✓';
-          setTimeout(() => { copyBtn.textContent = '📋'; }, 1500);
-        });
-      });
-      listEl.appendChild(div);
-    });
-  }
-
-  const modal = g('action-confirm-modal');
-  if(modal) modal.classList.add('on');
-}
-
-function confirmAddActions() {
-  pendingActions.forEach((actionText, i) => {
+function addActionsToTodayPanel(actions, summary) {
+  // 確認は挟まず自動追加（後でタスクパネル側で取捨選択する運用）
+  actions.forEach((a, i) => {
     const newId = 'ceo_action_' + Date.now() + '_' + i;
-    todayTasks.push({ id: newId, text: actionText, ag: '', done: false, fromCEO: true, createdAt: Date.now() });
+    const text = typeof a === 'string' ? a : a.text;
+    const priority = typeof a === 'string' ? '中' : (a.priority || '中');
+    todayTasks.push({ id: newId, text: text, priority: priority, ag: '', done: false, fromCEO: true, createdAt: Date.now() });
   });
+
+  sortTasksByPriority();
   saveTodayData();
   updateFloatBadge();
+
   const badge = g('float-badge');
   if(badge) { badge.classList.add('new'); setTimeout(() => badge.classList.remove('new'), 900); }
-
-  closeActionConfirm();
 
   // タスクパネルを自動で開いて知らせる
   const panel = g('today-panel');
   if(panel) { panel.classList.add('on'); renderTodayPanel(); }
 }
 
-function skipActionConfirm() {
-  closeActionConfirm();
-}
-
-function closeActionConfirm() {
-  const modal = g('action-confirm-modal');
-  if(modal) modal.classList.remove('on');
-  pendingActions = [];
-  pendingSummary = '';
-}
-
-function addActionsToTodayPanel(actions, summary) {
-  // 互換用：呼び出し元から確認モーダルを開く
-  showActionConfirm(summary || '完了報告', actions);
+function sortTasksByPriority() {
+  todayTasks.sort((a, b) => {
+    // 未完了を上に、優先度高い順、最後に作成日時の新しい順
+    if(a.done !== b.done) return a.done ? 1 : -1;
+    const pa = PRIORITY_ORDER[a.priority] !== undefined ? PRIORITY_ORDER[a.priority] : 1;
+    const pb = PRIORITY_ORDER[b.priority] !== undefined ? PRIORITY_ORDER[b.priority] : 1;
+    if(pa !== pb) return pa - pb;
+    return (b.createdAt||0) - (a.createdAt||0);
+  });
 }
 
 function updateTaskBar() {
