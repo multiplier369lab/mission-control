@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乗数ラボ MISSION CONTROL — Obélisque AI Company</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060913;--sur:#0a1020;--card:rgba(14,20,35,.84);
+  --brd:rgba(255,255,255,.10);--brd2:rgba(255,255,255,.06);
+  --txt:#f6f8fb;--txt2:#c4cede;--txt3:#8390a7;
+  --acc:#dfff4f;--acc2:#9cff57;
+  --violet:#8c8cff;--pink:#ff5ea8;--green:#3ddc91;
+  --orange:#ff9b54;--cyan:#56d8ff;--amber:#ffcb66;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter','Noto Sans JP',sans-serif;overflow:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px}
+
+/* ── APP SHELL ── */
+#app{display:flex;flex-direction:column;height:100vh}
+
+/* ── HEADER ── */
+#hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;
+  background:rgba(8,12,22,.88);
+  border-bottom:1px solid var(--brd);
+  backdrop-filter:blur(16px);
+  flex-shrink:0;gap:16px;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  box-shadow:0 0 14px rgba(223,255,79,.7);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 8px rgba(223,255,79,.5)}50%{box-shadow:0 0 20px rgba(223,255,79,.8)}}
+.logo-txt{font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--txt3)}
+.hdr-rev{display:flex;align-items:baseline;gap:6px}
+.rev-n{font-size:24px;font-weight:900;color:var(--acc);font-family:'Inter','Noto Sans JP',sans-serif;letter-spacing:-.02em}
+.rev-s{font-size:11px;color:var(--txt3)}
+.rev-b{background:rgba(223,255,79,.12);color:var(--acc);font-size:10px;border-radius:4px;padding:2px 8px;font-weight:700;border:1px solid rgba(223,255,79,.2)}
+.hdr-date{font-size:10px;color:var(--txt3)}
+
+/* ── PILLAR TABS ── */
+#ptabs{
+  display:flex;border-bottom:1px solid var(--brd);flex-shrink:0;
+  background:rgba(8,12,22,.72);backdrop-filter:blur(12px);
+}
+.ptab{
+  flex:1;padding:10px 14px;cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all .2s;display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.ptab:hover{background:rgba(255,255,255,.03)}
+.ptab.on{border-bottom-color:var(--acc);background:rgba(223,255,79,.03)}
+.ptab-l{}
+.ptab-n{font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--txt3);margin-bottom:3px}
+.ptab-t{font-size:11px;font-weight:700;color:var(--txt3)}
+.ptab.on .ptab-t{color:var(--txt)}
+.ptab-r{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--txt3)}
+.ptab.on .ptab-r{color:var(--acc)}
+
+/* ── BODY ── */
+#body{flex:1;display:flex;overflow:hidden}
+
+/* ── SPINE ── */
+#spine{
+  width:26px;flex-shrink:0;position:relative;
+  border-right:1px solid var(--brd);
+}
+#spine-track{position:absolute;top:20px;bottom:20px;left:50%;transform:translateX(-50%);width:2px;background:rgba(255,255,255,.06);border-radius:2px}
+#spine-fill{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:2px;border-radius:2px;background:linear-gradient(0deg,var(--acc),var(--acc2));box-shadow:0 0 8px rgba(223,255,79,.4);transition:height 1s ease}
+.sms{position:absolute;left:50%;transform:translateX(-50%);border-radius:50%;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);transition:all .4s;z-index:2}
+.sms.on{background:var(--acc);border-color:var(--acc);box-shadow:0 0 8px rgba(223,255,79,.6)}
+
+/* ── SIDEBAR ── */
+#sb{
+  width:168px;flex-shrink:0;border-right:1px solid var(--brd);
+  display:flex;flex-direction:column;padding:8px 6px;
+  overflow-y:auto;background:rgba(6,9,19,.6);
+}
+.sb-sec{font-size:9px;color:var(--txt3);letter-spacing:.1em;font-weight:700;padding:8px 6px 4px;margin-top:4px}
+.sb-sec:first-child{margin-top:0}
+.ag{
+  padding:8px 8px;border-radius:8px;cursor:pointer;
+  border:1px solid transparent;transition:all .15s;
+}
+.ag:hover{background:rgba(255,255,255,.04)}
+.ag.on{border-color:rgba(255,255,255,.12)}
+.ag-row{display:flex;align-items:center;gap:7px}
+.ag-ic{font-size:13px}
+.ag-lb{font-size:11px;font-weight:700;color:var(--txt3);flex:1;transition:color .15s}
+.ag-rv{font-size:9px;color:var(--txt3);font-family:'JetBrains Mono',monospace}
+.ag-ring{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--txt3);flex-shrink:0}
+.ag-bar{height:2px;background:rgba(255,255,255,.06);border-radius:1px;margin-top:5px;overflow:hidden}
+.ag-bar-fill{height:100%;border-radius:1px;transition:width .8s}
+
+/* rev summary */
+#sb-rev{margin-top:auto;padding:8px 6px 0;border-top:1px solid var(--brd)}
+.sbr-lbl{font-size:9px;color:var(--txt3);margin-bottom:5px;letter-spacing:.08em}
+.sbr-row{display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);margin-bottom:3px}
+.sbr-tot{display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-top:5px;padding-top:5px;border-top:1px solid var(--brd);color:var(--acc)}
+
+/* ── MAIN PANEL ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* AGENT VIEW */
+#agent-view{display:flex;flex-direction:column;flex:1;overflow:hidden}
+
+/* COO banner */
+#coo-bn{display:none;align-items:center;gap:10px;padding:8px 18px;background:rgba(223,255,79,.05);border-bottom:1px solid rgba(223,255,79,.12);flex-shrink:0}
+#coo-bn.on{display:flex}
+.coo-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px rgba(223,255,79,.7);animation:pulse 2s infinite}
+.coo-t{font-size:11px;color:var(--acc);font-weight:700}
+.coo-s{font-size:10px;color:var(--txt3)}
+
+/* Agent header */
+#ag-hdr{padding:12px 18px;border-bottom:1px solid var(--brd);flex-shrink:0}
+#ag-hdr-row{display:flex;align-items:center;gap:10px}
+#ag-ic{font-size:18px}
+#ag-nm{font-weight:700;font-size:14px}
+#ag-ms{font-size:11px;color:var(--txt3);margin-top:1px}
+#ag-kpis{margin-left:auto;display:flex;gap:14px}
+.kpib{text-align:right}
+.kpib-l{font-size:9px;color:var(--txt3)}
+.kpib-v{font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.kpib-s{font-size:9px;color:var(--txt3);margin-left:2px}
+#ag-kbar{height:2px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:8px;overflow:hidden}
+#ag-kfill{height:100%;border-radius:2px;transition:width .8s}
+#ag-badge{display:inline-flex;border-radius:4px;padding:2px 8px;font-size:9px;font-weight:700;margin-top:4px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Quick */
+#qk{display:flex;gap:5px;padding:7px 14px;border-bottom:1px solid var(--brd);flex-wrap:wrap;flex-shrink:0}
+.qb{background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:5px;padding:3px 9px;font-size:10px;color:var(--txt3);cursor:pointer;font-family:inherit;transition:all .12s}
+
+/* API bar */
+#api-bar{display:flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(223,255,79,.04);border-bottom:1px solid rgba(223,255,79,.1);flex-shrink:0}
+#api-bar label{font-size:10px;color:var(--acc);font-weight:700;white-space:nowrap}
+#api-key{flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(223,255,79,.18);border-radius:5px;padding:4px 10px;color:var(--txt);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none}
+#api-key:focus{border-color:var(--acc)}
+#api-note{font-size:9px;color:var(--txt3);white-space:nowrap}
+/* GAS bar */
+#gas-bar{display:flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(61,220,145,.03);border-bottom:1px solid rgba(61,220,145,.1);flex-shrink:0;flex-wrap:wrap}
+#gas-bar label{font-size:10px;color:var(--green);font-weight:700;white-space:nowrap}
+#gas-url{flex:1;min-width:160px;background:rgba(0,0,0,.3);border:1px solid rgba(61,220,145,.18);border-radius:5px;padding:4px 10px;color:var(--txt);font-size:10px;font-family:'JetBrains Mono',monospace;outline:none}
+#gas-url:focus{border-color:var(--green)}
+#gas-fetch-btn,#kpi-edit-btn,#reset-btn{background:rgba(61,220,145,.12);border:1px solid rgba(61,220,145,.25);border-radius:5px;padding:3px 10px;font-size:10px;color:var(--green);cursor:pointer;font-family:inherit;white-space:nowrap}
+#reset-btn{background:rgba(244,63,94,.08);border-color:rgba(244,63,94,.2);color:#f43f5e}
+#gas-status{font-size:9px;color:var(--txt3);white-space:nowrap}
+/* KPI editor */
+#kpi-editor{padding:10px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--brd);flex-shrink:0;max-height:200px;overflow-y:auto}
+#kpi-editor-inner{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:8px}
+.kpi-edit-row{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border-radius:6px;padding:6px 10px}
+.kpi-edit-lbl{font-size:10px;color:var(--txt3);flex:1;min-width:60px}
+.kpi-edit-in{width:60px;background:rgba(0,0,0,.3);border:1px solid var(--brd);border-radius:4px;padding:2px 6px;color:var(--txt);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;text-align:right}
+.kpi-edit-in:focus{border-color:var(--acc)}
+.kpi-edit-unit{font-size:10px;color:var(--txt3);width:20px}
+#kpi-editor button{background:rgba(223,255,79,.1);border:1px solid rgba(223,255,79,.2);border-radius:5px;padding:4px 12px;font-size:11px;color:var(--acc);cursor:pointer;font-family:inherit}
+
+/* Chat */
+#chat{flex:1;overflow-y:auto;padding:14px 18px 16px 18px;display:flex;flex-direction:column;gap:10px}
+.msg{display:flex;gap:7px;align-items:flex-start}
+.msg.u{flex-direction:row-reverse}
+.mav{width:20px;height:20px;border-radius:50%;flex-shrink:0;border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:var(--txt3);background:rgba(14,20,35,.8);margin-top:2px}
+.msg.u .mav{background:var(--acc);color:#0b1018;border-color:var(--acc)}
+.bub{max-width:82%;background:rgba(14,20,35,.8);border:1px solid var(--brd);border-radius:3px 10px 10px 10px;padding:9px 12px;font-size:12px;line-height:1.65;color:var(--txt3);white-space:pre-wrap;word-break:break-word}
+.msg.u .bub{background:rgba(223,255,79,.08);border-color:rgba(223,255,79,.18);border-radius:10px 3px 10px 10px;color:var(--txt)}
+.bub-wrap{max-width:82%}
+.bub-actions{display:flex;gap:6px;margin-top:6px}
+.bub-copy{background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:5px;padding:3px 10px;font-size:10px;color:var(--txt3);cursor:pointer;font-family:inherit;transition:all .12s}
+.bub-copy:hover{border-color:var(--acc);color:var(--acc)}
+.bub-note{background:rgba(223,255,79,.08);border:1px solid rgba(223,255,79,.2);border-radius:5px;padding:3px 10px;font-size:10px;color:var(--acc);cursor:pointer;font-family:inherit}
+.bub-note:hover{background:rgba(223,255,79,.15)}
+.mt{font-size:8px;color:var(--txt3);margin-top:3px;text-align:right}
+#typ{display:none;gap:7px;align-items:center}
+#typ.on{display:flex}
+.d{width:5px;height:5px;border-radius:50%;animation:dp 1.2s ease-in-out infinite;opacity:.5}
+.d:nth-child(2){animation-delay:.2s}.d:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.5);opacity:1}}
+
+/* Input */
+#inp{padding:10px 14px;border-top:1px solid var(--brd);background:rgba(8,12,22,.8);flex-shrink:0}
+#inp-row{display:flex;gap:7px}
+#msg-in{flex:1;background:rgba(14,20,35,.8);border:1px solid var(--brd);border-radius:7px;padding:9px 12px;color:var(--txt);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;resize:none;min-height:52px;max-height:120px;line-height:1.5}
+#msg-in:focus{border-color:var(--acc)}
+#snd{background:var(--acc);color:#0b1018;border:none;border-radius:7px;padding:9px 20px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;flex-shrink:0}
+#snd:hover{background:#eeff70}
+#inp-hint{font-size:9px;color:var(--txt3);margin-top:5px}
+
+/* TODAY PANEL */
+#today-panel{
+  position:fixed;left:16px;bottom:72px;width:300px;
+  background:rgba(10,16,32,.96);border:1px solid var(--brd);
+  border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  backdrop-filter:blur(20px);z-index:100;
+  display:none;flex-direction:column;overflow:hidden;
+  max-height:70vh;
+}
+#today-panel.on{display:flex}
+#tp-hdr{padding:12px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+#tp-hdr-title{font-size:12px;font-weight:700;color:var(--acc)}
+#tp-close{background:none;border:none;color:var(--txt3);font-size:16px;cursor:pointer;padding:0;line-height:1}
+#tp-body{overflow-y:auto;flex:1}
+.tp-sec{padding:10px 14px;border-bottom:1px solid var(--brd2,rgba(255,255,255,.05))}
+.tp-sec-title{font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--txt3);margin-bottom:8px}
+.tp-task{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;cursor:pointer}
+.tp-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--brd);background:transparent;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tp-task.done .tp-check{background:var(--acc);border-color:var(--acc)}
+.tp-task.done .tp-check::after{content:'✓';font-size:10px;color:#0a0e1a;font-weight:800}
+.tp-task-txt{font-size:11px;color:var(--txt2);line-height:1.5}
+.tp-task.done .tp-task-txt{color:var(--txt3);text-decoration:line-through}
+.tp-task-ag{font-size:9px;font-weight:700;margin-top:2px}
+
+/* NOTE LOG */
+.tp-log-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--brd2,rgba(255,255,255,.04))}
+.tp-log-item:last-child{border-bottom:none;margin-bottom:0}
+.tp-log-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.tp-log-body{}
+.tp-log-title{font-size:11px;font-weight:700;color:var(--txt);line-height:1.4;margin-bottom:2px}
+.tp-log-meta{font-size:9px;color:var(--txt3)}
+.tp-add-btn{width:100%;background:rgba(223,255,79,.08);border:1px dashed rgba(223,255,79,.25);border-radius:8px;padding:7px;font-size:11px;color:var(--acc);cursor:pointer;font-family:inherit;transition:all .12s}
+.tp-add-btn:hover{background:rgba(223,255,79,.15)}
+
+/* FLOAT BTN */
+#float-btn{
+  background:rgba(255,255,255,.06);color:var(--txt);
+  border:1px solid var(--brd);border-radius:7px;
+  padding:9px 14px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:all .15s;flex-shrink:0;
+  box-shadow:none;position:static;width:auto;
+}
+#float-btn:hover{border-color:var(--acc);color:var(--acc)}
+#float-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(223,255,79,.4)}
+#float-badge{
+  background:#0a0e1a;color:var(--acc);
+  border-radius:999px;padding:1px 7px;
+  font-size:10px;font-weight:900;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* RELAY BTN in chat */
+.relay-btn{
+  background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);
+  border-radius:5px;padding:3px 10px;font-size:10px;
+  color:#38bdf8;cursor:pointer;font-family:inherit;
+}
+.relay-btn:hover{background:rgba(56,189,248,.2)}
+
+/* IMPROVEMENT LOG */
+.improve-btn{
+  background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.2);
+  border-radius:5px;padding:3px 10px;font-size:10px;
+  color:#f43f5e;cursor:pointer;font-family:inherit;
+}
+.improve-btn:hover{background:rgba(244,63,94,.15)}
+#improve-modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+  z-index:200;align-items:center;justify-content:center;
+}
+#improve-modal.on{display:flex}
+.improve-box{
+  background:rgba(10,16,32,.98);border:1px solid var(--brd);
+  border-radius:16px;padding:20px;width:90%;max-width:420px;
+  box-shadow:0 24px 64px rgba(0,0,0,.5);
+}
+.improve-box h3{font-size:14px;font-weight:800;margin-bottom:6px;color:#f43f5e}
+.improve-box p{font-size:11px;color:var(--txt3);margin-bottom:12px;line-height:1.6}
+.improve-box textarea{
+  width:100%;min-height:80px;background:rgba(0,0,0,.3);
+  border:1px solid var(--brd);border-radius:8px;padding:10px;
+  color:var(--txt);font-size:12px;font-family:inherit;outline:none;resize:vertical;
+}
+.improve-box textarea:focus{border-color:#f43f5e}
+.improve-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.improve-cancel{background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:6px;padding:7px 14px;font-size:11px;color:var(--txt2);cursor:pointer;font-family:inherit}
+.improve-save{background:#f43f5e;border:none;border-radius:6px;padding:7px 16px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit}
+
+/* QUICK COMMAND STATS */
+.qb-stat{font-size:8px;color:var(--acc);margin-left:3px}
+
+/* NOTE PIPELINE */
+#pipeline-modal{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:200;align-items:center;justify-content:center;padding:20px;
+}
+#pipeline-modal.on{display:flex}
+.pipe-box{
+  background:rgba(10,16,32,.98);border:1px solid var(--brd);
+  border-radius:18px;padding:0;width:100%;max-width:560px;
+  max-height:85vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,.5);overflow:hidden;
+}
+.pipe-hdr{padding:16px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pipe-hdr h3{font-size:14px;font-weight:800;color:var(--acc)}
+.pipe-close{background:none;border:none;color:var(--txt3);font-size:18px;cursor:pointer}
+.pipe-body{padding:16px 20px;overflow-y:auto;flex:1}
+.pipe-input-row{margin-bottom:14px}
+.pipe-input-row label{font-size:11px;font-weight:700;color:var(--txt2);display:block;margin-bottom:6px}
+.pipe-input-row input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--brd);border-radius:8px;padding:9px 12px;color:var(--txt);font-size:12px;font-family:inherit;outline:none}
+.pipe-input-row input:focus{border-color:var(--acc)}
+.pipe-steps{display:flex;flex-direction:column;gap:8px}
+.pipe-step{
+  border:1px solid var(--brd);border-radius:10px;padding:12px 14px;
+  background:rgba(255,255,255,.02);transition:all .2s;
+}
+.pipe-step.active{border-color:rgba(223,255,79,.3);background:rgba(223,255,79,.05)}
+.pipe-step.done{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.04)}
+.pipe-step-hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pipe-step-num{width:20px;height:20px;border-radius:50%;background:var(--brd);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--txt3);flex-shrink:0}
+.pipe-step.active .pipe-step-num{background:var(--acc);color:#0a0e1a}
+.pipe-step.done .pipe-step-num{background:#22c55e;color:#0a0e1a}
+.pipe-step-title{font-size:12px;font-weight:700;flex:1}
+.pipe-step-agent{font-size:10px;font-weight:700}
+.pipe-step-body{font-size:11px;color:var(--txt2);line-height:1.6;white-space:pre-wrap;max-height:120px;overflow-y:auto;margin-top:6px;display:none}
+.pipe-step-body.show{display:block}
+.pipe-step-actions{display:flex;gap:6px;margin-top:8px}
+.pipe-btn{background:rgba(223,255,79,.1);border:1px solid rgba(223,255,79,.25);border-radius:5px;padding:4px 10px;font-size:10px;color:var(--acc);cursor:pointer;font-family:inherit}
+.pipe-btn:hover{background:rgba(223,255,79,.2)}
+.pipe-btn:disabled{opacity:.3;cursor:not-allowed}
+.pipe-ftr{padding:14px 20px;border-top:1px solid var(--brd);flex-shrink:0;display:flex;gap:8px}
+.pipe-start-btn{flex:1;background:var(--acc);color:#0a0e1a;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit}
+.pipe-start-btn:hover{background:#eeff70}
+.pipe-start-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* PIPELINE PROGRESS */
+#pipe-progress-wrap{padding:0 20px 14px;flex-shrink:0}
+#pipe-progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:6px}
+#pipe-progress-fill{height:100%;background:linear-gradient(90deg,#38bdf8,var(--acc));border-radius:3px;width:0%;transition:width .5s ease}
+#pipe-progress-text{display:flex;justify-content:space-between;font-size:10px;color:var(--txt3)}
+#pipe-progress-text span:last-child{font-family:'JetBrains Mono',monospace;color:var(--acc)}
+
+.pipe-step{position:relative}
+.pipe-status-badge{
+  font-size:9px;font-weight:700;border-radius:4px;padding:2px 7px;
+  flex-shrink:0;white-space:nowrap;
+}
+.pipe-status-wait{background:rgba(255,255,255,.06);color:var(--txt3)}
+.pipe-status-run{background:rgba(56,189,248,.15);color:#38bdf8;animation:pipePulse 1.2s ease-in-out infinite}
+.pipe-status-done{background:rgba(34,197,94,.15);color:#22c55e}
+.pipe-status-err{background:rgba(244,63,94,.15);color:#f43f5e}
+@keyframes pipePulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+.pipe-step-time{font-size:9px;color:var(--txt3);font-family:'JetBrains Mono',monospace;margin-left:auto}
+.pipe-spinner{display:inline-block;width:10px;height:10px;border:1.5px solid rgba(56,189,248,.3);border-top-color:#38bdf8;border-radius:50%;animation:pipeSpin .7s linear infinite;flex-shrink:0}
+@keyframes pipeSpin{to{transform:rotate(360deg)}}
+
+/* FILE ATTACHMENT */
+#file-area{padding:6px 14px;border-bottom:1px solid var(--brd);flex-shrink:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:0}
+#file-area.has-file{background:rgba(223,255,79,.04);border-bottom-color:rgba(223,255,79,.15)}
+.file-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:6px;padding:4px 8px;font-size:10px;color:var(--txt2)}
+.file-chip-rm{background:none;border:none;color:var(--txt3);cursor:pointer;font-size:12px;padding:0 2px;line-height:1}
+.file-chip-rm:hover{color:var(--acc)}
+#file-label{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:6px;padding:4px 10px;font-size:10px;color:var(--txt3);cursor:pointer;transition:all .12s;white-space:nowrap}
+#file-label:hover{border-color:var(--acc);color:var(--acc)}
+#file-input{display:none}
+.file-hint{font-size:9px;color:var(--txt3)}
+.msg-file{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:6px;padding:5px 10px;font-size:10px;color:var(--txt2);margin-bottom:6px}
+
+
+/* ── NOTE DASHBOARD VIEW ── */
+#note-view{
+  display:none;flex:1;overflow-y:auto;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(140,140,255,.12), transparent 30%),
+    radial-gradient(circle at 85% 10%, rgba(223,255,79,.08), transparent 25%),
+    #060913;
+}
+#note-view.on{display:block}
+
+.nv-wrap{padding:24px;max-width:900px;margin:0 auto}
+
+/* Note header */
+.nv-hdr{
+  border:1px solid var(--brd);border-radius:24px;
+  background:linear-gradient(135deg,rgba(14,20,35,.92),rgba(17,18,45,.88));
+  backdrop-filter:blur(16px);
+  padding:24px;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.nv-hdr::after{content:'';position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(223,255,79,.14),transparent 68%);pointer-events:none}
+.nv-brand{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--txt3);margin-bottom:16px}
+.nv-brand-dot{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--acc2));box-shadow:0 0 12px rgba(223,255,79,.6)}
+.nv-title{font-size:24px;font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:8px}
+.nv-title .gr{background:linear-gradient(90deg,#fff 0%,#dfff4f 55%,#8c8cff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nv-sub{font-size:12px;color:var(--txt2);line-height:1.7;margin-bottom:18px}
+.nv-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.nvs{border:1px solid var(--brd);border-radius:14px;padding:12px;background:rgba(255,255,255,.03)}
+.nvs-v{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:900;letter-spacing:-.03em;margin-bottom:4px;color:var(--acc)}
+.nvs-l{font-size:11px;color:var(--txt2)}
+
+/* Sections */
+.nv-sec{margin-bottom:20px}
+.nv-sec-hd{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px}
+.nv-kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--acc);white-space:nowrap}
+.nv-sec-title{font-size:18px;font-weight:900;letter-spacing:-.02em}
+.nv-line{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.12),transparent);margin-bottom:4px}
+
+/* Genres */
+.nv-genres{display:flex;flex-direction:column;gap:10px}
+.nvg{
+  display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:16px;border:1px solid var(--brd);
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.012));
+  position:relative;overflow:hidden;transition:all .2s;
+}
+.nvg:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.16)}
+.nvg::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.nvg-rank{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;border:1px solid var(--brd);background:rgba(255,255,255,.03);font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:var(--txt3)}
+.nvg.top .nvg-rank{color:var(--acc)}
+.nvg-name{font-size:13px;font-weight:800;margin-bottom:6px}
+.nvg-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.nvtag{height:22px;padding:0 8px;border-radius:999px;font-size:10px;font-weight:700;display:inline-flex;align-items:center;border:1px solid transparent}
+.nvg-bar{height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.nvg-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.nvg-right{text-align:right;min-width:140px}
+.nvg-growth{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:900;margin-bottom:4px}
+.nvg-price{font-size:11px;color:var(--txt2)}
+
+/* Topics */
+.nv-topics{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.nvt{
+  border:1px solid var(--brd);border-radius:18px;padding:16px;
+  background:linear-gradient(180deg,rgba(15,22,38,.9),rgba(10,15,25,.8));
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.nvt:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.16)}
+.nvt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.nvt-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:20px;border:1px solid var(--brd);background:rgba(255,255,255,.04)}
+.nvt-badge{height:24px;padding:0 9px;border-radius:999px;font-size:10px;font-weight:800;display:inline-flex;align-items:center}
+.nvt-title{font-size:14px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px;line-height:1.4}
+.nvt-desc{font-size:11px;color:var(--txt2);line-height:1.7;margin-bottom:10px}
+.nvt-meta{display:flex;gap:7px;flex-wrap:wrap}
+.nvt-pill{padding:5px 9px;border-radius:8px;border:1px solid var(--brd);background:rgba(255,255,255,.03);font-size:10px;color:var(--txt2)}
+.nvt-pill strong{color:var(--txt);font-family:'JetBrains Mono',monospace;font-weight:800;margin-left:4px}
+
+/* Simulator */
+.nv-sim{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.nv-sim-l,.nv-sim-r{border:1px solid var(--brd);border-radius:18px;padding:16px;background:rgba(255,255,255,.025)}
+.sim-preset-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.sim-pr{height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--brd);background:rgba(255,255,255,.04);color:var(--txt2);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.sim-pr.on{border-color:rgba(223,255,79,.3);background:rgba(223,255,79,.08);color:var(--acc)}
+.sld-blk{margin-bottom:14px}
+.sld-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:7px}
+.sld-lbl{font-size:11px;font-weight:700;color:var(--txt2)}
+.sld-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:900;color:var(--txt)}
+.sld-unit{font-size:10px;color:var(--txt3);margin-left:3px;font-weight:700}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:linear-gradient(90deg,rgba(223,255,79,.18),rgba(140,140,255,.18));border:1px solid rgba(255,255,255,.05);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:linear-gradient(180deg,#f4ff9b,var(--acc));border:2px solid #0b1018;box-shadow:0 0 0 4px rgba(223,255,79,.1);cursor:pointer}
+.kpi-blk{border:1px solid var(--brd);border-radius:14px;padding:14px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));margin-bottom:10px}
+.kpi-blk:last-child{margin-bottom:0}
+.kpi-lbl{font-size:10px;color:var(--txt3);margin-bottom:6px}
+.kpi-val{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:900;letter-spacing:-.03em;color:var(--acc);margin-bottom:4px}
+.kpi-val.g{color:var(--green)}
+.kpi-sub{font-size:11px;color:var(--txt2)}
+.sim-insight{margin-top:10px;padding-top:10px;border-top:1px solid var(--brd2);font-size:11px;color:var(--txt2);line-height:1.8}
+
+/* Tips */
+.nv-tips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.nvtip{border:1px solid var(--brd);border-radius:16px;padding:14px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015))}
+.nvtip-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.nvtip-ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:17px;border:1px solid var(--brd);background:rgba(255,255,255,.04)}
+.nvtip-t{font-size:12px;font-weight:800}
+.nvtip-b{font-size:11px;color:var(--txt2);line-height:1.7}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HEADER -->
+<div id="hdr">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    <span class="logo-txt">乗数ラボ — MISSION CONTROL</span>
+  </div>
+  <div class="hdr-rev">
+    <span class="rev-s">月商</span>
+    <span class="rev-n" id="trev">0</span>
+    <span class="rev-s">/ 1,000万円</span>
+    <span class="rev-b" id="tpct">0%</span>
+  </div>
+  <div class="hdr-date" id="tday"></div>
+</div>
+
+<!-- PILLAR TABS -->
+<div id="ptabs">
+  <div class="ptab on" id="pt0" onclick="selPillar(0)">
+    <div class="ptab-l"><div class="ptab-n">PILLAR 01</div><div class="ptab-t">AIエージェント受託</div></div>
+    <div class="ptab-r" id="p0r">0万</div>
+  </div>
+  <div class="ptab" id="pt1" onclick="selPillar(1)">
+    <div class="ptab-l"><div class="ptab-n">PILLAR 02</div><div class="ptab-t">Obélisque デザイン×AI</div></div>
+    <div class="ptab-r" id="p1r">0万</div>
+  </div>
+  <div class="ptab" id="pt2" onclick="selPillar(2)">
+    <div class="ptab-l"><div class="ptab-n">PILLAR 03</div><div class="ptab-t">note × デジタル販売</div></div>
+    <div class="ptab-r" id="p2r">0万</div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div id="body">
+
+  <!-- SPINE -->
+  <div id="spine">
+    <div id="spine-track"></div>
+    <div id="spine-fill"></div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div id="sb">
+    <div id="ag-list"></div>
+    <div id="sb-rev">
+      <div class="sbr-lbl">チャネル収益</div>
+      <div id="sbr-rows"></div>
+      <div class="sbr-tot"><span>合計</span><span id="sbr-tot">0万</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- AGENT VIEW -->
+    <div id="agent-view">
+      <div id="coo-bn">
+        <div class="coo-dot"></div>
+        <div><div class="coo-t">統括AI（COO）モード</div><div class="coo-s">全7部署を横断管理</div></div>
+      </div>
+      <div id="ag-hdr">
+        <div id="ag-hdr-row">
+          <span id="ag-ic">◉</span>
+          <div>
+            <div id="ag-nm">統括AI（COO）</div>
+            <div id="ag-ms">全部署の調整・KPI管理・優先タスク生成</div>
+            <div id="ag-badge">統括部</div>
+          </div>
+          <div id="ag-kpis">
+            <div class="kpib"><div class="kpib-l" id="kl1">月商達成率</div><div><span class="kpib-v" id="kv1">0</span><span class="kpib-s" id="ku1">%</span></div></div>
+            <div class="kpib"><div class="kpib-l">累計収益</div><div><span class="kpib-v" id="rv1">—</span><span class="kpib-s" id="ru1">万</span></div></div>
+          </div>
+        </div>
+        <div id="ag-kbar"><div id="ag-kfill"></div></div>
+      </div>
+      <div id="qk"></div>
+      <div id="api-bar">
+        <label>🔑 API Key</label>
+        <input id="api-key" type="password" placeholder="sk-ant-..." onchange="saveToLS()">
+        <span id="api-note">ブラウザのみ・外部送信なし</span>
+      </div>
+      <div id="gas-bar">
+        <label>⚡ GAS URL</label>
+        <input id="gas-url" type="text" placeholder="https://script.google.com/macros/s/..." onchange="saveToLS()">
+        <button onclick="startGASPolling()" id="gas-fetch-btn">同期</button>
+        <span id="gas-status">未接続</span>
+        <button onclick="showKPIEditor()" id="kpi-edit-btn">📊 KPI更新</button>
+        <button onclick="resetLS()" id="reset-btn">リセット</button>
+      </div>
+      <div id="kpi-editor" style="display:none">
+        <div id="kpi-editor-inner"></div>
+        <button onclick="g('kpi-editor').style.display='none'">閉じる</button>
+      </div>
+      <div id="file-area">
+        <label id="file-label" for="file-input">📎 ファイルを添付</label>
+        <input id="file-input" type="file" accept=".pdf,.txt,.md,.csv,image/*" multiple>
+        <span class="file-hint">PDF・画像・テキスト対応 — AIが読み込んで分析・記事生成に活用</span>
+      </div>
+      <div id="chat">
+        <div id="typ">
+          <div class="mav">AI</div>
+          <div style="display:flex;gap:3px;padding:8px 4px">
+            <div class="d" id="d1"></div><div class="d" id="d2"></div><div class="d" id="d3"></div>
+          </div>
+        </div>
+      </div>
+      <div id="inp">
+        <div id="inp-row">
+          <button id="float-btn" onclick="toggleToday()">📋 <span id="float-badge">0</span></button>
+          <button id="pipe-btn" onclick="openPipeline()" style="background:rgba(223,255,79,.1);color:var(--acc);border:1px solid rgba(223,255,79,.25);border-radius:7px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">🚀 note生成</button>
+          <textarea id="msg-in" placeholder="エージェントに指示を送る… (Shift+Enterで改行)" autocomplete="off" rows="2"></textarea>
+          <button id="snd">送信</button>
+        </div>
+        <div id="inp-hint">Enter で送信 / Shift+Enter で改行 — APIキー未入力時はデモモードで動作</div>
+      </div>
+    </div>
+
+    <!-- NOTE DASHBOARD VIEW -->
+    <div id="note-view">
+      <div class="nv-wrap">
+
+        <!-- Header -->
+        <div class="nv-hdr">
+          <div class="nv-brand"><div class="nv-brand-dot"></div>乗数ラボ — NOTE REVENUE DASHBOARD</div>
+          <div class="nv-title">noteで<span class="gr">最速収益化</span>する<br>ジャンル戦略ダッシュボード</div>
+          <div class="nv-sub">2026年の成長市場と恭介さんの実務経験が最も活きるテーマを可視化。<br>「何を書くか」「どの価格で売るか」「どれくらい積み上がるか」がひと目で判断できます。</div>
+          <div class="nv-stats">
+            <div class="nvs"><div class="nvs-v">+268%</div><div class="nvs-l">AI活用系の前年比成長率</div></div>
+            <div class="nvs"><div class="nvs-v">24%</div><div class="nvs-l">有料コンテンツ比率</div></div>
+            <div class="nvs"><div class="nvs-v">+81%</div><div class="nvs-l">メンバーシップ売上成長</div></div>
+            <div class="nvs"><div class="nvs-v">1,515万</div><div class="nvs-l">トップ1,000人の平均年商</div></div>
+          </div>
+        </div>
+
+        <!-- Genre Ranking -->
+        <div class="nv-sec">
+          <div class="nv-sec-hd">
+            <div class="nv-kicker">MARKET RANKING</div>
+            <div class="nv-sec-title">2026年 売れるジャンルランキング</div>
+            <div class="nv-line"></div>
+          </div>
+          <div class="nv-genres" id="nv-genres"></div>
+        </div>
+
+        <!-- Topics -->
+        <div class="nv-sec">
+          <div class="nv-sec-hd">
+            <div class="nv-kicker">BEST TOPICS</div>
+            <div class="nv-sec-title">恭介さんが今すぐ書ける鉄板テーマ TOP6</div>
+            <div class="nv-line"></div>
+          </div>
+          <div class="nv-topics" id="nv-topics"></div>
+        </div>
+
+        <!-- Simulator -->
+        <div class="nv-sec">
+          <div class="nv-sec-hd">
+            <div class="nv-kicker">REVENUE SIMULATOR</div>
+            <div class="nv-sec-title">note収益シミュレーター</div>
+            <div class="nv-line"></div>
+          </div>
+          <div class="nv-sim">
+            <div class="nv-sim-l">
+              <div class="sim-preset-row">
+                <button class="sim-pr on" onclick="applyPreset('real',this)">現実ライン</button>
+                <button class="sim-pr" onclick="applyPreset('growth',this)">攻めプラン</button>
+                <button class="sim-pr" onclick="applyPreset('premium',this)">高単価プラン</button>
+              </div>
+              <div class="sld-blk">
+                <div class="sld-top"><span class="sld-lbl">月間公開記事数</span><span><span class="sld-val" id="sc">5</span><span class="sld-unit">本</span></span></div>
+                <input type="range" min="1" max="30" value="5" id="rc" oninput="calcSim()">
+              </div>
+              <div class="sld-blk">
+                <div class="sld-top"><span class="sld-lbl">平均単価</span><span><span class="sld-val" id="sp">4,980</span><span class="sld-unit">円</span></span></div>
+                <input type="range" min="500" max="19800" step="500" value="4980" id="rp" oninput="calcSim()">
+              </div>
+              <div class="sld-blk">
+                <div class="sld-top"><span class="sld-lbl">記事あたり月間販売数</span><span><span class="sld-val" id="ss">20</span><span class="sld-unit">本</span></span></div>
+                <input type="range" min="1" max="200" value="20" id="rs" oninput="calcSim()">
+              </div>
+              <div class="sld-blk">
+                <div class="sld-top"><span class="sld-lbl">ストック記事数（累計）</span><span><span class="sld-val" id="sk">10</span><span class="sld-unit">本</span></span></div>
+                <input type="range" min="1" max="100" value="10" id="rk" oninput="calcSim()">
+              </div>
+            </div>
+            <div class="nv-sim-r">
+              <div class="kpi-blk"><div class="kpi-lbl">月間収益（新規記事）</div><div class="kpi-val" id="rn">—</div><div class="kpi-sub">公開月のフロー収益</div></div>
+              <div class="kpi-blk"><div class="kpi-lbl">月間収益（ストック）</div><div class="kpi-val g" id="rt2">—</div><div class="kpi-sub">過去記事の積み上げ収益</div></div>
+              <div class="kpi-blk"><div class="kpi-lbl">月間合計収益</div><div class="kpi-val" style="font-size:32px" id="rtot">—</div><div class="kpi-sub" id="rann">年換算：—</div></div>
+              <div class="sim-insight" id="sim-insight">まずはAI実録系を軸に、少本数でも高単価化する設計が最も相性の良い戦略です。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="nv-sec">
+          <div class="nv-sec-hd">
+            <div class="nv-kicker">OPTIMIZATION</div>
+            <div class="nv-sec-title">収益最大化のコツ</div>
+            <div class="nv-line"></div>
+          </div>
+          <div class="nv-tips">
+            <div class="nvtip"><div class="nvtip-top"><div class="nvtip-ic">🎯</div><div class="nvtip-t">タイトルに数字を入れる</div></div><div class="nvtip-b">「3ヶ月で月商500万」「7つの自動化ツール」のように数字化するとCTRが2〜3倍向上します。</div></div>
+            <div class="nvtip"><div class="nvtip-top"><div class="nvtip-ic">📦</div><div class="nvtip-t">セット販売で単価UP</div></div><div class="nvtip-b">3本まとめて完全パック化。単品より満足度が高く価格抵抗が下がりやすくなります。</div></div>
+            <div class="nvtip"><div class="nvtip-top"><div class="nvtip-ic">⚡</div><div class="nvtip-t">公開後72時間に集中</div></div><div class="nvtip-b">初速が出る記事ほど伸びやすい。公開直後にSNS・既存顧客へ一気に展開する設計が有効。</div></div>
+            <div class="nvtip"><div class="nvtip-top"><div class="nvtip-ic">🔄</div><div class="nvtip-t">メンバーシップへ接続</div></div><div class="nvtip-b">単発販売だけでなく月額導線を設けると売上の安定感が大きく上がります。</div></div>
+            <div class="nvtip"><div class="nvtip-top"><div class="nvtip-ic">📝</div><div class="nvtip-t">実体験を必ず入れる</div></div><div class="nvtip-b">差別化の核心は実体験。「実際どうやったか」「どこで失敗したか」が価格耐性を上げます。</div></div>
+            <div class="nvtip"><div class="nvtip-top"><div class="nvtip-ic">🏷️</div><div class="nvtip-t">タグを固定運用する</div></div><div class="nvtip-b">#AI活用 #副業 #資産形成 を固定タグとして全記事に設定。シリーズ感と発見性を育てます。</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /note-view -->
+
+  </div><!-- /main -->
+</div><!-- /body -->
+
+<!-- TODAY PANEL -->
+<div id="today-panel">
+  <div id="tp-hdr">
+    <div id="tp-hdr-title">📋 今日のタスク &amp; ログ</div>
+    <button id="tp-close" onclick="toggleToday()">✕</button>
+  </div>
+  <div id="tp-body">
+    <div class="tp-sec">
+      <div class="tp-sec-title">TODAY'S TASKS</div>
+      <div id="tp-tasks"></div>
+    </div>
+    <div class="tp-sec">
+      <div class="tp-sec-title">NOTE 投稿ログ</div>
+      <div id="tp-notelog"></div>
+      <button class="tp-add-btn" onclick="addNoteLog()">＋ note投稿を記録する</button>
+    </div>
+    <div class="tp-sec">
+      <div class="tp-sec-title">エージェント連携</div>
+      <div style="font-size:11px;color:var(--txt2);line-height:1.7;margin-bottom:8px">AIの返答を別のエージェントに転送して連携できます。返答の下の「転送」ボタンを使ってください。</div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPROVEMENT LOG MODAL -->
+<div id="improve-modal">
+  <div class="improve-box">
+    <h3>⚠ 改善ログを記録</h3>
+    <p>このAIの回答で「違った」「もっとこうしてほしい」と感じたことをメモしてください。次回のプロンプト改善に使います。</p>
+    <textarea id="improve-text" placeholder="例：タイトルが長すぎた。もっと短く、数字を入れてほしい"></textarea>
+    <div class="improve-actions">
+      <button class="improve-cancel" onclick="closeImprove()">キャンセル</button>
+      <button class="improve-save" onclick="saveImprove()">記録する</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTE PIPELINE MODAL -->
+<div id="pipeline-modal">
+  <div class="pipe-box">
+    <div class="pipe-hdr">
+      <h3>🚀 note自動投稿パイプライン</h3>
+      <button class="pipe-close" onclick="closePipeline()">✕</button>
+    </div>
+    <div class="pipe-body">
+      <div class="pipe-input-row">
+        <label>テーマ・トピック</label>
+        <input id="pipe-theme" placeholder="例：ChatGPT×営業自動化">
+      </div>
+      <div class="pipe-input-row">
+        <label>想定単価</label>
+        <input id="pipe-price" placeholder="例：12,800円" value="9,800円">
+      </div>
+      <div class="pipe-steps" id="pipe-steps"></div>
+    </div>
+    <div id="pipe-progress-wrap">
+      <div id="pipe-progress-bar"><div id="pipe-progress-fill"></div></div>
+      <div id="pipe-progress-text"><span id="pipe-progress-label">待機中</span><span id="pipe-progress-pct">0%</span></div>
+    </div>
+    <div class="pipe-ftr">
+      <button class="pipe-start-btn" id="pipe-start-btn" onclick="startPipeline()">パイプラインを開始</button>
+    </div>
+  </div>
+</div>
+
+<!-- float-btn moved to inp-row -->
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════
+// DATA
+// ══════════════════════════════════════
+const AG = [
+  {id:"coo",lb:"統括AI",nm:"統括AI（CEO）マスク",ic:"◉",cl:"#dfff4f",pl:-1,dp:"統括部",ms:"第一原理思考で恭介さんの方針を分解し、各エージェントに大胆かつ高速に実行指示を出す実行指揮官",kl:"月商達成率",ku:"%",kc:0,kt:100,rc:0,rt:0,
+   qk:["この方針を各部署のタスクに分解して","note公開フローを今すぐ開始して","今のボトルネックは何？","10倍の成果を出すには？"],
+   pr:"あなたの名前は「マスク」、乗数ラボのAI CEOです。著名起業家イーロン・マスク氏の経営哲学・思考スタイルを参照してください（本人ではなくスタイルの参照）。特徴：①第一原理思考＝『なぜそうなのか』を根本から問い直し、慣習を疑う②スピード最優先＝完璧な計画より高速な実行と修正を重視③大胆な目標設定＝現実的な数値より『10倍を狙えるか』を問う④ボトルネック特定＝『今いちばんの制約は何か』を常に問う⑤直接的で簡潔な物言い＝遠回しな表現を避け、率直に結論から話す。恭介さんは経営者として大方針だけを伝えます。あなたの役割は『調整』ではなく『実行指揮』。方針を受け取ったら①根本課題を一言で特定②どのエージェントが何をすべきか分解③実行順序④恭介さんの代わりに各エージェントへの指示文を書く、という4ステップで回答してください。16エージェント：統括マスク・SEOサーチ・SNSソーシャル・コンテンツエディ・デザインアート・受託セールス・ECストア・運用オプス・経理マネー・NFTクリプト・マーケリサーチ・コピーワード・画像ビジュアル・スケジュールカレンダー・分析データ・CSリセプション。3本柱：①AIエージェント受託（月500万）②Obélisqueデザイン×AI（月300万）③note×デジタル販売（月200万）。月商目標1,000万円。箇条書きで300〜400字、率直に。"},
+  {id:"seo",lb:"SEO-AI",nm:"SEOエージェント",ic:"✦",cl:"#8c8cff",pl:0,dp:"集客部",ms:"Obélisqueサイト・note・X発信で受託の見込み客を集める",kl:"月間流入",ku:"PV",kc:0,kt:10000,rc:0,rt:0,
+   qk:["今週書くべきテーマ","受託獲得に効くキーワード","サイト改善点","差別化コンテンツ案"],
+   pr:"あなたの名前は「サーチ」、乗数ラボのSEO担当です。AIエージェント受託・デザイン×AI・noteの見込み客をSEOで集めます。X・note・Obélisqueサイトへの流入施策を具体的に300字以内で。"},
+  {id:"sns",lb:"SNS-AI",nm:"SNSエージェント",ic:"◈",cl:"#ff5ea8",pl:0,dp:"集客部",ms:"X・Instagram・TikTokで「AIで会社を動かす経営者」として自動発信",kl:"フォロワー",ku:"人",kc:0,kt:10000,rc:0,rt:0,
+   qk:["今週のX投稿3本","バズりやすいテーマ","Instagram投稿案","フォロワー増加施策"],
+   pr:"あなたの名前は「ソーシャル」、乗数ラボのSNS担当です。「AIで会社を動かす経営者・恭介」ブランドでX・Instagram・TikTokを運用します。台本・ハッシュタグ・スケジュールを300字以内で。"},
+  {id:"content",lb:"コンテンツ-AI",nm:"コンテンツエージェント",ic:"▣",cl:"#b18cff",pl:1,dp:"商品部",ms:"note有料記事・プロンプト集・テンプレートの生成・量産",kl:"記事本数",ku:"本",kc:0,kt:50,rc:0,rt:200,
+   qk:["今週のnote記事を書いて","売れるタイトル5本","プロンプト集の構成案","SNS告知文を作って"],
+   pr:"あなたの名前は「エディ」、乗数ラボのコンテンツ編集長です。note有料記事・AIプロンプト集・業務テンプレートを生成します。恭介さんの強み：コールセンター経営×AI活用×内製ツールの実体験。記事構成・本文・タイトルを300字以内で。"},
+  {id:"design",lb:"デザイン-AI",nm:"デザインエージェント",ic:"△",cl:"#ff9b54",pl:1,dp:"商品部",ms:"LP・バナー・ブランディング・提案書をAI×Obélisqueで高速制作",kl:"制作件数",ku:"件",kc:0,kt:30,rc:0,rt:300,
+   qk:["LP構成案","提案書の骨格","差別化ポイント","クライアント向け提案"],
+   pr:"あなたの名前は「アート」、乗数ラボのデザイン担当です。LP・ブランディング・AIエージェント受託の提案書を高速制作します。構成案・コピー・デザイン方向性を300字以内で。"},
+  {id:"biz",lb:"受託-AI",nm:"受託営業エージェント",ic:"⬡",cl:"#3ddc91",pl:0,dp:"販売部",ms:"AIエージェント受託開発のインバウンド獲得・提案・クロージング",kl:"受注件数",ku:"件",kc:0,kt:20,rc:0,rt:500,
+   qk:["新規受託の提案書","クロージングトーク","ターゲット企業リスト","受注単価UP"],
+   pr:"あなたの名前は「セールス」、乗数ラボの営業統括です。LP・note・SNS経由のインバウンドリード（AIエージェント開発受託）の提案・クロージングを担当します。アウトバウンドではなくWebから来た問い合わせへの対応が主な役割。単価目安：コールセンターAI構築50〜100万、営業ダッシュボード30〜80万、SNS自動化20〜50万、保守5〜15万/月。【禁止事項】具体的な契約金額・納期を恭介さんの確認なしに確定提示しない（あくまで提案・たたき台として明示する）。提案書・対応メール・クロージングを300字以内で。"},
+  {id:"ec",lb:"EC-AI",nm:"EC販売エージェント",ic:"◬",cl:"#56d8ff",pl:0,dp:"販売部",ms:"note・BASE・Gumroadの販売最適化・自動納品・価格戦略",kl:"販売数",ku:"本",kc:0,kt:200,rc:0,rt:200,
+   qk:["販売ページの改善点","価格設定の相談","セット販売の設計","売上を上げるには"],
+   pr:"あなたの名前は「ストア」、乗数ラボのEC担当です。note・BASE・Gumroadでのデジタルコンテンツ販売を最大化します。販売ページ改善・価格戦略を300字以内で。"},
+  {id:"ops",lb:"運用-AI",nm:"運用エージェント",ic:"⚙",cl:"#8390a7",pl:0,dp:"運用部",ms:"受託クライアントの保守・月次レポート・改善提案の自動化",kl:"保守クライアント",ku:"社",kc:0,kt:20,rc:0,rt:100,
+   qk:["クライアント向けレポート","保守作業の効率化","解約防止施策","月次レビュー資料"],
+   pr:"あなたの名前は「オプス」、乗数ラボの運用担当です。受託クライアントの保守・月次レポート・改善提案を自動化します。報告書・改善提案・解約防止トークを300字以内で。"},
+  {id:"fin",lb:"経理-AI",nm:"経理エージェント",ic:"◎",cl:"#ffcb66",pl:-1,dp:"経理部",ms:"3本柱の収益集計・APIコスト監視・月商進捗アラート",kl:"APIコスト",ku:"円",kc:0,kt:30000,rc:0,rt:0,
+   qk:["今月のコスト試算","収益予測","APIコスト最適化","投資対効果を計算"],
+   pr:"あなたの名前は「マネー」、乗数ラボのCFO補佐です。3本柱の収益集計とAPIコスト管理を担当。【禁止事項】実在しない金額や確定していない数値を断定的に提示しない。不明な数値は「未確定」と明記する。恭介さんの確認なしに投資判断を断定しない（提案に留める）。月商進捗・コスト試算・節約施策を数字で300字以内で。"},
+  {id:"nft",lb:"NFT-AI",nm:"NFTエージェント",ic:"✴",cl:"#e879f9",pl:1,dp:"NFT部",ms:"Obélisque NFTコレクション企画・OpenSea出品・二次収益設計",kl:"発行数",ku:"点",kc:0,kt:100,rc:0,rt:80,
+   qk:["コレクションコンセプト","OpenSea出品手順","Discord運営戦略","ロイヤリティ設計"],
+   pr:"あなたの名前は「クリプト」、乗数ラボのNFT担当です。デザイン資産をNFT化して二次流通ロイヤリティ収益を構築します。企画・X/Discord戦略・出品手順を300字以内で。"},
+  {id:"inbound",lb:"CS-AI",nm:"インバウンドCSエージェント",ic:"📞",cl:"#22c55e",pl:0,dp:"コールセンター部",ms:"Web・note・SNS経由の申込受付・クロージング支援・KPI管理",kl:"月間申込数",ku:"件",kc:0,kt:100,rc:0,rt:0,
+   qk:["今月のインバウンドKPIを確認","申込から成約までのフローを改善","LP経由の申込対応スクリプト","チャネル別流入数を分析"],
+   pr:"あなたの名前は「リセプション」、乗数ラボのインバウンドCS担当です。Web・note・SNS・LP経由で来た光回線・楽天モバイル・新電力・AIエージェント受託の申込対応を担当します。アウトバウンド（架電）は行いません。申込受付フロー・クロージング支援・FAQ・KPI管理（申込数・成約率・チャネル別流入）が役割。300字以内で実務的に。"},,
+  {id:"mkt",lb:"マーケ-AI",nm:"マーケティングエージェント",ic:"📡",cl:"#38bdf8",pl:0,dp:"マーケティング部",ms:"市場調査・競合分析・トレンド把握・売れるテーマ発掘",kl:"調査件数",ku:"件",kc:0,kt:20,rc:0,rt:0,
+   qk:["今週売れるテーマを3つ提案","競合記事を分析して","noteのトレンドキーワード","ターゲット読者の悩みを深掘り"],
+   pr:"あなたの名前は「リサーチ」、乗数ラボのマーケティング担当です。note（乗数ラボ名義）・AIエージェント受託・Obélisqueデザインの市場調査・競合分析・トレンド把握を担当します。コールセンター経営者・中小企業経営者・AI活用したいビジネスマンがターゲット。売れるテーマ・キーワード・読者の悩みを具体的に提案。300字以内で実務的に。"},
+  {id:"copy",lb:"コピー-AI",nm:"コピーライティングエージェント",ic:"✏",cl:"#fb923c",pl:0,dp:"マーケティング部",ms:"セールスコピー・タイトル・メルマガ・広告文の生成",kl:"制作本数",ku:"本",kc:0,kt:50,rc:0,rt:0,
+   qk:["noteタイトルを10本作って","販売ページのコピーを作って","メルマガ件名を5本作って","X広告文を作って"],
+   pr:"あなたの名前は「ワード」、乗数ラボのコピーライターです。note（乗数ラボ名義）有料記事のタイトル・販売LP・メルマガ・SNS広告文を生成します。ターゲット：営業責任者・HR担当・SaaS経営者・AI活用したいビジネスマン。数字・具体的成果・読者の悩みを入れた購買につながるコピーを。300字以内で具体的に。"},
+  {id:"img",lb:"画像-AI",nm:"画像生成エージェント",ic:"🖼",cl:"#c084fc",pl:1,dp:"クリエイティブ部",ms:"サムネ・バナー・SNS画像のCanva/Midjourney指示文生成",kl:"制作指示",ku:"件",kc:0,kt:30,rc:0,rt:0,
+   qk:["noteサムネの指示文を作って","CanvaのバナーレイアウトをAI生成","Midjourneyプロンプトを作って","サムネデザイン案を3つ出して"],
+   pr:"あなたの名前は「ビジュアル」、乗数ラボのデザイン制作担当です。noteサムネ（1200×630px）・SNSバナー・LP画像のデザイン指示文を生成します。Canva向けの具体的なレイアウト指示（背景色・フォント・配置）とMidjourney向けプロンプトを日本語で。乗数ラボのブランドカラー：黒背景×黄緑（#e8ff47）。300字以内で。"},
+  {id:"sched",lb:"スケジュール-AI",nm:"スケジュールエージェント",ic:"📅",cl:"#34d399",pl:0,dp:"運用部",ms:"投稿計画・コンテンツカレンダー・週次タスクの自動生成",kl:"計画件数",ku:"件",kc:0,kt:52,rc:0,rt:0,
+   qk:["今週のコンテンツカレンダーを作って","来月の投稿計画を立てて","従業員の週次タスクリスト","note×SNS配信スケジュール最適化"],
+   pr:"あなたの名前は「カレンダー」、乗数ラボのスケジュール担当です。note投稿（週2本目標）・SNS配信・受託案件進行・従業員タスク割り当てを担当します。月曜テーマ決定→火曜記事公開→水曜SNS告知→金曜2本目→日曜KPI確認のサイクルを管理。週次・月次の具体的行動計画を箇条書きで。300字以内で実務的に。"},
+  {id:"anal",lb:"分析-AI",nm:"分析エージェント",ic:"📈",cl:"#fbbf24",pl:-1,dp:"分析部",ms:"売上・PV・SNS反応の分析・週次KPIレポート自動生成",kl:"レポート数",ku:"件",kc:0,kt:52,rc:0,rt:0,
+   qk:["今週のKPIレポートを作って","売上が伸びている要因を分析","改善すべき優先項目は？","来月の収益予測を出して"],
+   pr:"あなたの名前は「データ」、乗数ラボの分析担当です。note（乗数ラボ名義）販売数・SNSエンゲージメント・受託案件・月商1,000万へのKPI分析とレポート生成を担当します。3本柱の進捗・ボトルネック・改善優先順位を数値ベースで分析。具体的な改善提案を箇条書きで。300字以内で実務的に。"}
+];
+
+// DEMOSは廃止 - APIキーが必須
+const DEMOS = {};
+
+const GENRES = [
+  {rank:1,nm:"テクノロジー・AI活用",g:"+268%",p:"3,000〜19,800円",cl:"#8c8cff",tags:["最注目","競合少"],m:95,b:100},
+  {rank:2,nm:"SNS・コンテンツ運用",g:"+259%",p:"2,000〜9,800円",cl:"#ff5ea8",tags:["急成長","拡散しやすい"],m:90,b:97},
+  {rank:3,nm:"副業・在宅ワーク実践",g:"+179%",p:"1,980〜9,800円",cl:"#3ddc91",tags:["需要安定","初心者多"],m:80,b:67},
+  {rank:4,nm:"デザイン・動画制作",g:"+155%",p:"2,980〜14,800円",cl:"#ff9b54",tags:["高単価","Obélisque強み"],m:98,b:58},
+  {rank:5,nm:"ビジネス・マーケティング",g:"+142%",p:"3,980〜19,800円",cl:"#ffcb66",tags:["高単価","経営者向け"],m:92,b:53},
+  {rank:6,nm:"キャリア・転職",g:"+128%",p:"1,000〜4,980円",cl:"#56d8ff",tags:["需要安定"],m:60,b:48},
+  {rank:7,nm:"金融・資産形成",g:"+120%",p:"980〜9,800円",cl:"#b18cff",tags:["高需要","実績必要"],m:40,b:45},
+];
+
+const TOPICS = [
+  {ic:"🤖",t:"AIで会社を動かす全設計図",d:"7部署×AIエージェントの組織図から月商1,000万の実録まで。経営者にしか書けない内容。",p:"9,800円",dem:"★★★★★",badge:"最高収益",bc:"rgba(223,255,79,.12)",btc:"#dfff4f",cl:"#dfff4f"},
+  {ic:"📞",t:"コールセンターをAIで自動化した実録",d:"GAS・Salesforce連携・AIトーク補助の全手順。同業他社や運営責任者が強く反応するテーマ。",p:"4,980円",dem:"★★★★★",badge:"独自性MAX",bc:"rgba(140,140,255,.16)",btc:"#8c8cff",cl:"#8c8cff"},
+  {ic:"🎨",t:"Obélisque流 AIデザイン制作の全手順",d:"Claude + 画像生成 + Figmaで制作時間を1/5に圧縮する実践ガイド。",p:"3,980円",dem:"★★★★☆",badge:"Obélisque強み",bc:"rgba(255,155,84,.14)",btc:"#ff9b54",cl:"#ff9b54"},
+  {ic:"💻",t:"Claude APIで営業ツールを内製する方法",d:"GASとClaude APIを組み合わせた実際のコード、設計思想、営業現場での使い方を公開。",p:"2,980円",dem:"★★★★☆",badge:"技術系高需要",bc:"rgba(61,220,145,.14)",btc:"#3ddc91",cl:"#3ddc91"},
+  {ic:"📱",t:"SNS自動運用で月10万を作る仕組み",d:"HeyGen・Canva AI・自動投稿ツールを組み合わせた再現可能なワークフロー。",p:"2,480円",dem:"★★★★☆",badge:"SNS急成長",bc:"rgba(255,94,168,.14)",btc:"#ff5ea8",cl:"#ff5ea8"},
+  {ic:"🏢",t:"中小企業がAIエージェントを月30万で導入する方法",d:"読むだけで相談につながる受託導線型コンテンツ。noteを営業装置として活かすテーマ。",p:"4,980円",dem:"★★★★★",badge:"受託獲得に直結",bc:"rgba(86,216,255,.14)",btc:"#56d8ff",cl:"#56d8ff"},
+];
+
+const PRESETS = {
+  real:{c:5,p:4980,s:20,k:10},
+  growth:{c:8,p:6980,s:28,k:18},
+  premium:{c:4,p:9800,s:18,k:14},
+};
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+const T = 1000;
+let aid = "coo";
+let curPillar = 0;
+const hist = {};
+AG.forEach(a => { hist[a.id] = []; });
+
+const g = id => document.getElementById(id);
+const pct = (a,b) => Math.min(a/b, 1);
+const fmt = n => n.toLocaleString();
+const totRev = () => AG.reduce((s,a) => s+a.rc, 0);
+const nowStr = () => new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+const cur = () => AG.find(a => a.id === aid);
+const pRev = pid => AG.filter(a=>a.pl===pid).reduce((s,a)=>s+a.rc,0);
+
+// ══════════════════════════════════════
+// LOCAL STORAGE — デプロイしてもデータが残る
+// ══════════════════════════════════════
+const LS_KEY = 'josulab_kpi_v1';
+
+function saveToLS() {
+  const data = {};
+  AG.forEach(a => {
+    data[a.id] = { kc: a.kc, rc: a.rc, hist: hist[a.id] || [] };
+  });
+  data._apikey = g('api-key').value;
+  data._gasurl = g('gas-url') ? g('gas-url').value : '';
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function loadFromLS() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) {
+      const el = g('gas-status');
+      if(el){ el.textContent='新規セッション'; el.style.color='var(--txt3)'; }
+      return;
+    }
+    const data = JSON.parse(raw);
+    let restoredChats = 0;
+    AG.forEach(a => {
+      if(data[a.id]) {
+        a.kc = data[a.id].kc || 0;
+        a.rc = data[a.id].rc || 0;
+        if(data[a.id].hist && data[a.id].hist.length > 0) {
+          hist[a.id] = data[a.id].hist;
+          restoredChats += data[a.id].hist.length;
+        }
+      }
+    });
+    if(data._apikey && g('api-key')) g('api-key').value = data._apikey;
+    if(data._gasurl && g('gas-url')) g('gas-url').value = data._gasurl;
+    const el = g('gas-status');
+    if(el){
+      el.textContent = restoredChats > 0 ? '復元済（' + restoredChats + '件のログ）' : 'データ復元済';
+      el.style.color = 'var(--green)';
+    }
+  } catch(e) {
+    const el = g('gas-status');
+    if(el){ el.textContent='復元エラー'; el.style.color='#f43f5e'; }
+  }
+}
+
+function resetLS() {
+  if(!confirm('全データ（KPI・収益・チャット履歴）をリセットしますか？')) return;
+  localStorage.removeItem(LS_KEY);
+  AG.forEach(a => { a.kc = 0; a.rc = 0; hist[a.id] = []; });
+  upHdr(); buildSb(); upAgHdr(); renderChat();
+}
+
+// ══════════════════════════════════════
+// KPI 手動更新
+// ══════════════════════════════════════
+function updateKPI(agId, field, val) {
+  const a = AG.find(x => x.id === agId);
+  if(!a) return;
+  const n = parseFloat(val);
+  if(isNaN(n)) return;
+  a[field] = n;
+  saveToLS();
+  upHdr(); buildSb(); upAgHdr(); upSpine();
+}
+
+// ══════════════════════════════════════
+// GAS 連携
+// ══════════════════════════════════════
+let gasPolling = null;
+
+async function fetchFromGAS() {
+  const url = g('gas-url') ? g('gas-url').value.trim() : '';
+  if(!url) return;
+
+  // JSONP方式でCORSを回避
+  return new Promise((resolve) => {
+    const cbName = 'gasCallback_' + Date.now();
+    const el = g('gas-status');
+
+    // タイムアウト設定（10秒）
+    const timer = setTimeout(() => {
+      delete window[cbName];
+      const s = document.getElementById('gas-script-tag');
+      if(s) s.remove();
+      if(el){ el.textContent = 'タイムアウト'; el.style.color='#f43f5e'; }
+      resolve();
+    }, 10000);
+
+    window[cbName] = function(data) {
+      clearTimeout(timer);
+      delete window[cbName];
+      const s = document.getElementById('gas-script-tag');
+      if(s) s.remove();
+      try {
+        let updated = false;
+        AG.forEach(a => {
+          if(data[a.id]) {
+            if(data[a.id].kc !== undefined) a.kc = Number(data[a.id].kc) || 0;
+            if(data[a.id].rc !== undefined) a.rc = Number(data[a.id].rc) || 0;
+            updated = true;
+          }
+        });
+        if(updated) {
+          saveToLS();
+          upHdr(); buildSb(); upAgHdr(); upSpine();
+          if(el){ el.textContent = '✓ ' + new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}) + ' 同期完了'; el.style.color='var(--green)'; }
+        }
+      } catch(err) {
+        if(el){ el.textContent = 'データエラー: ' + err.message; el.style.color='#f43f5e'; }
+      }
+      resolve();
+    };
+
+    // scriptタグでJSONPリクエスト
+    const script = document.createElement('script');
+    script.id = 'gas-script-tag';
+    const separator = url.includes('?') ? '&' : '?';
+    script.src = url + separator + 'callback=' + cbName;
+    script.onerror = function() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if(el){ el.textContent = '接続エラー（URLを確認）'; el.style.color='#f43f5e'; }
+      resolve();
+    };
+    document.head.appendChild(script);
+  });
+}
+
+function startGASPolling() {
+  if(gasPolling) clearInterval(gasPolling);
+  fetchFromGAS();
+  gasPolling = setInterval(fetchFromGAS, 5 * 60 * 1000); // 5分ごと
+  saveToLS();
+}
+
+// ══════════════════════════════════════
+// SPINE
+// ══════════════════════════════════════
+function buildSpine() {
+  const sp = g('spine');
+  [250,500,750,1000].forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'sms'; el.dataset.m = m;
+    const p2 = m/T;
+    el.style.cssText = `width:7px;height:7px;bottom:calc(${p2*100}% - ${p2*40}px + 20px - 4px)`;
+    sp.appendChild(el);
+  });
+}
+function upSpine() {
+  const t = totRev();
+  const h = g('spine').offsetHeight - 40;
+  g('spine-fill').style.height = (h * pct(t,T)) + 'px';
+  document.querySelectorAll('.sms').forEach(el => {
+    const r = t >= parseInt(el.dataset.m);
+    el.classList.toggle('on', r);
+    el.style.width = r ? '9px':'7px';
+    el.style.height = r ? '9px':'7px';
+  });
+}
+
+// ══════════════════════════════════════
+// HEADER
+// ══════════════════════════════════════
+function upHdr() {
+  const t = totRev();
+  g('trev').textContent = fmt(t);
+  g('tpct').textContent = Math.round(pct(t,T)*100) + '%';
+  g('tday').textContent = new Date().toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});
+  g('p0r').textContent = fmt(pRev(0))+'万';
+  g('p1r').textContent = fmt(pRev(1))+'万';
+  g('p2r').textContent = fmt(pRev(2))+'万';
+}
+
+// ══════════════════════════════════════
+// PILLAR SELECT
+// ══════════════════════════════════════
+function selPillar(pid) {
+  curPillar = pid;
+  [0,1,2].forEach(i => {
+    g('pt'+i).classList.toggle('on', i===pid);
+  });
+  if(pid === 2) {
+    // Show note dashboard
+    g('note-view').classList.add('on');
+    g('agent-view').style.display = 'none';
+    buildNoteView();
+  } else {
+    g('note-view').classList.remove('on');
+    g('agent-view').style.display = 'flex';
+    const first = AG.find(a => a.pl === pid);
+    if(first) selAg(first.id);
+  }
+  buildSb();
+}
+
+// ══════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════
+function buildSb() {
+  const list = g('ag-list'), rows = g('sbr-rows');
+  list.innerHTML = ''; rows.innerHTML = '';
+  const dpts = {};
+  AG.forEach(a => { if(!dpts[a.dp]) dpts[a.dp]=[]; dpts[a.dp].push(a); });
+  Object.entries(dpts).forEach(([dp, ags]) => {
+    const sec = document.createElement('div');
+    sec.className='sb-sec'; sec.textContent=dp; list.appendChild(sec);
+    ags.forEach(a => {
+      const rp = a.rt>0 ? pct(a.rc,a.rt) : 0;
+      const isA = a.id===aid && curPillar!==2;
+      const div = document.createElement('div');
+      div.className = 'ag' + (isA?' on':'');
+      if(isA){div.style.background=a.cl+'12';div.style.borderColor=a.cl+'50';}
+      div.innerHTML =
+        '<div class="ag-row">'
+        + '<span class="ag-ic" style="color:'+a.cl+';opacity:'+(isA?'1':'.55')+'">'+a.ic+'</span>'
+        + '<div style="flex:1;min-width:0">'
+        + '<div class="ag-lb" style="color:'+(isA?'var(--txt)':'var(--txt2)')+'">'+a.lb+'</div>'
+        + '<div class="ag-rv">'+(a.rc>0?fmt(a.rc)+'万':'—')+'</div>'
+        + '</div>'
+        + (a.rt>0?'<div class="ag-ring" style="border-color:'+(isA?a.cl:'rgba(255,255,255,.12)')+';color:'+(isA?a.cl:'var(--txt3)')+'">'+Math.round(rp*100)+'%</div>':'')
+        + '</div>'
+        + (a.rt>0?'<div class="ag-bar"><div class="ag-bar-fill" style="width:'+(rp*100)+'%;background:'+a.cl+'"></div></div>':'');
+      div.addEventListener('click', (function(agent){
+        return function(){
+          if(agent.pl===2){ selPillar(2); return; }
+          if(agent.pl===0 && curPillar!==0){ selPillar(0); }
+          else if(agent.pl===1 && curPillar!==1){ selPillar(1); }
+          else if(agent.pl===-1){
+            g('note-view').classList.remove('on');
+            g('agent-view').style.display='flex';
+          }
+          selAg(agent.id);
+          buildSb();
+        };
+      })(a));
+      list.appendChild(div);
+    });
+  });
+  AG.forEach(a => {
+    const row=document.createElement('div'); row.className='sbr-row';
+    row.innerHTML='<span style="color:'+a.cl+'">'+a.lb+'</span><span style="color:'+(a.rc>0?a.cl:'var(--txt3)')+'">'+(a.rc>0?fmt(a.rc)+'万':'—')+'</span>';
+    rows.appendChild(row);
+  });
+  g('sbr-tot').textContent = fmt(totRev())+'万';
+}
+
+// ══════════════════════════════════════
+// AGENT HEADER
+// ══════════════════════════════════════
+function upAgHdr() {
+  const a = cur();
+  g('ag-hdr').style.background = a.cl+'0a';
+  g('ag-ic').textContent=a.ic; g('ag-ic').style.color=a.cl;
+  g('ag-nm').textContent=a.nm; g('ag-ms').textContent=a.ms;
+  const bd=g('ag-badge');
+  const pnames=['AIエージェント受託','Obélisque デザイン×AI','note × デジタル販売'];
+  const pcls=['#8c8cff','#ff9b54','#3ddc91'];
+  if(a.pl>=0){bd.style.background=pcls[a.pl]+'22';bd.style.color=pcls[a.pl];bd.textContent='PILLAR 0'+(a.pl+1)+' — '+pnames[a.pl];}
+  else{bd.style.background='rgba(223,255,79,.1)';bd.style.color='var(--acc)';bd.textContent=a.dp;}
+  g('kl1').textContent=a.kl;
+  g('kv1').textContent=fmt(a.kc); g('kv1').style.color=a.cl;
+  g('ku1').textContent=a.ku;
+  g('rv1').textContent=a.rt>0?(a.rc>0?fmt(a.rc)+'万':'—'):'—';
+  g('ru1').textContent=a.rt>0?'万':'';
+  g('ag-kfill').style.width=(pct(a.kc,a.kt)*100)+'%'; g('ag-kfill').style.background=a.cl;
+  g('msg-in').placeholder=a.nm+'に指示を送る…';
+  g('coo-bn').classList.toggle('on', a.id==='coo');
+  ['d1','d2','d3'].forEach(id=>{g(id).style.background=a.cl});
+}
+
+// ══════════════════════════════════════
+// QUICK COMMANDS
+// ══════════════════════════════════════
+function buildQk() {
+  const a=cur(); const w=g('qk'); w.innerHTML='';
+  a.qk.forEach(cmd=>{
+    const b=document.createElement('button'); b.className='qb'; b.textContent=cmd;
+    b.addEventListener('click',()=>{g('msg-in').value=cmd; trackQkUsage(a.id, cmd); send();});
+    b.addEventListener('mouseenter',()=>{b.style.borderColor=a.cl;b.style.color=a.cl;});
+    b.addEventListener('mouseleave',()=>{b.style.borderColor='var(--brd)';b.style.color='var(--txt3)';});
+    w.appendChild(b);
+  });
+}
+
+// ══════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════
+function renderChat() {
+  const a=cur(); const ch=g('chat'); const ty=g('typ');
+  ch.innerHTML=''; ch.appendChild(ty);
+  const h=hist[a.id];
+  if(h.length===0){bubble('assistant',a.nm+'です。\n'+a.ms+'\n\n指示をください。',false);}
+  else{h.forEach(m=>bubble(m.r,m.c,false));}
+  scr();
+}
+function bubble(role,txt,doScr=true){
+  const ch=g('chat'); const ty=g('typ');
+  const d=document.createElement('div'); d.className='msg'+(role==='user'?' u':'');
+  const av=document.createElement('div'); av.className='mav'; av.textContent=role==='user'?'K':'AI';
+  const wrap=document.createElement('div'); wrap.className='bub-wrap';
+  const b=document.createElement('div'); b.className='bub'; b.textContent=txt;
+  const t=document.createElement('div'); t.className='mt'; t.textContent=nowStr();
+  b.appendChild(t); wrap.appendChild(b);
+  if(role==='assistant'){
+    const acts=document.createElement('div'); acts.className='bub-actions';
+    const cp=document.createElement('button'); cp.className='bub-copy'; cp.textContent='📋 全文コピー';
+    cp.addEventListener('click',()=>{
+      navigator.clipboard.writeText(txt).then(()=>{cp.textContent='✓ コピー完了';setTimeout(()=>{cp.textContent='📋 全文コピー';},2000);});
+    });
+    const np=document.createElement('button'); np.className='bub-note'; np.textContent='noteで開く →';
+    np.addEventListener('click',()=>{ window.open('https://note.com/new','_blank'); });
+    // Relay buttons - show relevant next agents
+    const relayMap = {
+      'content': [{id:'copy',label:'→ タイトル生成'},  {id:'img',label:'→ サムネ生成'}, {id:'sns',label:'→ SNS告知'}],
+      'mkt':     [{id:'content',label:'→ 記事生成'}, {id:'copy',label:'→ コピー生成'}],
+      'copy':    [{id:'img',label:'→ サムネ生成'}, {id:'sns',label:'→ SNS告知'}],
+      'img':     [{id:'sns',label:'→ SNS告知'}],
+      'biz':     [{id:'design',label:'→ 提案書作成'}],
+      'anal':    [{id:'sched',label:'→ 来週の計画'}],
+      'sched':   [{id:'mkt',label:'→ テーマ決定'}],
+    };
+    const relays = relayMap[aid] || [];
+    relays.forEach(rel => {
+      const rb = document.createElement('button');
+      rb.className = 'relay-btn';
+      rb.textContent = rel.label;
+      rb.addEventListener('click', () => {
+        relayToAgent(rel.id, '前のAIの内容を参照して続けてください' + '\n\n' + txt.substring(0,300) + (txt.length>300?'...':''));
+      });
+      acts.appendChild(rb);
+    });
+    const ib=document.createElement('button'); ib.className='improve-btn'; ib.textContent='⚠ 改善メモ';
+    ib.addEventListener('click',()=>{ openImprove(aid); });
+    acts.appendChild(cp); acts.appendChild(np); acts.appendChild(ib); wrap.appendChild(acts);
+  }
+  d.appendChild(av); d.appendChild(wrap);
+  ch.insertBefore(d,ty); if(doScr)scr();
+}
+function scr(){const c=g('chat');c.scrollTop=c.scrollHeight;}
+function styp(on){g('typ').classList.toggle('on',on);if(on)scr();}
+
+// ══════════════════════════════════════
+// SEND
+// ══════════════════════════════════════
+// ── FILE HANDLING ──
+let attachedFiles = [];
+
+function initFileInput() {
+  const fi = g('file-input');
+  fi.addEventListener('change', async () => {
+    const files = Array.from(fi.files);
+    for(const file of files) {
+      const entry = { name: file.name, type: file.type, b64: null, text: null };
+      if(file.type.startsWith('image/') || file.type === 'application/pdf') {
+        entry.b64 = await toB64(file);
+      } else {
+        entry.text = await file.text();
+      }
+      attachedFiles.push(entry);
+    }
+    fi.value = '';
+    renderFileChips();
+  });
+}
+
+function toB64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function renderFileChips() {
+  const area = g('file-area');
+  area.querySelectorAll('.file-chip').forEach(c => c.remove());
+  attachedFiles.forEach((f, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'file-chip';
+    const icon = f.type.startsWith('image/') ? '🖼️' : f.type === 'application/pdf' ? '📄' : '📝';
+    chip.innerHTML = '<span>' + icon + ' ' + f.name + '</span><button class="file-chip-rm" onclick="removeFile(' + i + ')">✕</button>';
+    area.appendChild(chip);
+  });
+  area.classList.toggle('has-file', attachedFiles.length > 0);
+}
+
+function removeFile(i) {
+  attachedFiles.splice(i, 1);
+  renderFileChips();
+}
+
+async function send() {
+  const mi = g('msg-in');
+  const txt = mi.value.trim();
+  if(!txt && attachedFiles.length === 0) return;
+  const key = g('api-key').value.trim();
+  const a = cur();
+  const userTxt = txt || 'このファイルを分析してください';
+
+  if(attachedFiles.length > 0) {
+    const fileNames = attachedFiles.map(f => f.name).join(', ');
+    bubble('user', (txt ? txt + '\n\n' : '') + '📎 添付ファイル：' + fileNames);
+  } else {
+    bubble('user', txt);
+  }
+  hist[a.id].push({r:'user', c:userTxt});
+  mi.value = '';
+  saveToLS();
+  styp(true);
+
+  if(!key) {
+    styp(false);
+    const msg = '\uD83D\uDD11 APIキーを入力してください。\n\n上部「API Key」欄にsk-ant-...を入力するとClaudeがリアルタイムで回答します。\n\n取得先：https://console.anthropic.com/settings/keys';
+    hist[a.id].push({r:'assistant', c:msg});
+    bubble('assistant', msg);
+    attachedFiles = [];
+    renderFileChips();
+    return;
+  }
+
+  try {
+    const userContent = [];
+    for(const f of attachedFiles) {
+      if(f.type.startsWith('image/')) {
+        userContent.push({type:'image', source:{type:'base64', media_type:f.type, data:f.b64}});
+      } else if(f.type === 'application/pdf') {
+        userContent.push({type:'document', source:{type:'base64', media_type:'application/pdf', data:f.b64}});
+      } else if(f.text) {
+        userContent.push({type:'text', text:'[添付ファイル: ' + f.name + ']\n' + f.text});
+      }
+    }
+    userContent.push({type:'text', text:userTxt});
+
+    const msgs = hist[a.id].slice(0, -1).map(m => ({role:m.r, content:m.c}));
+    msgs.push({role:'user', content: attachedFiles.length > 0 ? userContent : userTxt});
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        system: a.pr,
+        messages: msgs
+      })
+    });
+    const data = await res.json();
+    if(data.error) {
+      styp(false);
+      bubble('assistant', 'APIエラー：' + data.error.type + '\n' + data.error.message);
+      attachedFiles = []; renderFileChips(); return;
+    }
+    const rep = data.content?.map(b => b.text || '').join('') || 'レスポンスが空です。';
+    hist[a.id].push({r:'assistant', c:rep});
+    styp(false);
+    bubble('assistant', rep);
+    attachedFiles = [];
+    renderFileChips();
+    saveToLS();
+  } catch(e) {
+    styp(false);
+    bubble('assistant', '通信エラー：' + e.message);
+    attachedFiles = [];
+    renderFileChips();
+  }
+}
+
+function selAg(id) {
+  aid=id; upAgHdr(); buildQk(); renderChat();
+}
+
+// ══════════════════════════════════════
+// NOTE DASHBOARD
+// ══════════════════════════════════════
+let nvBuilt = false;
+function buildNoteView() {
+  if(nvBuilt) return;
+  nvBuilt = true;
+  // Genres
+  const gc=g('nv-genres'); gc.innerHTML='';
+  GENRES.forEach(gn=>{
+    const el=document.createElement('div');
+    el.className='nvg'+(gn.rank<=3?' top':'');
+    el.style.setProperty('--gc',gn.cl);
+    el.querySelector?.('::before');
+    el.style.borderLeft=`3px solid ${gn.cl}`;
+    var tagHtml = gn.tags.map(t=>'<span class="nvtag" style="background:'+gn.cl+'18;color:'+gn.cl+';border-color:'+gn.cl+'28">'+t+'</span>').join('');
+    el.innerHTML = '<div class="nvg-rank">'+String(gn.rank).padStart(2,'0')+'</div>'
+      + '<div><div class="nvg-name">'+gn.nm+'</div>'
+      + '<div class="nvg-tags">'+tagHtml+'<span class="nvtag" style="background:rgba(223,255,79,.08);color:var(--acc);border-color:rgba(223,255,79,.18)">適合度 '+gn.m+'%</span></div>'
+      + '<div class="nvg-bar"><div class="nvg-fill" style="background:'+gn.cl+'" data-w="'+gn.b+'"></div></div></div>'
+      + '<div class="nvg-right"><div class="nvg-growth" style="color:'+gn.cl+'">'+gn.g+'</div><div class="nvg-price">単価 '+gn.p+'</div></div>';
+    gc.appendChild(el);
+  });
+  setTimeout(()=>{ document.querySelectorAll('.nvg-fill').forEach(b=>{b.style.width=b.dataset.w+'%';}); },100);
+  // Topics
+  const tc=g('nv-topics'); tc.innerHTML='';
+  TOPICS.forEach(tp=>{
+    const el=document.createElement('div'); el.className='nvt';
+    el.innerHTML=`<div class="nvt-top"><div class="nvt-icon">${tp.ic}</div><div class="nvt-badge" style="background:${tp.bc};color:${tp.btc};border:1px solid ${tp.bc}">${tp.badge}</div></div><div class="nvt-title">${tp.t}</div><div class="nvt-desc">${tp.d}</div><div class="nvt-meta"><div class="nvt-pill">単価<strong>${tp.p}</strong></div><div class="nvt-pill">需要<strong>${tp.dem}</strong></div></div>`;
+    tc.appendChild(el);
+  });
+  calcSim();
+}
+
+// ══════════════════════════════════════
+// SIMULATOR
+// ══════════════════════════════════════
+function fmtY(n){
+  if(n>=10000) return (n/10000).toFixed(1).replace('.0','')+'万円';
+  return n.toLocaleString()+'円';
+}
+function calcSim(){
+  const c=parseInt(g('rc').value),p=parseInt(g('rp').value),s=parseInt(g('rs').value),k=parseInt(g('rk').value);
+  g('sc').textContent=c; g('sp').textContent=p.toLocaleString(); g('ss').textContent=s; g('sk').textContent=k;
+  const nw=c*p*s, st=k*p*Math.round(s*.3), tot=nw+st;
+  g('rn').textContent=fmtY(nw); g('rt2').textContent=fmtY(st);
+  g('rtot').textContent=fmtY(tot); g('rann').textContent='年換算：'+fmtY(tot*12);
+  const ins = p>=9000 ? '高単価モデルです。事例・実績・ビフォーアフターの密度を上げるほど売れやすくなります。'
+    : c>=8&&s>=25 ? '攻めの量産モデルです。タイトル精度・初速導線・SNS告知の強さが成果を左右します。'
+    : 'まずはAI実録系を軸に、少本数でも高単価化する設計が最も相性の良い戦略です。';
+  g('sim-insight').textContent=ins;
+}
+function applyPreset(type,btn){
+  document.querySelectorAll('.sim-pr').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const p=PRESETS[type];
+  g('rc').value=p.c; g('rp').value=p.p; g('rs').value=p.s; g('rk').value=p.k;
+  calcSim();
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+
+// ══════════════════════════════════════
+// TODAY TASKS & NOTE LOG
+// ══════════════════════════════════════
+const LS_TODAY = 'josulab_today_v1';
+const LS_NOTELOG = 'josulab_notelog_v1';
+
+const DEFAULT_TASKS = [
+  {id:'t1', text:'マーケ-AIに今週のテーマを提案させる', ag:'mkt', done:false},
+  {id:'t2', text:'コンテンツ-AIでnote記事を生成する', ag:'content', done:false},
+  {id:'t3', text:'コピー-AIでタイトルを10本作る', ag:'copy', done:false},
+  {id:'t4', text:'画像-AIでサムネ指示文を作る', ag:'img', done:false},
+  {id:'t5', text:'noteに記事を公開する', ag:'', done:false},
+  {id:'t6', text:'SNS-AIで告知文を生成してSNS投稿', ag:'sns', done:false},
+  {id:'t7', text:'スプレッドシートのKPIを更新する', ag:'', done:false},
+  {id:'t8', text:'分析-AIで週次レポートを作る', ag:'anal', done:false},
+];
+
+let todayTasks = [];
+let noteLog = [];
+
+function loadTodayData() {
+  try {
+    const td = localStorage.getItem(LS_TODAY);
+    if(td) {
+      const parsed = JSON.parse(td);
+      // Reset done status if new day
+      const savedDate = parsed._date;
+      const today = new Date().toDateString();
+      if(savedDate !== today) {
+        todayTasks = DEFAULT_TASKS.map(t => ({...t, done:false}));
+      } else {
+        todayTasks = parsed.tasks || DEFAULT_TASKS.map(t => ({...t}));
+      }
+    } else {
+      todayTasks = DEFAULT_TASKS.map(t => ({...t}));
+    }
+    const nl = localStorage.getItem(LS_NOTELOG);
+    if(nl) noteLog = JSON.parse(nl);
+  } catch(e) {
+    todayTasks = DEFAULT_TASKS.map(t => ({...t}));
+  }
+}
+
+function saveTodayData() {
+  try {
+    localStorage.setItem(LS_TODAY, JSON.stringify({
+      _date: new Date().toDateString(),
+      tasks: todayTasks
+    }));
+    localStorage.setItem(LS_NOTELOG, JSON.stringify(noteLog));
+  } catch(e) {}
+}
+
+function renderTodayPanel() {
+  const tasksEl = g('tp-tasks');
+  const noteEl = g('tp-notelog');
+  if(!tasksEl || !noteEl) return;
+
+  // Tasks
+  tasksEl.innerHTML = '';
+  todayTasks.forEach((t,i) => {
+    const div = document.createElement('div');
+    div.className = 'tp-task' + (t.done ? ' done' : '');
+    const ag = t.ag ? AG.find(a => a.id === t.ag) : null;
+    div.innerHTML = '<div class="tp-check"></div>'
+      + '<div class="tp-task-body">'
+      + '<div class="tp-task-txt">' + t.text + '</div>'
+      + (ag ? '<div class="tp-task-ag" style="color:'+ag.cl+'">→ '+ag.lb+'</div>' : '')
+      + '</div>';
+    div.addEventListener('click', () => {
+      todayTasks[i].done = !todayTasks[i].done;
+      saveTodayData();
+      renderTodayPanel();
+      updateFloatBadge();
+      if(ag && !todayTasks[i].done === false) {
+        // Auto-switch to agent when task undone
+      }
+      if(ag && todayTasks[i].done === false) {
+        selAg(ag.id);
+      }
+    });
+    tasksEl.appendChild(div);
+  });
+
+  // Note log
+  noteEl.innerHTML = '';
+  if(noteLog.length === 0) {
+    noteEl.innerHTML = '<div style="font-size:11px;color:var(--txt3);margin-bottom:8px">まだ投稿記録がありません</div>';
+  } else {
+    noteLog.slice(-5).reverse().forEach(n => {
+      const div = document.createElement('div');
+      div.className = 'tp-log-item';
+      div.innerHTML = '<div class="tp-log-icon">📝</div>'
+        + '<div class="tp-log-body">'
+        + '<div class="tp-log-title">' + n.title + '</div>'
+        + '<div class="tp-log-meta">' + n.price + ' | ' + n.date + '</div>'
+        + '</div>';
+      noteEl.appendChild(div);
+    });
+  }
+
+  updateFloatBadge();
+}
+
+function updateFloatBadge() {
+  const remaining = todayTasks.filter(t => !t.done).length;
+  const badge = g('float-badge');
+  if(badge) {
+    badge.textContent = remaining;
+    badge.style.background = remaining === 0 ? 'var(--green)' : '#0a0e1a';
+  }
+}
+
+function toggleToday() {
+  const panel = g('today-panel');
+  if(!panel) return;
+  panel.classList.toggle('on');
+  if(panel.classList.contains('on')) renderTodayPanel();
+}
+
+function addNoteLog() {
+  const title = prompt('記事タイトルを入力してください：');
+  if(!title) return;
+  const price = prompt('販売価格を入力（例：12,800円）：') || '未設定';
+  noteLog.push({
+    title: title,
+    price: price,
+    date: new Date().toLocaleDateString('ja-JP'),
+    ts: Date.now()
+  });
+  saveTodayData();
+  renderTodayPanel();
+  // Update content KPI
+  const contentAg = AG.find(a => a.id === 'content');
+  if(contentAg) {
+    contentAg.kc = (contentAg.kc || 0) + 1;
+    saveToLS();
+    upHdr(); buildSb(); upAgHdr(); upSpine();
+  }
+  alert('投稿を記録しました！コンテンツ-AIの記事本数が自動更新されます。');
+}
+
+// ══════════════════════════════════════
+// AGENT RELAY (エージェント間連携)
+// ══════════════════════════════════════
+function relayToAgent(targetId, content) {
+  selAg(targetId);
+  setTimeout(() => {
+    const mi = g('msg-in');
+    if(mi) {
+      mi.value = content;
+      mi.focus();
+    }
+  }, 300);
+  // Close today panel if open
+  const panel = g('today-panel');
+  if(panel) panel.classList.remove('on');
+}
+
+
+// ══════════════════════════════════════
+// IMPROVEMENT LOG（改善ログ）
+// ══════════════════════════════════════
+const LS_IMPROVE = 'josulab_improve_v1';
+let improveLog = [];
+let improveTargetAgent = null;
+
+function loadImproveLog() {
+  try {
+    const raw = localStorage.getItem(LS_IMPROVE);
+    if(raw) improveLog = JSON.parse(raw);
+  } catch(e) { improveLog = []; }
+}
+
+function saveImproveLog() {
+  try { localStorage.setItem(LS_IMPROVE, JSON.stringify(improveLog)); } catch(e) {}
+}
+
+function openImprove(agentId) {
+  improveTargetAgent = agentId;
+  g('improve-text').value = '';
+  g('improve-modal').classList.add('on');
+}
+
+function closeImprove() {
+  g('improve-modal').classList.remove('on');
+  improveTargetAgent = null;
+}
+
+function saveImprove() {
+  const text = g('improve-text').value.trim();
+  if(!text || !improveTargetAgent) { closeImprove(); return; }
+  const ag = AG.find(a => a.id === improveTargetAgent);
+  improveLog.push({
+    agentId: improveTargetAgent,
+    agentLabel: ag ? ag.lb : improveTargetAgent,
+    text: text,
+    date: new Date().toLocaleDateString('ja-JP'),
+    ts: Date.now()
+  });
+  saveImproveLog();
+  closeImprove();
+  alert('改善ログを記録しました。週次で振り返りに使ってください。');
+}
+
+function getImproveLogText() {
+  if(improveLog.length === 0) return '改善ログはまだありません。';
+  return improveLog.slice(-20).map(l =>
+    '['+l.date+'] '+l.agentLabel+': '+l.text
+  ).join('\n');
+}
+
+// ══════════════════════════════════════
+// QUICK COMMAND USAGE TRACKING（効果測定）
+// ══════════════════════════════════════
+const LS_QKSTATS = 'josulab_qkstats_v1';
+let qkStats = {};
+
+function loadQkStats() {
+  try {
+    const raw = localStorage.getItem(LS_QKSTATS);
+    if(raw) qkStats = JSON.parse(raw);
+  } catch(e) { qkStats = {}; }
+}
+
+function saveQkStats() {
+  try { localStorage.setItem(LS_QKSTATS, JSON.stringify(qkStats)); } catch(e) {}
+}
+
+function trackQkUsage(agentId, cmd) {
+  const key = agentId + '::' + cmd;
+  qkStats[key] = (qkStats[key] || 0) + 1;
+  saveQkStats();
+}
+
+
+// ══════════════════════════════════════
+// NOTE自動投稿パイプライン（確認制）
+// ══════════════════════════════════════
+const PIPE_STEPS = [
+  {id:'mkt', agentId:'mkt', label:'リサーチ（マーケ-AI）がテーマを検証', cl:'#38bdf8',
+   buildPrompt:(theme,price)=>'「'+theme+'」というテーマでnote記事を書く予定です。このテーマの市場性・競合状況・想定読者を簡潔に分析してください。問題なければ「GO」、懸念があれば理由を教えてください。'},
+  {id:'content', agentId:'content', label:'エディ（コンテンツ-AI）が記事本文を生成', cl:'#a78bfa',
+   buildPrompt:(theme,price)=>'「'+theme+'」をテーマにnote有料記事を書いてください。単価'+price+'。冒頭の無料部分（800字程度）と有料部分の最初のセクション（1000字程度）を含めてください。'},
+  {id:'copy', agentId:'copy', label:'ワード（コピー-AI）がタイトルを生成', cl:'#fb923c',
+   buildPrompt:(theme,price)=>'「'+theme+'」のnote記事タイトルを5本作ってください。数字・具体的成果・読者の悩みを入れてください。'},
+  {id:'img', agentId:'img', label:'ビジュアル（画像-AI）がサムネ指示を生成', cl:'#c084fc',
+   buildPrompt:(theme,price)=>'「'+theme+'」のnoteサムネ（1200×630px）をCanvaで作る指示文を出してください。乗数ラボのブランドカラー（黒×黄緑）で。'},
+  {id:'ceo', agentId:'coo', label:'マスク（CEO）が最終チェック＆公開GO判定', cl:'#dfff4f',
+   buildPrompt:(theme,price)=>'「'+theme+'」のnote記事パイプラインが完了しました。単価'+price+'。第一原理思考で公開前の最終チェックポイントを3つ挙げ、問題なければ率直に「公開してください」と締めてください。'},
+];
+
+let pipeRunning = false;
+let pipeResults = {};
+
+function openPipeline() {
+  try {
+    pipeResults = {};
+    pipeStatus = {};
+    pipeTimes = {};
+    stopPipeTimer();
+    const themeEl = g('pipe-theme');
+    const priceEl = g('pipe-price');
+    if(themeEl) themeEl.value = '';
+    if(priceEl) priceEl.value = '9,800円';
+    const btn = g('pipe-start-btn');
+    if(btn) { btn.disabled = false; btn.textContent = 'パイプラインを開始'; }
+    renderPipeSteps();
+    const modal = g('pipeline-modal');
+    if(modal) modal.classList.add('on');
+    else alert('パイプラインの画面が見つかりません。ページを再読み込みしてください。');
+  } catch(e) {
+    alert('エラーが発生しました: ' + e.message);
+    console.error(e);
+  }
+}
+
+function closePipeline() {
+  g('pipeline-modal').classList.remove('on');
+}
+
+let pipeStatus = {}; // id -> 'wait'|'run'|'done'|'err'
+let pipeTimes = {};  // id -> {start, end}
+
+function statusBadge(st) {
+  if(st==='run') return '<span class="pipe-status-badge pipe-status-run"><span class="pipe-spinner"></span> 実行中</span>';
+  if(st==='done') return '<span class="pipe-status-badge pipe-status-done">✓ 完了</span>';
+  if(st==='err') return '<span class="pipe-status-badge pipe-status-err">✕ エラー</span>';
+  return '<span class="pipe-status-badge pipe-status-wait">待機中</span>';
+}
+
+function renderPipeSteps() {
+  const wrap = g('pipe-steps');
+  wrap.innerHTML = '';
+  PIPE_STEPS.forEach((s, i) => {
+    const result = pipeResults[s.id];
+    const status = pipeStatus[s.id] || 'wait';
+    const div = document.createElement('div');
+    div.className = 'pipe-step' + (status==='done'?' done':'') + (status==='run'?' active':'');
+    div.id = 'pipestep-' + s.id;
+
+    let timeStr = '';
+    const t = pipeTimes[s.id];
+    if(t && t.end) timeStr = '<span class="pipe-step-time">' + ((t.end-t.start)/1000).toFixed(1) + '秒</span>';
+    else if(t && t.start && status==='run') timeStr = '<span class="pipe-step-time" id="pipetime-'+s.id+'">0.0秒</span>';
+
+    div.innerHTML =
+      '<div class="pipe-step-hd">'
+      + '<div class="pipe-step-num">' + (status==='done' ? '✓' : (i+1)) + '</div>'
+      + '<div class="pipe-step-title">' + s.label + '</div>'
+      + '<div class="pipe-step-agent" style="color:' + s.cl + '">' + (AG.find(a=>a.id===s.agentId)||{}).lb + '</div>'
+      + statusBadge(status)
+      + timeStr
+      + '</div>'
+      + (result ? '<div class="pipe-step-body show">' + result + '</div>' : '')
+      + (result ? '<div class="pipe-step-actions"><button class="pipe-btn" onclick="goToAgentFromPipe(\''+s.agentId+'\')">エージェントで詳細を見る</button></div>' : '');
+    wrap.appendChild(div);
+  });
+  updatePipeProgress();
+}
+
+function updatePipeProgress() {
+  const total = PIPE_STEPS.length;
+  const done = PIPE_STEPS.filter(s => pipeStatus[s.id]==='done').length;
+  const running = PIPE_STEPS.find(s => pipeStatus[s.id]==='run');
+  const pct = Math.round((done/total)*100);
+  const fill = g('pipe-progress-fill');
+  const label = g('pipe-progress-label');
+  const pctEl = g('pipe-progress-pct');
+  if(fill) fill.style.width = pct + '%';
+  if(pctEl) pctEl.textContent = pct + '%';
+  if(label) {
+    if(running) label.textContent = '実行中: ' + running.label;
+    else if(done === total && total > 0) label.textContent = '✓ 全工程完了';
+    else label.textContent = '待機中';
+  }
+}
+
+let pipeTimerInterval = null;
+function startPipeTimer(stepId) {
+  if(pipeTimerInterval) clearInterval(pipeTimerInterval);
+  pipeTimerInterval = setInterval(() => {
+    const t = pipeTimes[stepId];
+    const el = g('pipetime-' + stepId);
+    if(t && t.start && el) {
+      el.textContent = ((Date.now()-t.start)/1000).toFixed(1) + '秒';
+    }
+  }, 100);
+}
+function stopPipeTimer() {
+  if(pipeTimerInterval) { clearInterval(pipeTimerInterval); pipeTimerInterval = null; }
+}
+
+function goToAgentFromPipe(agentId) {
+  closePipeline();
+  selAg(agentId);
+}
+
+async function startPipeline() {
+  const theme = g('pipe-theme').value.trim();
+  const price = g('pipe-price').value.trim() || '9,800円';
+  if(!theme) { alert('テーマを入力してください'); return; }
+  const apiKey = g('api-key').value.trim();
+  if(!apiKey) { alert('APIキーを入力してください'); return; }
+
+  pipeRunning = true;
+  pipeResults = {};
+  pipeStatus = {};
+  pipeTimes = {};
+  PIPE_STEPS.forEach(s => { pipeStatus[s.id] = 'wait'; });
+  renderPipeSteps();
+
+  const btn = g('pipe-start-btn');
+  btn.disabled = true;
+  btn.textContent = '実行中…';
+
+  for(let i = 0; i < PIPE_STEPS.length; i++) {
+    const step = PIPE_STEPS[i];
+    pipeStatus[step.id] = 'run';
+    pipeTimes[step.id] = { start: Date.now(), end: null };
+    renderPipeSteps();
+    startPipeTimer(step.id);
+
+    const agent = AG.find(a => a.id === step.agentId);
+    const prompt = step.buildPrompt(theme, price);
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1500,
+          system: agent.pr,
+          messages: [{role:'user', content: prompt}]
+        })
+      });
+      const data = await res.json();
+      stopPipeTimer();
+      pipeTimes[step.id].end = Date.now();
+
+      if(data.error) {
+        pipeStatus[step.id] = 'err';
+        pipeResults[step.id] = 'APIエラー: ' + data.error.message;
+        renderPipeSteps();
+        break;
+      }
+
+      const reply = data.content?.map(b=>b.text||'').join('') || 'レスポンスが空です';
+      pipeResults[step.id] = reply;
+      pipeStatus[step.id] = 'done';
+
+      hist[agent.id].push({r:'user', c: prompt});
+      hist[agent.id].push({r:'assistant', c: reply});
+      saveToLS();
+
+      renderPipeSteps();
+    } catch(e) {
+      stopPipeTimer();
+      pipeTimes[step.id].end = Date.now();
+      pipeStatus[step.id] = 'err';
+      pipeResults[step.id] = '通信エラー: ' + e.message;
+      renderPipeSteps();
+      break;
+    }
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  pipeRunning = false;
+  btn.disabled = false;
+  const allDone = PIPE_STEPS.every(s => pipeStatus[s.id] === 'done');
+  btn.textContent = allDone ? '✓ 全工程完了 — もう一度実行' : '⚠ 途中で停止 — 再実行';
+
+  if(allDone && confirm('パイプラインが完了しました。note投稿ログに記録しますか？')) {
+    noteLog.push({
+      title: theme,
+      price: price,
+      date: new Date().toLocaleDateString('ja-JP'),
+      ts: Date.now()
+    });
+    saveTodayData();
+    const contentAg = AG.find(a => a.id === 'content');
+    if(contentAg) { contentAg.kc = (contentAg.kc||0)+1; saveToLS(); upHdr(); buildSb(); upAgHdr(); upSpine(); }
+  }
+}
+
+function showKPIEditor() {
+  const editor = g('kpi-editor');
+  const inner = g('kpi-editor-inner');
+  inner.innerHTML = '';
+  AG.forEach(a => {
+    const row1 = document.createElement('div');
+    row1.className = 'kpi-edit-row';
+    row1.innerHTML = '<span class="kpi-edit-lbl" style="color:'+a.cl+'">'+a.lb+' '+a.kl+'</span>'
+      + '<input class="kpi-edit-in" type="number" value="'+a.kc+'" min="0" onchange="updateKPI(\''+a.id+'\',\'kc\',this.value)">'
+      + '<span class="kpi-edit-unit">'+a.ku+'</span>';
+    inner.appendChild(row1);
+    if(a.rt > 0) {
+      const row2 = document.createElement('div');
+      row2.className = 'kpi-edit-row';
+      row2.innerHTML = '<span class="kpi-edit-lbl" style="color:'+a.cl+'">'+a.lb+' 収益</span>'
+        + '<input class="kpi-edit-in" type="number" value="'+a.rc+'" min="0" onchange="updateKPI(\''+a.id+'\',\'rc\',this.value)">'
+        + '<span class="kpi-edit-unit">万円</span>';
+      inner.appendChild(row2);
+    }
+  });
+  editor.style.display = editor.style.display === 'none' ? 'block' : 'none';
+}
+
+function init(){
+  loadFromLS();
+  loadTodayData();
+  loadImproveLog();
+  loadQkStats();
+  buildSpine(); upHdr(); buildSb(); selAg('coo'); upSpine();
+  updateFloatBadge();
+  g('snd').addEventListener('click', send);
+  initFileInput();
+  g('msg-in').addEventListener('keydown', e=>{
+    if(e.key==='Enter' && !e.shiftKey){
+      e.preventDefault();
+      send();
+    }
+    // Shift+Enter: allow default newline behavior
+  });
+  window.addEventListener('resize', upSpine);
+  g('api-key').addEventListener('change', saveToLS);
+  const gu = g('gas-url');
+  if(gu) gu.addEventListener('change', saveToLS);
+}
+init();
+</script>
+</body>
+</html>
