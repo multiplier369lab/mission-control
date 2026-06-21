@@ -1874,6 +1874,10 @@ function showKPIEditor() {
   editor.style.display = editor.style.display === 'none' ? 'block' : 'none';
 }
 
+window.addEventListener('error', function(e) {
+  alert('スクリプトエラー:\n' + e.message + '\n\nファイル: ' + (e.filename||'').split('/').pop() + '\n行: ' + e.lineno + ' 列: ' + e.colno);
+});
+
 function init(){
   loadFromLS();
   loadTodayData();
