@@ -3,27 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>MISSION CONTROL — Integrated Command Center</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>MISSION CONTROL — 3 Theme Switcher</title>
   <style>
     :root{
-      --bg:#071019; --bg2:#09141d; --panel:rgba(12,18,30,.76); --panel-2:rgba(10,16,26,.58);
+      --bg:#071019; --bg2:#0c1320; --panel:rgba(11,16,27,.74); --panel-2:rgba(10,14,24,.58);
       --line:rgba(255,255,255,.10); --line-2:rgba(255,255,255,.06); --line-3:rgba(255,255,255,.04);
-      --text:#f4f8ff; --muted:#a8b7cd; --soft:#73819a;
-      --acc:#8cff61; --acc2:#22e3a5; --warn:#ffd977; --danger:#ff6891; --violet:#aa89ff;
-      --shadow:0 18px 60px rgba(0,0,0,.45); --shadow-2:0 28px 90px rgba(0,0,0,.38);
-      --radius:22px; --radius-lg:28px; --radius-xl:34px;
+      --text:#f3f7ff; --muted:#aab7ca; --soft:#73819a;
+      --acc:#8cff61; --acc2:#22e3a5; --warn:#ffd977; --danger:#ff6b94; --violet:#aa89ff;
+      --radius:24px; --radius-lg:30px; --shadow:0 18px 60px rgba(0,0,0,.45); --shadow-2:0 28px 90px rgba(0,0,0,.38);
       --hero:url('https://www.genspark.ai/api/files/s/MSY2PUgP?cache_control=3600');
       --hero-overlay:linear-gradient(180deg,rgba(5,10,16,.88),rgba(5,9,14,.96));
-      --container:min(1440px, calc(100vw - 24px));
-      --header-h:84px; --sticky-h:96px;
-      --anim:.28s cubic-bezier(.22,.8,.32,1); --anim-slow:.56s cubic-bezier(.22,.8,.32,1);
+      --container:min(1420px, calc(100vw - 24px));
+      --header-h:84px; --anim:.28s cubic-bezier(.22,.8,.32,1); --anim-slow:.55s cubic-bezier(.22,.8,.32,1);
     }
     *{box-sizing:border-box}
     html,body{margin:0;min-height:100%;font-family:Inter,"Noto Sans JP",system-ui,sans-serif;background:radial-gradient(circle at top,rgba(95,255,121,.08),transparent 32%),var(--bg);color:var(--text);scroll-behavior:smooth}
-    body{overflow-x:hidden;padding-bottom:calc(var(--sticky-h) + env(safe-area-inset-bottom, 0px) + 20px)}
+    body{overflow-x:hidden}
     body::before{content:"";position:fixed;inset:0;background:var(--hero-overlay),var(--hero);background-size:cover;background-position:center;opacity:.28;pointer-events:none;transition:all .35s ease}
-    body::after{content:"";position:fixed;inset:0;background:linear-gradient(120deg,transparent 0 32%,rgba(255,255,255,.03) 40%,transparent 48%),repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 84px),repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0 1px,transparent 1px 84px);mix-blend-mode:screen;opacity:.22;pointer-events:none}
+    body::after{content:"";position:fixed;inset:0;background:linear-gradient(120deg,transparent 0 32%,rgba(255,255,255,.03) 40%,transparent 48%),repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 84px),repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0 1px,transparent 1px 84px);mix-blend-mode:screen;opacity:.18;pointer-events:none}
     .glyph-rain{position:fixed;inset:0;pointer-events:none;overflow:hidden;opacity:.14;z-index:0}
     .glyph-col{position:absolute;top:-20%;font-size:12px;line-height:1.2;font-family:monospace;color:var(--acc);white-space:pre;animation:fall linear infinite;text-shadow:0 0 12px color-mix(in srgb,var(--acc) 60%, transparent)}
     .bg-orb{position:fixed;border-radius:50%;pointer-events:none;filter:blur(28px);opacity:.18;z-index:0;animation:floatGlow 10s ease-in-out infinite}
@@ -33,43 +30,38 @@
     @keyframes fall{from{transform:translateY(-10%)}to{transform:translateY(130%)}}
     @keyframes floatGlow{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.05)}}
     @keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(0,0,0,0), 0 0 22px color-mix(in srgb,var(--acc) 18%, transparent)}50%{box-shadow:0 0 28px color-mix(in srgb,var(--acc) 16%, transparent), 0 0 40px color-mix(in srgb,var(--acc) 26%, transparent)}}
-    @keyframes ctaPulse{0%,100%{box-shadow:0 16px 34px color-mix(in srgb,var(--acc) 20%, transparent)}50%{box-shadow:0 20px 42px color-mix(in srgb,var(--acc) 32%, transparent)}}
     @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 
-    .app{position:relative;z-index:1;width:var(--container);margin:0 auto;padding:18px 0 36px}
+    .app{position:relative;z-index:1;width:var(--container);margin:0 auto;padding:18px 0 32px}
     .glass{background:var(--panel);backdrop-filter:blur(20px);border:1px solid var(--line);box-shadow:var(--shadow)}
     .panel{position:relative;overflow:hidden;border-radius:var(--radius-lg)}
     .panel::before{content:"";position:absolute;left:-15%;right:-15%;top:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);opacity:.8}
 
-    .topbar{position:sticky;top:0;z-index:60;height:var(--header-h);border-radius:30px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;animation:rise .6s var(--anim-slow) both}
+    .topbar{position:sticky;top:0;z-index:50;height:var(--header-h);border-radius:30px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;animation:rise .6s var(--anim-slow) both}
     .brand{display:flex;align-items:center;gap:14px;min-width:0}
     .brand-dot{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,var(--acc));box-shadow:0 0 22px color-mix(in srgb,var(--acc) 70%, transparent)}
     .eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--soft);font-weight:800}
     .title{font-size:26px;font-weight:900;letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .subtitle{font-size:12px;color:var(--muted)}
     .top-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
-    .hero-chip,.role-chip,.mini-stat,.access-chip,.status-chip{padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line-2)}
+    .role-chip,.hero-chip,.mini-stat,.task-pri,.status-chip,.theme-tag,.tag{padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line-2)}
+    .role-chip{display:grid;gap:3px;min-width:220px}
+    .role-chip b{font-size:14px}.role-chip span{font-size:11px;color:var(--muted)}
     .hero-chip .l,.mini-stat .l,.stat .l{font-size:10px;letter-spacing:.14em;color:var(--soft);text-transform:uppercase;font-weight:800}
     .hero-chip .v,.mini-stat .v,.stat .v{font-size:22px;font-weight:900;letter-spacing:-.04em}
     .hero-chip .s,.mini-stat .s,.stat .s{font-size:11px;color:var(--muted)}
-    .role-chip{display:grid;gap:3px;min-width:220px}
-    .role-chip b{font-size:14px}
-    .role-chip span{font-size:11px;color:var(--muted)}
-    .btn,.plan-btn,.modal-btn,.tiny-btn,select{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);padding:11px 14px;border-radius:14px;cursor:pointer;font-weight:800;transition:transform var(--anim),border-color var(--anim),box-shadow var(--anim),background var(--anim),color var(--anim)}
-    .btn:hover,.plan-btn:hover,.modal-btn:hover,.tiny-btn:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--acc) 50%, var(--line))}
-    .btn.primary,.plan-btn.prime,.modal-btn.primary{background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 18%, transparent),color-mix(in srgb,var(--acc2) 18%, transparent));border-color:color-mix(in srgb,var(--acc) 42%, var(--line));color:var(--acc)}
-    .btn.gold,.plan-btn.master{background:linear-gradient(135deg,color-mix(in srgb,var(--warn) 18%, transparent),color-mix(in srgb,var(--violet) 16%, transparent));border-color:color-mix(in srgb,var(--warn) 34%, var(--line));color:var(--warn)}
-    .btn.ghost,.plan-btn.standard,.modal-btn.secondary,.assist-link{background:rgba(255,255,255,.04);color:var(--text)}
-    .pulse-cta{animation:ctaPulse 2.2s ease-in-out infinite}
+    .btn,.tiny-btn,.theme-switch-btn{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);padding:11px 14px;border-radius:14px;cursor:pointer;font-weight:800;transition:transform var(--anim),border-color var(--anim),box-shadow var(--anim),background var(--anim),color var(--anim)}
+    .btn:hover,.tiny-btn:hover,.theme-switch-btn:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--acc) 50%, var(--line))}
+    .btn.primary,.theme-switch-btn.active{background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 18%, transparent),color-mix(in srgb,var(--acc2) 18%, transparent));border-color:color-mix(in srgb,var(--acc) 42%, var(--line));color:var(--acc)}
+    .btn.gold{background:linear-gradient(135deg,color-mix(in srgb,var(--warn) 18%, transparent),color-mix(in srgb,var(--violet) 16%, transparent));border-color:color-mix(in srgb,var(--warn) 34%, var(--line));color:var(--warn)}
 
     .layout{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
     aside{border-radius:30px;padding:18px;display:flex;flex-direction:column;gap:16px;position:sticky;top:102px;max-height:calc(100vh - 120px);overflow:auto}
     .section-kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);font-weight:900}
-    .nav-list,.agent-list,.command-list,.access-list,.timeline-list{display:flex;flex-direction:column;gap:10px}
-    .nav-item,.agent-card,.command-card,.access-card,.timeline-card,.faq-item{border:1px solid var(--line-2);background:rgba(255,255,255,.03);border-radius:18px;padding:13px 14px}
-    .nav-item.active,.agent-card.active,.access-card.active{border-color:color-mix(in srgb,var(--acc) 50%, var(--line));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--acc) 14%, transparent)}
+    .nav-list,.agent-list,.command-list,.theme-mini-list{display:flex;flex-direction:column;gap:10px}
+    .nav-item,.agent-card,.command-card,.theme-mini-card,.feed-card,.task{border:1px solid var(--line-2);background:rgba(255,255,255,.03);border-radius:18px;padding:13px 14px}
+    .nav-item.active,.agent-card.active,.theme-mini-card.active{border-color:color-mix(in srgb,var(--acc) 50%, var(--line));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--acc) 14%, transparent)}
     .nav-item .n{font-size:11px;color:var(--soft);letter-spacing:.12em;text-transform:uppercase}
     .nav-item .t{font-size:14px;font-weight:800;margin-top:4px}
     .agent-card{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
@@ -77,32 +69,30 @@
     .agent-name{font-size:13px;font-weight:800}.agent-role{font-size:11px;color:var(--muted);margin-top:2px}
     .status{font-size:10px;border-radius:999px;padding:6px 10px;border:1px solid var(--line)}
     .status.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 10%, transparent);border-color:color-mix(in srgb,var(--acc) 35%, var(--line))}
-    .command-card b,.access-card b,.timeline-card b{display:block;font-size:13px;margin-bottom:4px}
-    .command-card span,.access-card span,.timeline-card span{font-size:11px;color:var(--muted);line-height:1.6}
-    .access-card small{display:block;margin-top:8px;color:var(--soft);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+    .command-card b,.theme-mini-card b{display:block;font-size:13px;margin-bottom:4px}
+    .command-card span,.theme-mini-card span{font-size:11px;color:var(--muted);line-height:1.6}
 
     main{display:flex;flex-direction:column;gap:18px;min-width:0}
-    .top-grid{display:grid;grid-template-columns:1.04fr .58fr .38fr;gap:18px}
-    .hero-panel,.revenue-card,.authority-card,.workspace-panel,.feed-panel,.membership-panel,.insight-panel,.faq-panel,.analytics-panel,.spec-panel,.composer{padding:18px}
-    .hero-panel{display:flex;flex-direction:column;justify-content:space-between;min-height:230px}
+    .top-grid{display:grid;grid-template-columns:1.05fr .55fr .40fr;gap:18px}
+    .hero-panel,.revenue-card,.authority-card,.workspace-panel,.feed-panel,.theme-gallery-panel,.composer{padding:18px}
+    .hero-panel{display:flex;flex-direction:column;justify-content:space-between;min-height:250px}
     .hero-panel::after{content:"";position:absolute;inset:auto -10% -40% auto;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--acc) 22%, transparent),transparent 68%);filter:blur(20px)}
-    .theme-badge,.tag,.pill{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--acc) 35%, var(--line));background:color-mix(in srgb,var(--acc) 12%, transparent);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+    .theme-badge,.pill{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--acc) 35%, var(--line));background:color-mix(in srgb,var(--acc) 12%, transparent);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
     .hero-panel h2{font-size:40px;line-height:1;letter-spacing:-.06em;margin:10px 0 10px;max-width:740px}
-    .hero-panel p,.authority-card p,.compare-copy p,.faq-body,.spec-table td,.spec-table th,.analytics-note,.hint,.composer-note{line-height:1.75}
+    .hero-panel p,.authority-card p,.theme-card-copy,.composer-note{line-height:1.75}
     .hero-panel p{max-width:760px;color:var(--muted);font-size:13px}
-    .hero-actions,.compare-actions,.sticky-actions,.modal-actions,.plan-actions,.composer-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .hint{font-size:11px;color:var(--soft);margin-top:8px}
+    .hero-actions,.composer-actions,.theme-switch-row{display:flex;gap:10px;flex-wrap:wrap}
+    .hint{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.8}
 
-    .revenue-card{display:grid;grid-template-rows:auto 1fr auto;min-height:230px}
+    .revenue-card{display:grid;grid-template-rows:auto 1fr auto;min-height:250px}
     .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
     .panel-head h3{margin:0;font-size:16px;letter-spacing:-.02em}
     .mini{font-size:11px;color:var(--muted)}
-    .revenue-big{font-size:66px;font-weight:900;letter-spacing:-.08em;line-height:1;color:var(--acc)}
+    .revenue-big{font-size:56px;font-weight:900;letter-spacing:-.08em;line-height:1;color:var(--acc)}
     .revenue-bar,.progress-bar{height:10px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;border:1px solid var(--line-2)}
     .revenue-fill,.progress-bar>div{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));box-shadow:0 0 20px color-mix(in srgb,var(--acc) 42%, transparent)}
-    .revenue-fill{width:61%}
 
-    .authority-card{min-height:230px;display:grid;grid-template-rows:auto auto 1fr auto}
+    .authority-card{min-height:250px;display:grid;grid-template-rows:auto auto 1fr auto}
     .authority-badge{padding:10px 12px;border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,var(--warn) 12%, transparent),color-mix(in srgb,var(--violet) 12%, transparent));border:1px solid color-mix(in srgb,var(--warn) 24%, var(--line));font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--warn);width:max-content}
     .authority-title{font-size:24px;font-weight:900;letter-spacing:-.04em;margin-top:10px}
     .authority-grid{display:grid;gap:10px;margin-top:12px}
@@ -110,20 +100,39 @@
     .authority-row strong{font-size:13px}.authority-row span{font-size:11px;color:var(--muted);display:block;margin-top:3px}
     .authority-mark{font-size:10px;border-radius:999px;padding:7px 10px;border:1px solid var(--line)}
 
+    .theme-gallery-panel{display:grid;gap:16px}
+    .theme-switch-row{margin-top:2px}
+    .theme-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .theme-card{border-radius:24px;overflow:hidden;border:1px solid var(--line);background:rgba(255,255,255,.04);display:flex;flex-direction:column;cursor:pointer;transition:transform var(--anim),border-color var(--anim),box-shadow var(--anim)}
+    .theme-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--acc) 36%, var(--line))}
+    .theme-card.active{outline:2px solid color-mix(in srgb,var(--acc) 36%, transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 40%, transparent)}
+    .theme-shot{aspect-ratio:16/10;background-size:cover;background-position:center;position:relative}
+    .theme-shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 0 45%,rgba(0,0,0,.72))}
+    .theme-lock{position:absolute;top:14px;right:14px;z-index:1;padding:8px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,.14);background:rgba(4,6,12,.6)}
+    .theme-body{padding:16px}
+    .theme-name{font-size:18px;font-weight:900;letter-spacing:-.03em}
+    .theme-tag{display:inline-flex;margin-top:8px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+    .theme-card-copy{font-size:12px;color:var(--muted);margin-top:10px}
+    .theme-features{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.theme-features span{font-size:10px;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.04);border:1px solid var(--line-2);color:var(--text)}
+
     .workspace-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:18px}
-    .workspace-panel,.feed-panel{min-height:420px;display:grid;grid-template-rows:auto 1fr}
-    .tasks,.chat-log,.event-log,.faq-list{overflow:auto;padding-right:4px}
+    .workspace-panel,.feed-panel{min-height:430px;display:grid;grid-template-rows:auto 1fr}
+    .tasks,.chat-log{overflow:auto;padding-right:4px}
     .tasks{display:flex;flex-direction:column;gap:12px}
-    .task{padding:14px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid var(--line-2);display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start}
+    .task{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start}
     .task-check{width:18px;height:18px;border-radius:6px;border:1px solid color-mix(in srgb,var(--acc) 30%, var(--line));background:color-mix(in srgb,var(--acc) 10%, transparent);margin-top:3px}
     .task-title{font-size:14px;font-weight:800}.task-meta{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.6}
-    .task-pri{font-size:10px;font-weight:900;border-radius:999px;padding:7px 10px;border:1px solid var(--line)}
     .task-pri.high{color:#ff89aa;background:rgba(255,104,145,.08)} .task-pri.mid{color:var(--warn);background:rgba(255,217,119,.08)} .task-pri.low{color:var(--soft);background:rgba(255,255,255,.04)}
-    .locked{opacity:.68}.locked .task-title::after{content:"  · 上位権限推奨";font-size:10px;color:var(--warn)}
     .chat-log{display:flex;flex-direction:column;gap:12px}
     .bubble{max-width:88%;padding:14px 16px;border-radius:18px;border:1px solid var(--line-2);background:rgba(255,255,255,.04);line-height:1.75;font-size:13px}
     .bubble.user{align-self:flex-end;background:color-mix(in srgb,var(--acc) 10%, transparent);border-color:color-mix(in srgb,var(--acc) 30%, var(--line))}
     .bubble.ai strong{color:var(--acc)}
+
+    .composer{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+    .composer textarea{width:100%;height:110px;resize:none;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;padding:16px;color:var(--text);outline:none;font:inherit}.composer textarea:focus{border-color:color-mix(in srgb,var(--acc) 40%, var(--line))}
+
+    @media (max-width:1280px){.top-grid{grid-template-columns:1fr 1fr}.authority-card,.theme-gallery-panel{grid-column:1/-1}.theme-gallery,.workspace-grid{grid-template-columns:1fr}.layout{grid-template-columns:1fr}.topbar{height:auto;min-height:var(--header-h)}aside{position:relative;top:0;max-height:none}}
+    @media (max-width:860px){.top-actions,.hero-actions,.composer-actions,.theme-switch-row{display:grid;grid-template-columns:1fr}.topbar{padding:14px}.top-actions{width:100%;justify-content:flex-start}.theme-gallery,.top-grid,.workspace-grid,.composer{grid-template-columns:1fr}.role-chip{min-width:0}.title{font-size:22px}.hero-panel h2{font-size:32px}.revenue-big{font-size:38px}}
   </style>
 </head>
 <body>
@@ -137,41 +146,41 @@
       <div class="brand">
         <div class="brand-dot"></div>
         <div>
-          <div class="eyebrow">Mission Control / Integrated Build</div>
+          <div class="eyebrow">Mission Control / 3 Theme Switcher</div>
           <div class="title" id="brandTitle">GLYPH MATRIX</div>
           <div class="subtitle" id="brandSubtitle">黒曜石の司令室 × 文字雨 × 古代ホログラム</div>
         </div>
       </div>
       <div class="top-actions">
         <div class="role-chip">
-          <b id="activeRoleName">PRIME 会員</b>
-          <span id="activeRoleMeta">限定AI・Autopilot・Vaultが解放された運用状態</span>
+          <b>Personal Command Room</b>
+          <span>販売導線なしで、まず自分が毎日使うための3テーマ切替版</span>
         </div>
         <div class="hero-chip">
-          <div class="l">月商</div>
-          <div class="v">6.1M</div>
-          <div class="s">target 10M</div>
+          <div class="l">Current</div>
+          <div class="v" id="currentThemeShort">Glyph</div>
+          <div class="s">theme mode</div>
         </div>
-        <button class="btn" id="themeBtn">テーマ設定</button>
-        <button class="btn" id="accessBtn">権限設定</button>
-        <button class="btn primary pulse-cta js-open-upgrade" data-plan="prime" data-placement="header">アップグレード</button>
+        <button class="btn" id="themeGlyphBtn">GLYPH</button>
+        <button class="btn" id="themeSanctumBtn">SANCTUM</button>
+        <button class="btn primary" id="themePrimeBtn">PRIME</button>
       </div>
     </header>
 
     <div class="layout">
       <aside class="glass panel">
         <div>
-          <div class="section-kicker">Pillars</div>
+          <div class="section-kicker">Use Cases</div>
           <div class="nav-list">
-            <div class="nav-item active"><div class="n">Pillar 01</div><div class="t">AIエージェント受託</div></div>
-            <div class="nav-item"><div class="n">Pillar 02</div><div class="t">Obélisque Design × AI</div></div>
-            <div class="nav-item"><div class="n">Pillar 03</div><div class="t">note / Digital Goods</div></div>
+            <div class="nav-item active"><div class="n">Mode 01</div><div class="t">相談・思考整理</div></div>
+            <div class="nav-item"><div class="n">Mode 02</div><div class="t">執筆・構成・設計</div></div>
+            <div class="nav-item"><div class="n">Mode 03</div><div class="t">集中・演出・没入</div></div>
           </div>
         </div>
 
         <div>
-          <div class="section-kicker">権限構造</div>
-          <div class="access-list" id="accessList"></div>
+          <div class="section-kicker">Theme Notes</div>
+          <div class="theme-mini-list" id="themeMiniList"></div>
         </div>
 
         <div>
@@ -190,36 +199,51 @@
           <section class="hero-panel glass panel">
             <div>
               <div class="theme-badge" id="themeBadge">Current Theme / GLYPH MATRIX</div>
-              <h2 id="heroHeadline">売るための没入感を持った、AI司令室の完成形。</h2>
-              <p id="heroCopy">GLYPH MATRIX を標準テーマとして固定し、NEURAL SANCTUM と PRIME ACCESS を設定コマンドから切替。比較UI・権限構造・アップセル導線まで本体に統合した完成版です。</p>
+              <h2 id="heroHeadline">売るためではなく、まず自分が毎日開きたくなる司令室へ。</h2>
+              <p id="heroCopy">序盤に話していた3枚イメージの切替体験だけに絞り、GLYPH MATRIX / NEURAL SANCTUM / PRIME ACCESS を1画面で切替できるシンプルな統合版です。</p>
             </div>
             <div class="hero-actions">
-              <button class="btn primary js-open-upgrade" data-plan="prime" data-placement="hero">PRIME導線を表示</button>
-              <button class="btn gold js-open-upgrade" data-plan="master" data-placement="hero">MASTER特典を見る</button>
-              <button class="btn ghost" data-scroll="#membershipSection">比較UIへ移動</button>
+              <button class="btn primary" id="heroPrimeBtn">PRIMEモード起動</button>
+              <button class="btn gold" id="heroSanctumBtn">SANCTUMへ切替</button>
+              <button class="btn" id="heroGlyphBtn">GLYPHへ戻す</button>
             </div>
-            <div class="hint">コマンド例: <b>/theme glyph</b> / <b>/theme sanctum</b> / <b>/theme prime</b> / <b>/account master</b> / <b>/variant b</b></div>
+            <div class="hint">コマンド例: <b>/theme glyph</b> / <b>/theme sanctum</b> / <b>/theme prime</b> / <b>/prime oracle</b> / <b>/reactor sync</b></div>
           </section>
 
           <section class="revenue-card glass panel">
-            <div class="panel-head"><h3>Revenue Core</h3><span class="mini">premium command economy</span></div>
+            <div class="panel-head"><h3>Mode Focus</h3><span class="mini">personal productivity loop</span></div>
             <div>
-              <div class="revenue-big">¥6,100,000</div>
-              <div class="mini" style="margin-top:8px">AI受託・デザイン・note・会員限定機能の複合売上</div>
+              <div class="revenue-big" id="modeLabel">PRIME</div>
+              <div class="mini" style="margin-top:8px" id="modeDescription">深掘り相談・構想整理・Autopilot前提の作業モード</div>
             </div>
             <div>
-              <div class="revenue-bar"><div class="revenue-fill"></div></div>
-              <div class="mini" style="margin-top:8px">到達率 61% / PRIME と MASTER の導線改善で ARPU を押し上げる想定</div>
+              <div class="revenue-bar"><div class="revenue-fill" id="modeBar" style="width:66%"></div></div>
+              <div class="mini" style="margin-top:8px" id="modeHint">自分で使って、どのテーマがいちばん自然に開きたくなるかを確かめる段階</div>
             </div>
           </section>
 
           <section class="authority-card glass panel">
-            <div class="authority-badge" id="authorityBadge">User Tier / PRIME</div>
-            <div class="authority-title" id="authorityTitle">成果加速が解放された状態</div>
-            <p id="authorityCopy" style="margin:10px 0 0;color:var(--muted);font-size:12px">限定AI・Autopilot・Inner Vault が使える一方、週次情報や月次ミーティングは MASTER で解放されます。</p>
+            <div class="authority-badge">Switch Status</div>
+            <div class="authority-title" id="authorityTitle">GLYPHを基準に切り替える</div>
+            <p id="authorityCopy" style="margin:10px 0 0;color:var(--muted);font-size:12px">GLYPH は標準、SANCTUM は集中用、PRIME は深い相談・構想・特別感のある作業用として切り替えます。</p>
             <div class="authority-grid" id="authorityGrid"></div>
           </section>
         </div>
+
+        <section class="theme-gallery-panel glass panel">
+          <div class="panel-head">
+            <div>
+              <h3>3 Theme Image Switcher</h3>
+              <div class="mini">最初に話していた3枚イメージの切替体験をそのまま実装</div>
+            </div>
+            <div class="theme-switch-row">
+              <button class="theme-switch-btn active" data-theme-switch="glyph">GLYPH MATRIX</button>
+              <button class="theme-switch-btn" data-theme-switch="sanctum">NEURAL SANCTUM</button>
+              <button class="theme-switch-btn" data-theme-switch="prime">PRIME ACCESS</button>
+            </div>
+          </div>
+          <div class="theme-gallery" id="themeGallery"></div>
+        </section>
 
         <div class="workspace-grid">
           <section class="workspace-panel glass panel">
@@ -227,1703 +251,235 @@
             <div class="tasks" id="taskList"></div>
           </section>
           <section class="feed-panel glass panel">
-            <div class="panel-head"><h3>Command Feed</h3><span class="mini">operator log & premium AI hooks</span></div>
+            <div class="panel-head"><h3>Command Feed</h3><span class="mini">operator log & personal AI hooks</span></div>
             <div class="chat-log" id="chatLog">
-              <div class="bubble ai"><strong>統括AI:</strong> 比較UI、追従CTA、FAQ、モーダル、CV計測、A/Bテストが本体に統合されました。</div>
-              <div class="bubble user">権限構造とテーマ体験を、Mission Control の中で自然につながるようにしたい。</div>
-              <div class="bubble ai"><strong>統括AI:</strong> 了解。通常会員 → PRIME → MASTER の流れと、GOD / 子アカウントの運用権限を、同じ世界観で一体化します。</div>
-            </div>
-          </section>
-        </div>
-        <section id="membershipSection" class="membership-panel glass panel">
-          <div class="panel-head">
-            <div>
-              <h3>Membership Conversion Hub</h3>
-              <div class="mini">既存テーマ・権限構造・会員導線を同じ中枢画面に統合</div>
-            </div>
-            <div class="composer-actions">
-              <button class="tiny-btn active" data-billing="monthly">月額</button>
-              <button class="tiny-btn" data-billing="yearly">年額</button>
-              <button class="tiny-btn active" data-variant="A">Variant A</button>
-              <button class="tiny-btn" data-variant="B">Variant B</button>
-            </div>
-          </div>
-
-          <div class="membership-hero-grid">
-            <div class="funnel-copy">
-              <div class="tag" id="variantChip">Variant A / PRIME主導</div>
-              <h3 id="funnelHeadline">通常会員の次の一歩を、PRIMEに集中させる。</h3>
-              <p id="funnelCopy">限定AI・Autopilot・Inner Vault を“成果の加速装置”として前面化し、通常会員が最も自然に上がりたくなる導線を本体に組み込みます。</p>
-              <div class="timeline-list">
-                <div class="timeline-card"><b>1. 通常会員</b><span>無料で始める → 比較UIで PRIME の違いを見る</span></div>
-                <div class="timeline-card"><b>2. PRIME</b><span>限定AI・自動化・Vault を解放して成果を加速</span></div>
-                <div class="timeline-card"><b>3. MASTER</b><span>週次情報・月次MTG・優先サポートで伴走価値を追加</span></div>
-              </div>
-            </div>
-            <div class="funnel-core glass panel-embedded">
-              <div class="core-stage-label" id="coreStageLabel">Recommended Next Step</div>
-              <div class="core-visual">
-                <div class="core-ring"></div>
-                <div class="core-ring alt"></div>
-                <div class="core-ring inner"></div>
-                <div class="core-orb"></div>
-              </div>
-              <div class="core-title" id="coreTitle">PRIME ACCESS</div>
-              <div class="core-sub" id="coreSub">今より速く進めるための最短アップグレード導線。</div>
-            </div>
-          </div>
-
-          <div class="plan-grid" id="planGrid">
-            <article class="plan-card" data-tier="standard">
-              <div class="plan-kicker">Entry</div>
-              <div class="plan-title">STANDARD</div>
-              <div class="plan-tagline">まずはここから始める、迷わない基本プラン。</div>
-              <div class="plan-summary">比較導線を強く、登録の心理負荷を低く保つ入口です。GLYPH MATRIX と標準機能を中心に体験できます。</div>
-              <div class="price-wrap"><div class="price-main">Free</div><div class="price-sub">導入・比較・体験用</div></div>
-              <div class="benefit-belt"><span>標準UI</span><span>デモ閲覧</span><span>比較起点</span></div>
-              <div class="plan-actions">
-                <button class="plan-btn standard js-track-cta" data-plan="standard" data-placement="standard-card-primary">無料で始める</button>
-                <button class="assist-link js-open-upgrade" data-plan="prime" data-placement="standard-card-secondary">PRIMEの違いを見る</button>
-              </div>
-              <ul class="feature-list">
-                <li><span>✓</span><span>GLYPH MATRIX を標準利用</span></li>
-                <li><span>✓</span><span>NEURAL SANCTUM / PRIME ACCESS はプレビュー中心</span></li>
-                <li><span>→</span><span>限定AI・自動化が必要になったら PRIME へ</span></li>
-              </ul>
-            </article>
-
-            <article class="plan-card recommended" data-tier="prime" id="primeCard">
-              <div class="ribbon prime">Core path</div>
-              <div class="plan-kicker">Growth</div>
-              <div class="plan-title">PRIME ACCESS</div>
-              <div class="plan-tagline" id="primeTagline">もっと早く、もっと深く進めたい人のための中核プラン。</div>
-              <div class="plan-summary" id="primeSummary">限定AI、Oracle、Autopilot、Inner Vault を“成果の加速装置”として見せ、通常会員から最も自然に上がりたくなる導線にしています。</div>
-              <div class="price-wrap"><div class="price-main" id="pricePrime">¥19,800</div><div class="price-sub" id="pricePrimeSub">/ 月</div></div>
-              <div class="benefit-belt prime-belt"><span>限定AI</span><span>Autopilot</span><span>Vault</span></div>
-              <div class="plan-actions">
-                <button class="plan-btn prime pulse-cta js-open-upgrade" data-plan="prime" data-placement="prime-card-primary" id="primePrimaryCta">PRIMEを解放して成果を加速する</button>
-                <button class="assist-link js-open-upgrade" data-plan="master" data-placement="prime-card-secondary">MASTER特典を見る</button>
-              </div>
-              <ul class="feature-list">
-                <li><span>✓</span><span>PRIME ACCESS テーマ / 限定AI / Oracle</span></li>
-                <li><span>✓</span><span>Autopilot / Inner Vault / 限定テンプレ</span></li>
-                <li><span>→</span><span>使い込むほど MASTER の伴走価値が気になる構成</span></li>
-              </ul>
-            </article>
-
-            <article class="plan-card master" data-tier="master" id="masterCard">
-              <div class="ribbon master">Top tier</div>
-              <div class="plan-kicker">Concierge</div>
-              <div class="plan-title">MASTER</div>
-              <div class="plan-tagline" id="masterTagline">PRIMEの全機能に、情報優位・伴走・優先権まで加えた最上位プラン。</div>
-              <div class="plan-summary" id="masterSummary">週次の有益情報、毎月の個別ミーティング、優先サポート、先行アクセスを明示し、“必要だから上がる”導線にしています。</div>
-              <div class="price-wrap"><div class="price-main" id="priceMaster">¥59,800</div><div class="price-sub" id="priceMasterSub">/ 月</div></div>
-              <div class="benefit-belt master-belt"><span>週次情報</span><span>月次MTG</span><span>優先支援</span></div>
-              <div class="plan-actions">
-                <button class="plan-btn master js-open-upgrade" data-plan="master" data-placement="master-card-primary" id="masterPrimaryCta">MASTERにアップグレードする</button>
-                <button class="assist-link js-open-upgrade" data-plan="prime" data-placement="master-card-secondary">まずはPRIMEから始める</button>
-              </div>
-              <ul class="feature-list">
-                <li><span>✓</span><span>PRIMEの全機能を包含</span></li>
-                <li><span>✓</span><span>毎週の有益情報・改善提案・業界インサイト</span></li>
-                <li><span>✓</span><span>毎月の個別MTG・優先サポート・先行アクセス</span></li>
-              </ul>
-            </article>
-          </div>
-
-          <div class="compare-hint">
-            <div class="compare-copy">
-              <strong id="compareHeadline">Variant A: PRIME主導の比較導線</strong>
-              <p id="compareText">通常会員の次の一歩を PRIME に集中させ、MASTER は PRIME の先にある上位伴走プランとして見せます。</p>
-            </div>
-            <div class="compare-actions">
-              <button class="btn primary js-open-upgrade" data-plan="prime" data-placement="compare-primary">PRIMEを試す</button>
-              <button class="btn gold js-open-upgrade" data-plan="master" data-placement="compare-secondary">MASTERの内容を見る</button>
-            </div>
-          </div>
-        </section>
-
-
-
-        <section class="payment-flow-panel glass panel" id="paymentFlowSection">
-          <div class="panel-head">
-            <div>
-              <h3>Upgrade Checkout Flow</h3>
-              <div class="mini">Stripe接続前提の申込フォーム / 確認画面 / 完了画面を本体UIに統合</div>
-            </div>
-            <div class="composer-actions">
-              <button class="tiny-btn" data-plan-shortcut="standard">STANDARD</button>
-              <button class="tiny-btn" data-plan-shortcut="prime">PRIME</button>
-              <button class="tiny-btn" data-plan-shortcut="master">MASTER</button>
-            </div>
-          </div>
-
-          <div class="payment-shell">
-            <div class="payment-steps">
-              <div class="step-item active" data-step-indicator="form"><span>1</span><b>申込情報</b></div>
-              <div class="step-item" data-step-indicator="confirm"><span>2</span><b>確認</b></div>
-              <div class="step-item" data-step-indicator="complete"><span>3</span><b>完了</b></div>
-            </div>
-
-            <div class="payment-content">
-              <div class="checkout-layout">
-                <section class="checkout-main">
-                  <div class="checkout-stage stage-live" data-stage="form" id="stageForm">
-                    <div class="form-grid">
-                      <label class="field field-full">
-                        <span>申込プラン</span>
-                        <select id="applicationPlan">
-                          <option value="standard">STANDARD / 無料登録</option>
-                          <option value="prime">PRIME ACCESS</option>
-                          <option value="master">MASTER</option>
-                        </select>
-                      </label>
-
-                      <label class="field">
-                        <span>氏名</span>
-                        <input id="applicantName" type="text" placeholder="山田 太郎" />
-                      </label>
-                      <label class="field">
-                        <span>メールアドレス</span>
-                        <input id="applicantEmail" type="email" placeholder="you@example.com" />
-                      </label>
-
-                      <label class="field">
-                        <span>会社名 / 屋号</span>
-                        <input id="applicantCompany" type="text" placeholder="Mission Control Studio" />
-                      </label>
-                      <label class="field">
-                        <span>電話番号</span>
-                        <input id="applicantPhone" type="tel" placeholder="090-1234-5678" />
-                      </label>
-
-                      <label class="field field-full">
-                        <span>利用目的</span>
-                        <textarea id="applicantGoal" placeholder="AI運用の自動化、会員導線の強化、売上改善など"></textarea>
-                      </label>
-
-                      <label class="field">
-                        <span>請求サイクル</span>
-                        <select id="applicationBilling">
-                          <option value="monthly">月額</option>
-                          <option value="yearly">年額</option>
-                        </select>
-                      </label>
-                      <label class="field">
-                        <span>チーム人数</span>
-                        <select id="applicationTeamSize">
-                          <option value="1">1名</option>
-                          <option value="2-5">2〜5名</option>
-                          <option value="6-10">6〜10名</option>
-                          <option value="11+">11名以上</option>
-                        </select>
-                      </label>
-
-                      <label class="field field-full checkbox-field">
-                        <input id="termsAgreement" type="checkbox" />
-                        <span>利用規約・特定商取引法表記・プライバシーポリシーに同意する</span>
-                      </label>
-                      <label class="field field-full checkbox-field">
-                        <input id="marketingAgreement" type="checkbox" />
-                        <span>アップデート情報や限定案内を受け取る</span>
-                      </label>
-                    </div>
-
-                    <div class="stage-actions">
-                      <button class="btn ghost" id="fillDemoBtn">デモ入力</button>
-                      <button class="btn primary" id="goConfirmBtn">確認画面へ進む</button>
-                    </div>
-                    <div class="form-note">STANDARD は即時登録、PRIME / MASTER は Stripe Checkout または Payment Element へ接続する想定です。</div>
-                  </div>
-
-                  <div class="checkout-stage" data-stage="confirm" id="stageConfirm">
-                    <div class="confirm-card" id="confirmSummary"></div>
-                    <div class="stripe-card-shell">
-                      <div class="stripe-kicker">Stripe Integration Ready</div>
-                      <div class="stripe-title">決済接続ポイント</div>
-                      <ul class="stripe-points">
-                        <li>Checkout Session API または Payment Element を差し替え可能</li>
-                        <li>publishableKey / priceId / successUrl / cancelUrl を設定すれば接続可能</li>
-                        <li>Webhook で会員状態を STANDARD / PRIME / MASTER に自動反映</li>
-                      </ul>
-                      <div class="code-chip-row">
-                        <span class="code-chip">STRIPE_PUBLISHABLE_KEY</span>
-                        <span class="code-chip">PRICE_ID_PRIME</span>
-                        <span class="code-chip">PRICE_ID_MASTER</span>
-                      </div>
-                    </div>
-                    <div class="stage-actions">
-                      <button class="btn" id="backToFormBtn">入力へ戻る</button>
-                      <button class="btn primary" id="submitApplicationBtn">申込を確定する</button>
-                    </div>
-                  </div>
-
-                  <div class="checkout-stage" data-stage="complete" id="stageComplete">
-                    <div class="complete-card">
-                      <div class="complete-mark">✓</div>
-                      <div class="complete-kicker">Application Completed</div>
-                      <h3 id="completeHeadline">申込を受け付けました</h3>
-                      <p id="completeCopy">登録内容の送信が完了しました。PRIME / MASTER の場合は Stripe 側の決済完了後に会員状態を反映します。</p>
-                      <div class="complete-grid" id="completeMeta"></div>
-                    </div>
-                    <div class="stage-actions">
-                      <button class="btn" id="restartFlowBtn">別プランを申し込む</button>
-                      <button class="btn gold js-open-upgrade" data-plan="master" data-placement="complete-stage-secondary">MASTER特典を見る</button>
-                    </div>
-                  </div>
-                </section>
-
-                <aside class="checkout-side">
-                  <div class="checkout-summary-card">
-                    <div class="summary-kicker">Selected Plan</div>
-                    <div class="summary-plan" id="checkoutPlanName">PRIME ACCESS</div>
-                    <div class="summary-price" id="checkoutPlanPrice">¥19,800 / 月</div>
-                    <p class="summary-copy" id="checkoutPlanCopy">限定AI・Autopilot・Inner Vault を中心に、成果を加速するための中核プラン。</p>
-                    <div class="summary-badges" id="checkoutBadges"></div>
-                  </div>
-
-                  <div class="checkout-summary-card muted">
-                    <div class="summary-kicker">Flow Status</div>
-                    <div class="status-grid">
-                      <div><span>選択プラン</span><b id="statusPlan">PRIME</b></div>
-                      <div><span>課金周期</span><b id="statusBilling">月額</b></div>
-                      <div><span>会員反映</span><b id="statusRole">PRIME 会員</b></div>
-                      <div><span>Stripe</span><b id="statusStripe">準備済み</b></div>
-                    </div>
-                  </div>
-                </aside>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-
-
-        <section class="supabase-panel glass panel" id="supabaseSection">
-          <div class="panel-head">
-            <div>
-              <h3>Supabase Membership Control</h3>
-              <div class="mini">会員登録・プラン変更・決済履歴・会員ステータス更新を Supabase / Stripe webhook 前提で一元管理</div>
-            </div>
-            <div class="composer-actions">
-              <button class="tiny-btn" id="scrollToAuthBtn">認証へ</button>
-              <button class="tiny-btn" id="scrollToBillingBtn">決済管理へ</button>
-              <button class="tiny-btn" id="refreshSupabaseBtn">再読込</button>
-            </div>
-          </div>
-
-          <div class="supabase-grid">
-            <section class="supabase-card">
-              <div class="card-headline">Connection / Auth</div>
-              <div class="field-grid">
-                <label class="field field-full">
-                  <span>Supabase URL</span>
-                  <input id="supabaseUrlInput" type="text" placeholder="https://your-project.supabase.co" />
-                </label>
-                <label class="field field-full">
-                  <span>Supabase Anon Key</span>
-                  <input id="supabaseAnonKeyInput" type="password" placeholder="eyJ..." />
-                </label>
-                <label class="field field-full">
-                  <span>Edge Functions Base URL</span>
-                  <input id="supabaseFunctionsInput" type="text" placeholder="https://your-project.supabase.co/functions/v1" />
-                </label>
-              </div>
-              <div class="stage-actions" id="authSection">
-                <button class="btn" id="saveSupabaseConfigBtn">接続設定を保存</button>
-                <button class="btn ghost" id="testSupabaseBtn">接続テスト</button>
-              </div>
-
-              <div class="mode-switch">
-                <button class="tiny-btn active" data-auth-mode="signup">新規登録</button>
-                <button class="tiny-btn" data-auth-mode="signin">ログイン</button>
-              </div>
-              <div class="field-grid">
-                <label class="field">
-                  <span>メールアドレス</span>
-                  <input id="authEmailInput" type="email" placeholder="member@example.com" />
-                </label>
-                <label class="field">
-                  <span>パスワード</span>
-                  <input id="authPasswordInput" type="password" placeholder="8文字以上推奨" />
-                </label>
-              </div>
-              <div class="stage-actions">
-                <button class="btn primary" id="authActionBtn">会員登録する</button>
-                <button class="btn" id="signOutBtn">ログアウト</button>
-              </div>
-              <div class="status-console" id="authStatusBox">未接続です。Supabase URL / Anon Key を保存してください。</div>
-            </section>
-
-            <section class="supabase-card">
-              <div class="card-headline">Member Profile</div>
-              <div class="field-grid">
-                <label class="field">
-                  <span>氏名</span>
-                  <input id="profileNameInput" type="text" placeholder="山田 太郎" />
-                </label>
-                <label class="field">
-                  <span>会社名 / 屋号</span>
-                  <input id="profileCompanyInput" type="text" placeholder="Mission Control Studio" />
-                </label>
-                <label class="field">
-                  <span>電話番号</span>
-                  <input id="profilePhoneInput" type="tel" placeholder="090-1234-5678" />
-                </label>
-                <label class="field">
-                  <span>チーム人数</span>
-                  <select id="profileTeamInput">
-                    <option value="1">1名</option>
-                    <option value="2-5">2〜5名</option>
-                    <option value="6-10">6〜10名</option>
-                    <option value="11+">11名以上</option>
-                  </select>
-                </label>
-                <label class="field field-full">
-                  <span>利用目的</span>
-                  <textarea id="profileGoalInput" placeholder="AI運用の自動化、会員導線の改善、売上向上など"></textarea>
-                </label>
-                <label class="field field-full checkbox-field">
-                  <input id="profileMarketingInput" type="checkbox" />
-                  <span>アップデート情報や限定案内を受け取る</span>
-                </label>
-              </div>
-              <div class="stage-actions">
-                <button class="btn primary" id="saveProfileBtn">プロフィールを保存</button>
-                <button class="btn ghost" id="loadProfileBtn">最新状態を取得</button>
-              </div>
-              <div class="status-grid profile-status-grid">
-                <div><span>Member ID</span><b id="memberIdText">-</b></div>
-                <div><span>Current Plan</span><b id="memberPlanText">STANDARD</b></div>
-                <div><span>Status</span><b id="memberStatusText">inactive</b></div>
-                <div><span>Period End</span><b id="memberPeriodText">-</b></div>
-              </div>
-            </section>
-
-            <section class="supabase-card" id="billingSection">
-              <div class="card-headline">Plan Change / Stripe Checkout</div>
-              <div class="field-grid">
-                <label class="field">
-                  <span>変更先プラン</span>
-                  <select id="requestedPlanInput">
-                    <option value="standard">STANDARD</option>
-                    <option value="prime">PRIME ACCESS</option>
-                    <option value="master">MASTER</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>課金周期</span>
-                  <select id="requestedBillingInput">
-                    <option value="monthly">月額</option>
-                    <option value="yearly">年額</option>
-                  </select>
-                </label>
-                <label class="field field-full">
-                  <span>変更メモ</span>
-                  <textarea id="planChangeNoteInput" placeholder="導入目的、運用体制、切替タイミングなど"></textarea>
-                </label>
-              </div>
-              <div class="stage-actions">
-                <button class="btn primary" id="startPlanChangeBtn">プラン変更を作成</button>
-                <button class="btn" id="refreshBillingDataBtn">履歴を更新</button>
-              </div>
-              <div class="status-console" id="billingStatusBox">STANDARD は無料登録、PRIME / MASTER は Edge Function 経由で Stripe Checkout を起動します。</div>
-            </section>
-
-            <section class="supabase-card">
-              <div class="card-headline">Payment History / Requests</div>
-              <div class="history-wrap">
-                <div>
-                  <div class="history-title">決済履歴</div>
-                  <div class="history-list" id="paymentHistoryList"><div class="history-empty">まだ決済履歴はありません。</div></div>
-                </div>
-                <div>
-                  <div class="history-title">プラン変更リクエスト</div>
-                  <div class="history-list" id="requestHistoryList"><div class="history-empty">まだ変更リクエストはありません。</div></div>
-                </div>
-              </div>
-            </section>
-
-
-
-            <section class="supabase-card admin-dashboard-card" id="adminDashboardCard" hidden>
-              <div class="panel-head" style="margin-bottom:0">
-                <div>
-                  <div class="card-headline">Admin Dashboard</div>
-                  <div class="mini">会員一覧・全体のプラン変更履歴・決済履歴・手動ステータス更新を同一画面で管理</div>
-                </div>
-                <div class="composer-actions">
-                  <button class="tiny-btn" id="adminRefreshAllBtn">全体更新</button>
-                </div>
-              </div>
-
-              <div class="admin-metric-grid">
-                <div class="mini-stat"><div class="l">Total Members</div><div class="v" id="adminMetricMembers">0</div><div class="s">registered users</div></div>
-                <div class="mini-stat"><div class="l">Prime Active</div><div class="v" id="adminMetricPrime">0</div><div class="s">prime members</div></div>
-                <div class="mini-stat"><div class="l">Master Active</div><div class="v" id="adminMetricMaster">0</div><div class="s">master members</div></div>
-                <div class="mini-stat"><div class="l">Pending Requests</div><div class="v" id="adminMetricPending">0</div><div class="s">plan changes</div></div>
-              </div>
-
-              <div class="admin-board-grid">
-                <section class="admin-board-panel">
-                  <div class="board-head">
-                    <div>
-                      <div class="history-title">会員一覧</div>
-                      <div class="mini">クリックで右側の更新フォームへ反映</div>
-                    </div>
-                    <input id="adminMemberSearchInput" class="admin-search-input" type="text" placeholder="メール・氏名・会社名で検索" />
-                  </div>
-                  <div class="history-list admin-list" id="adminMembersList"><div class="history-empty">管理者データを読み込むと一覧表示されます。</div></div>
-                </section>
-
-                <section class="admin-board-panel">
-                  <div class="history-title">全体プラン変更履歴</div>
-                  <div class="history-list admin-list" id="adminRequestsList"><div class="history-empty">履歴はまだありません。</div></div>
-                </section>
-
-                <section class="admin-board-panel">
-                  <div class="history-title">全体決済履歴</div>
-                  <div class="history-list admin-list" id="adminPaymentsList"><div class="history-empty">決済履歴はまだありません。</div></div>
-                </section>
-              </div>
-            </section>
-
-
-            <section class="supabase-card admin-card" id="adminMembershipCard" hidden>
-              <div class="card-headline">Admin Membership Update</div>
-              <div class="field-grid">
-                <label class="field">
-                  <span>対象ユーザーID</span>
-                  <input id="adminTargetUserIdInput" type="text" placeholder="UUID" />
-                </label>
-                <label class="field">
-                  <span>対象メールアドレス</span>
-                  <input id="adminTargetEmailInput" type="email" placeholder="member@example.com" />
-                </label>
-                <label class="field">
-                  <span>変更プラン</span>
-                  <select id="adminPlanInput">
-                    <option value="standard">STANDARD</option>
-                    <option value="prime">PRIME ACCESS</option>
-                    <option value="master">MASTER</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>ステータス</span>
-                  <select id="adminStatusInput">
-                    <option value="active">active</option>
-                    <option value="trialing">trialing</option>
-                    <option value="past_due">past_due</option>
-                    <option value="cancelled">cancelled</option>
-                    <option value="paused">paused</option>
-                  </select>
-                </label>
-                <label class="field">
-                  <span>課金周期</span>
-                  <select id="adminBillingInput">
-                    <option value="monthly">monthly</option>
-                    <option value="yearly">yearly</option>
-                  </select>
-                </label>
-                <label class="field field-full">
-                  <span>管理メモ</span>
-                  <textarea id="adminNoteInput" placeholder="手動補正、サポート対応、管理理由など"></textarea>
-                </label>
-              </div>
-              <div class="stage-actions">
-                <button class="btn gold" id="adminUpdateBtn">会員ステータスを更新</button>
-              </div>
-              <div class="status-console" id="adminStatusBox">管理者のみ使用できます。</div>
-            </section>
-          </div>
-        </section>
-
-
-        <div class="workspace-grid">
-          <section class="faq-panel glass panel">
-            <div class="panel-head"><h3>FAQ / Conversion Relief</h3><span class="mini">不安を消してから押してもらう</span></div>
-            <div class="faq-list" id="faqList">
-              <details class="faq-item"><summary>通常会員からPRIMEへ上がる一番の違いは何ですか？</summary><div class="faq-body">限定AI・Autopilot・Inner Vault が解放され、単純な閲覧体験から「実務を前に進める」体験へ変わります。</div></details>
-              <details class="faq-item"><summary>PRIMEとMASTERの違いは機能数ですか？</summary><div class="faq-body">主な差は機能数ではなく、週次情報、月次ミーティング、優先サポート、先行アクセスといった伴走密度です。</div></details>
-              <details class="faq-item"><summary>GODアカウントと子アカウントの違いは何ですか？</summary><div class="faq-body">GODは全権限を持つ運用中枢、子アカウントは役職に応じて限定権限のみを持ちます。会員プランと運用権限は別レイヤーで管理します。</div></details>
-              <details class="faq-item"><summary>モバイルで一番重要なCTA導線は何ですか？</summary><div class="faq-body">画面下のスクロール追従CTAです。比較表やFAQを読んだあとでも、戻らずアップグレード行動に移れます。</div></details>
-            </div>
-          </section>
-
-          <section class="analytics-panel glass panel">
-            <div class="panel-head"><h3>Analytics / CV Tracking</h3><span class="mini">CTAクリック・到達率・モーダル開封率</span></div>
-            <div class="analytics-grid">
-              <div class="mini-stat"><div class="l">CTA Clicks</div><div class="v" id="statCta">0</div><div class="s">all placements</div></div>
-              <div class="mini-stat"><div class="l">Modal Opens</div><div class="v" id="statModal">0</div><div class="s">upgrade modal</div></div>
-              <div class="mini-stat"><div class="l">FAQ Opens</div><div class="v" id="statFaq">0</div><div class="s">relief points</div></div>
-              <div class="mini-stat"><div class="l">Variant</div><div class="v" id="statVariant">A</div><div class="s">active pattern</div></div>
-            </div>
-            <div class="analytics-note" style="margin-top:14px;font-size:12px;color:var(--muted)">25 / 50 / 75 / 100% のスクロール到達率、料金切替、バリアント切替、FAQ開封もクライアント側で計測します。</div>
-            <div style="margin-top:14px">
-              <div class="panel-head" style="margin-bottom:8px"><h3 style="font-size:13px">Scroll Depth</h3><span class="mini" id="scrollLabel">0%</span></div>
-              <div class="progress-bar"><div id="scrollBar" style="width:0%"></div></div>
-              <div class="depth-grid" id="depthGrid">
-                <span data-depth="25">25%</span><span data-depth="50">50%</span><span data-depth="75">75%</span><span data-depth="100">100%</span>
-              </div>
-            </div>
-            <div style="margin-top:14px">
-              <div class="panel-head" style="margin-bottom:8px"><h3 style="font-size:13px">Latest Events</h3><button class="tiny-btn" id="clearLogBtn">Clear</button></div>
-              <div class="event-log" id="eventLog"></div>
+              <div class="bubble ai"><strong>統括AI:</strong> 売る導線は外し、3テーマ切替を中心にした個人用の司令室へ整理しました。</div>
+              <div class="bubble user">まずは自分が普通にエージェントを使えるようにしたい。</div>
+              <div class="bubble ai"><strong>統括AI:</strong> 了解。GLYPH / SANCTUM / PRIME の3枚イメージを軸に、その場で気分と用途を切り替えられる構成にします。</div>
             </div>
           </section>
         </div>
 
-        <section class="spec-panel glass panel">
-          <div class="panel-head"><h3>A/B Test Specification</h3><span class="mini">PRIME訴求 vs MASTER訴求</span></div>
-          <div class="table-wrap">
-            <table class="spec-table">
-              <thead><tr><th>項目</th><th>Variant A / PRIME主導</th><th>Variant B / MASTER主導</th></tr></thead>
-              <tbody>
-                <tr><td>仮説</td><td>通常会員の次の一歩を PRIME に集中させると、CTAクリック率とモーダル開封率が高くなる。</td><td>MASTER の伴走価値を先に見せると、高単価プラン検討率と平均意向単価が上がる。</td></tr>
-                <tr><td>主訴求</td><td>限定AI・Autopilot・Inner Vault による成果加速</td><td>週次情報・月次MTG・優先サポートによる伴走価値</td></tr>
-                <tr><td>主CTA文言</td><td>PRIMEを解放して成果を加速する</td><td>MASTERで成果を高め続ける</td></tr>
-                <tr><td>第2CTA文言</td><td>MASTER特典を見る</td><td>まずはPRIMEから始める</td></tr>
-                <tr><td>主要計測指標</td><td>CTAクリック率、モーダル開封率、PRIME選択率</td><td>CTAクリック率、モーダル開封率、MASTER選択率</td></tr>
-                <tr><td>補助計測指標</td><td>75%スクロール到達率、FAQ開封率</td><td>75%スクロール到達率、価格表示切替率</td></tr>
-                <tr><td>判定条件</td><td>PRIME主CTAクリック率がB比 10%以上高く、到達率が同等以上</td><td>MASTERモーダル開封率または選択率がA比 15%以上高い</td></tr>
-                <tr><td>実装パターン</td><td>PRIMEカードを視覚強調、比較文も PRIME 中心に切替</td><td>MASTERカードを強調、ヒーローと固定CTAの見出しも MASTER 中心に変更</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="composer glass panel">
+        <section class="composer glass panel" id="commandCenterStart">
           <div style="flex:1 1 auto;min-width:0">
-            <textarea id="commandInput" placeholder="/theme prime で加入者限定テーマへ切替、/account god で運用権限へ変更、/variant b でA/Bを切替"></textarea>
-            <div class="composer-note hint">加入者限定テーマでは COMMAND MACRO / ORACLE / AUTOPILOT / LEAD CONVERT を可視化。MASTER では週次情報・月次MTGの価値を常設します。GOD / 子アカウントは会員プランとは別レイヤーで制御します。</div>
+            <textarea id="commandInput" placeholder="/theme prime で PRIME ACCESS へ、/reactor sync で SANCTUM の集中モードへ、/prime oracle で深掘り相談モードへ"></textarea>
+            <div class="composer-note hint">販売導線なしのパーソナル版です。テーマ切替、エージェント気分切替、コマンド入力の感触だけを先に磨けるようにしています。</div>
           </div>
           <div class="composer-actions">
             <button class="btn" id="sendBtn">コマンド実行</button>
             <button class="btn primary" id="primeBtn">PRIME演出</button>
-            <button class="btn gold" id="masterBtn">MASTER演出</button>
+            <button class="btn gold" id="sanctumBtn">SANCTUM演出</button>
           </div>
         </section>
       </main>
     </div>
-
-    <div class="sticky-cta glass panel" id="stickyCta">
-      <div>
-        <div class="pill" id="stickyKicker">Recommended Next Step</div>
-        <div class="sticky-title" id="stickyTitle">PRIMEで、止まらず前に進む。</div>
-        <div class="sticky-text" id="stickyText">限定AI・Autopilot・Inner Vault を解放し、通常会員からの自然なアップグレード先として最も強く訴求します。</div>
-      </div>
-      <div class="sticky-actions" id="stickyActions">
-        <button class="plan-btn prime js-open-upgrade" data-plan="prime" data-placement="sticky-primary">PRIMEを解放する</button>
-        <button class="btn gold js-open-upgrade" data-plan="master" data-placement="sticky-secondary">MASTERを見る</button>
-      </div>
-    </div>
-
-    <div class="modal" id="themeModal">
-      <div class="modal-box glass panel">
-        <div class="panel-head"><div><h3>Theme Switch / Visual Identity Pack</h3><div class="mini">設定からいつでも切替可能。3枚目は加入者限定の特別テーマです。</div></div><button class="btn" id="closeThemeBtn">閉じる</button></div>
-        <div class="modal-grid" id="themeGrid"></div>
-        <div class="settings-foot"><div class="mini">GLYPH MATRIX を標準、NEURAL SANCTUM をゲーム演出、PRIME ACCESS を加入者限定テーマとして運用します。</div><button class="btn primary" id="applyCurrentBtn">現在のテーマで閉じる</button></div>
-      </div>
-    </div>
-
-    <div class="modal" id="accessModal">
-      <div class="modal-box glass panel">
-        <div class="panel-head"><div><h3>Authority / Permission Structure</h3><div class="mini">ユーザー3層 + 運用アカウント権限</div></div><button class="btn" id="closeAccessBtn">閉じる</button></div>
-        <div class="role-grid" id="roleGrid"></div>
-        <div class="settings-foot"><div class="mini">GOD は全権限保持。子アカウントは役職別に限定権限。ユーザー側は 通常会員 / PRIME / MASTER の3層で運用します。</div><button class="btn primary" id="applyRoleBtn">現在の権限で閉じる</button></div>
-      </div>
-    </div>
-
-    <div class="modal" id="upgradeModal">
-      <div class="modal-card glass panel">
-        <button class="modal-close" id="closeUpgradeBtn">×</button>
-        <div class="pill" id="modalEyebrow">Upgrade Preview</div>
-        <h2 id="modalTitle">PRIME ACCESS を解放</h2>
-        <p id="modalCopy">限定AI・Autopilot・Inner Vault を中心に、成果を早めるための装置をまとめて解放します。</p>
-        <div class="modal-price" id="modalPrice">¥19,800 / 月</div>
-        <div class="modal-benefits" id="modalBenefits"></div>
-        <div class="modal-actions"><button class="modal-btn primary" id="confirmUpgradeBtn">このプランで進む</button><button class="modal-btn secondary" id="switchPlanBtn">もう一方のプランも見る</button></div>
-        <div class="mini" style="margin-top:10px">モーダル開封率も CV 計測対象です。実運用では決済・申込フォームへ接続してください。</div>
-      </div>
-    </div>
   </div>
-
-  <style>
-    .membership-hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:stretch;margin-top:4px}
-    .funnel-copy h3{font-size:34px;line-height:1;letter-spacing:-.05em;margin:14px 0 10px}
-    .funnel-copy p{font-size:14px;color:var(--muted);margin:0 0 16px}
-    .funnel-core{padding:18px;border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:340px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid var(--line-2)}
-    .core-stage-label{font-size:11px;color:var(--acc);letter-spacing:.16em;text-transform:uppercase;font-weight:900}
-    .core-visual{position:relative;width:min(320px,80vw);aspect-ratio:1/1;margin:20px auto 14px;display:grid;place-items:center}
-    .core-ring{position:absolute;inset:18px;border-radius:50%;border:1px dashed color-mix(in srgb,var(--acc) 30%, transparent);animation:spin 18s linear infinite}
-    .core-ring.alt{inset:42px;border-style:solid;border-color:color-mix(in srgb,var(--warn) 28%, transparent);animation-duration:24s;animation-direction:reverse}
-    .core-ring.inner{inset:68px;border-style:dotted;border-color:color-mix(in srgb,var(--violet) 28%, transparent);animation-duration:14s}
-    .core-orb{width:44%;aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.75),color-mix(in srgb,var(--acc) 90%, transparent) 20%,color-mix(in srgb,var(--acc) 28%, transparent) 44%,transparent 72%);animation:pulse 3.8s ease-in-out infinite}
-    .core-title{font-size:24px;font-weight:900;letter-spacing:-.04em;text-align:center}.core-sub{font-size:13px;color:var(--muted);line-height:1.75;text-align:center;max-width:40ch;margin-top:8px}
-
-    .plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px}
-    .plan-card{position:relative;padding:22px;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;gap:14px;background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.018));border:1px solid rgba(255,255,255,.08);transition:transform var(--anim),border-color var(--anim),box-shadow var(--anim),opacity var(--anim)}
-    .plan-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.15)}
-    .plan-card.recommended{border-color:color-mix(in srgb,var(--acc) 36%, var(--line));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--acc) 14%, transparent),0 18px 40px color-mix(in srgb,var(--acc) 10%, transparent)}
-    .plan-card.master{border-color:color-mix(in srgb,var(--warn) 30%, var(--line));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--warn) 10%, transparent),0 18px 40px color-mix(in srgb,var(--warn) 10%, transparent)}
-    .plan-card.dimmed{opacity:.54;transform:scale(.986)}
-    .ribbon{position:absolute;top:14px;right:14px;padding:8px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.ribbon.prime{background:rgba(140,255,97,.12);color:var(--acc);border:1px solid rgba(140,255,97,.2)}.ribbon.master{background:rgba(255,217,119,.12);color:var(--warn);border:1px solid rgba(255,217,119,.2)}
-    .plan-kicker{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);font-weight:800}.plan-title{font-size:30px;font-weight:900;letter-spacing:-.05em}.plan-tagline{font-size:16px;line-height:1.55}.plan-summary{font-size:14px;color:var(--muted);line-height:1.75}
-    .price-wrap{display:flex;align-items:flex-end;gap:10px;padding:16px 0 4px;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2)}.price-main{font-size:42px;font-weight:900;letter-spacing:-.06em;line-height:1}.price-sub{font-size:13px;color:var(--muted);padding-bottom:6px}
-    .benefit-belt,.device-pills,.depth-grid{display:flex;flex-wrap:wrap;gap:8px}.benefit-belt span,.depth-grid span{display:inline-flex;align-items:center;justify-content:center;padding:9px 12px;border-radius:999px;font-size:12px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);color:var(--muted)}
-    .prime-belt span{color:var(--acc)} .master-belt span{color:var(--warn)}
-    .feature-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}.feature-list li{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:flex-start;font-size:14px;line-height:1.7}.feature-list li span:first-child{color:var(--acc);font-weight:900}
-    .assist-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:15px;border:1px solid var(--line-2)}
-    .compare-hint{margin-top:18px;padding:18px;border-radius:22px;border:1px solid var(--line-2);background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(255,255,255,.015));display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
-    .compare-copy strong{display:block;font-size:16px}.compare-copy p{margin:8px 0 0;font-size:14px;color:var(--muted)}
-
-    .analytics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.depth-grid{margin-top:10px}.depth-grid span.hit{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 35%, var(--line));background:color-mix(in srgb,var(--acc) 10%, transparent)}
-    .event-log{min-height:180px;max-height:220px}.event-item{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.025);border:1px solid var(--line-3);margin-bottom:8px;font-size:12px;color:var(--muted)}
-    .table-wrap{overflow:auto;border-radius:20px;border:1px solid var(--line-2)}.spec-table{width:100%;min-width:780px;border-collapse:collapse}.spec-table th,.spec-table td{padding:16px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line-2)}.spec-table th{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);background:rgba(255,255,255,.03)}.spec-table td{font-size:14px;color:var(--text)}
-
-    .composer{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}.composer textarea{width:100%;height:96px;resize:none;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:18px;padding:16px;color:var(--text);outline:none;font:inherit}.composer textarea:focus{border-color:color-mix(in srgb,var(--acc) 40%, var(--line))}
-
-    .sticky-cta{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:80;width:min(1120px, calc(100vw - 16px));padding:14px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;border-radius:24px;box-shadow:var(--shadow-2)}
-    .sticky-title{font-size:18px;font-weight:900;margin-top:6px}.sticky-text{font-size:13px;color:var(--muted);line-height:1.65;margin-top:4px}
-
-    .modal{position:fixed;inset:0;background:rgba(1,3,8,.72);display:none;align-items:center;justify-content:center;z-index:120;padding:20px}.modal.open{display:flex}
-    .modal-box{width:min(1180px,96vw);max-height:90vh;overflow:auto;padding:22px;border-radius:30px}.modal-grid,.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .theme-card,.role-card{border-radius:24px;overflow:hidden;border:1px solid var(--line);background:rgba(255,255,255,.04);display:flex;flex-direction:column;cursor:pointer;transition:var(--anim)}.theme-card:hover,.role-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--acc) 40%, var(--line))}.theme-card.active,.role-card.active{outline:2px solid color-mix(in srgb,var(--acc) 36%, transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 40%, transparent)}
-    .theme-shot{aspect-ratio:16/9;background-size:cover;background-position:center;position:relative}.theme-shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 0 45%,rgba(0,0,0,.6))}.theme-lock{position:absolute;top:14px;right:14px;z-index:1;padding:8px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,.14);background:rgba(4,6,12,.6)}
-    .theme-body,.role-body{padding:16px}.theme-name,.role-name{font-size:18px;font-weight:900;letter-spacing:-.03em}.theme-tag,.role-tag{display:inline-flex;margin-top:8px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
-    .theme-copy,.role-copy{font-size:12px;color:var(--muted);line-height:1.75;margin-top:10px}.theme-features,.role-features{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.theme-features span,.role-features span{font-size:10px;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.04);border:1px solid var(--line-2);color:var(--text)}
-    .settings-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line-2)}
-
-    .modal-card{width:min(620px,96vw);padding:24px;border-radius:28px;position:relative}.modal-card h2{margin:12px 0 10px;font-size:34px;letter-spacing:-.05em}.modal-card p{margin:0;color:var(--muted)}.modal-price{font-size:34px;font-weight:900;letter-spacing:-.05em;margin-top:18px}.modal-benefits{margin-top:16px;display:grid;gap:10px}.modal-benefit{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line-2);font-size:14px;line-height:1.65}.modal-close{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;font-size:20px}
-
-
-
-    .payment-flow-panel{padding:18px}
-    .payment-shell{display:grid;gap:16px}
-    .payment-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .step-item{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:18px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);color:var(--muted)}
-    .step-item span{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--line);font-size:12px;font-weight:900}
-    .step-item b{font-size:13px;letter-spacing:.02em}
-    .step-item.active{color:var(--text);border-color:color-mix(in srgb,var(--acc) 36%, var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 10%, transparent),rgba(255,255,255,.035))}
-    .step-item.active span{background:color-mix(in srgb,var(--acc) 16%, transparent);color:var(--acc);border-color:color-mix(in srgb,var(--acc) 36%, var(--line))}
-    .checkout-layout{display:grid;grid-template-columns:1.12fr .88fr;gap:18px;align-items:start}
-    .checkout-main,.checkout-side{display:grid;gap:16px}
-    .checkout-stage,.checkout-summary-card,.confirm-card,.complete-card,.stripe-card-shell{border:1px solid var(--line-2);background:rgba(255,255,255,.03);border-radius:24px;padding:20px}
-    .checkout-stage{display:none}
-    .checkout-stage.stage-live{display:block;animation:rise .32s var(--anim) both}
-    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .field{display:grid;gap:8px}
-    .field span{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.02em}
-    .field input,.field select,.field textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:14px 14px;color:var(--text);outline:none;font:inherit}
-    .field input:focus,.field select:focus,.field textarea:focus{border-color:color-mix(in srgb,var(--acc) 36%, var(--line));box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 8%, transparent)}
-    .field textarea{min-height:120px;resize:vertical}
-    .field-full{grid-column:1/-1}
-    .checkbox-field{grid-template-columns:auto 1fr;align-items:start;background:rgba(255,255,255,.02);padding:14px;border-radius:16px;border:1px solid var(--line-3)}
-    .checkbox-field input{width:18px;height:18px;margin-top:2px}
-    .stage-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-    .form-note{margin-top:12px;font-size:12px;color:var(--soft);line-height:1.8}
-    .summary-kicker,.stripe-kicker,.complete-kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);font-weight:900}
-    .summary-plan{font-size:28px;font-weight:900;letter-spacing:-.04em;margin-top:8px}
-    .summary-price{font-size:24px;font-weight:900;color:var(--acc);margin-top:8px}
-    .summary-copy{font-size:13px;line-height:1.75;color:var(--muted);margin:10px 0 0}
-    .summary-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-    .summary-badges span,.code-chip{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border-radius:999px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);font-size:11px;color:var(--text)}
-    .checkout-summary-card.muted{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.015))}
-    .status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
-    .status-grid div{padding:12px 14px;border-radius:16px;border:1px solid var(--line-3);background:rgba(255,255,255,.025)}
-    .status-grid span{display:block;font-size:11px;color:var(--soft);letter-spacing:.08em;text-transform:uppercase}
-    .status-grid b{display:block;font-size:15px;margin-top:6px}
-    .confirm-card{display:grid;gap:14px}
-    .confirm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .confirm-item{padding:14px;border-radius:18px;border:1px solid var(--line-3);background:rgba(255,255,255,.025)}
-    .confirm-item .k{font-size:11px;color:var(--soft);letter-spacing:.08em;text-transform:uppercase}
-    .confirm-item .v{font-size:14px;line-height:1.7;margin-top:6px;word-break:break-word}
-    .stripe-title{font-size:22px;font-weight:900;letter-spacing:-.04em;margin-top:8px}
-    .stripe-points{display:grid;gap:10px;padding-left:18px;color:var(--muted);line-height:1.7;margin:12px 0 0}
-    .code-chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-    .complete-card{text-align:center;display:grid;gap:12px;justify-items:center}
-    .complete-mark{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:900;color:var(--acc);border:1px solid color-mix(in srgb,var(--acc) 36%, var(--line));background:color-mix(in srgb,var(--acc) 10%, transparent);box-shadow:0 0 30px color-mix(in srgb,var(--acc) 14%, transparent)}
-    .complete-card h3{margin:0;font-size:32px;letter-spacing:-.05em}
-    .complete-card p{max-width:64ch;color:var(--muted);line-height:1.8;margin:0}
-    .complete-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%;margin-top:8px}
-    .complete-grid .confirm-item{text-align:left}
-    .error-banner{margin-top:14px;padding:14px 16px;border-radius:16px;border:1px solid rgba(255,104,145,.26);background:rgba(255,104,145,.08);color:#ffd7e2;font-size:13px;line-height:1.7}
-    @media (max-width:980px){.checkout-layout,.confirm-grid,.complete-grid,.status-grid{grid-template-columns:1fr}.payment-steps{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
-
-
-
-
-    .supabase-panel{padding:18px}
-    .supabase-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-    .supabase-card{border:1px solid var(--line-2);background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.018));border-radius:24px;padding:20px;display:grid;gap:16px}
-    .supabase-card.admin-card{grid-column:1/-1}
-    .card-headline{font-size:18px;font-weight:900;letter-spacing:-.03em}
-    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .mode-switch{display:flex;gap:8px;flex-wrap:wrap}
-    .status-console{padding:14px 16px;border-radius:18px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);font-size:13px;line-height:1.8;color:var(--muted)}
-    .status-console.success{border-color:color-mix(in srgb,var(--acc) 38%, var(--line));color:var(--text);background:color-mix(in srgb,var(--acc) 9%, transparent)}
-    .status-console.warn{border-color:color-mix(in srgb,var(--warn) 30%, var(--line));color:#fff6d3;background:rgba(255,217,119,.08)}
-    .status-console.error{border-color:rgba(255,104,145,.28);color:#ffd7e2;background:rgba(255,104,145,.08)}
-    .profile-status-grid{margin-top:0}
-    .history-wrap{display:grid;grid-template-columns:1fr;gap:16px}
-    .history-title{font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
-    .history-list{display:grid;gap:10px;max-height:300px;overflow:auto;padding-right:4px}
-    .history-item{padding:14px;border-radius:18px;border:1px solid var(--line-3);background:rgba(255,255,255,.025);display:grid;gap:8px}
-    .history-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .history-main{font-size:14px;font-weight:800}
-    .history-meta,.history-sub{font-size:12px;color:var(--muted);line-height:1.7}
-    .history-pill{display:inline-flex;align-items:center;justify-content:center;padding:7px 10px;border-radius:999px;border:1px solid var(--line-2);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
-    .history-pill.success{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 32%, var(--line));background:color-mix(in srgb,var(--acc) 8%, transparent)}
-    .history-pill.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 30%, var(--line));background:rgba(255,217,119,.08)}
-    .history-pill.error{color:#ffb7cb;border-color:rgba(255,104,145,.24);background:rgba(255,104,145,.08)}
-    .history-empty{padding:16px;border-radius:18px;border:1px dashed var(--line-2);font-size:13px;color:var(--soft);background:rgba(255,255,255,.02)}
-
-
-    .admin-dashboard-card{grid-column:1/-1}
-    .admin-metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-    .admin-board-grid{display:grid;grid-template-columns:1.12fr .94fr .94fr;gap:16px;align-items:start}
-    .admin-board-panel{border:1px solid var(--line-2);background:rgba(255,255,255,.025);border-radius:22px;padding:16px;display:grid;gap:14px;min-height:380px}
-    .board-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    .admin-search-input{min-width:220px;max-width:320px;width:100%;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--text);outline:none;font:inherit}
-    .admin-search-input:focus{border-color:color-mix(in srgb,var(--acc) 36%, var(--line));box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 8%, transparent)}
-    .admin-list{max-height:560px}
-    .member-row{padding:14px;border-radius:18px;border:1px solid var(--line-3);background:rgba(255,255,255,.025);display:grid;gap:10px;cursor:pointer;transition:transform var(--anim),border-color var(--anim),background var(--anim)}
-    .member-row:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--acc) 26%, var(--line));background:rgba(255,255,255,.035)}
-    .member-row.active{border-color:color-mix(in srgb,var(--acc) 40%, var(--line));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--acc) 12%, transparent)}
-    .member-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .member-main{font-size:14px;font-weight:800;line-height:1.5}
-    .member-sub{font-size:12px;color:var(--muted);line-height:1.7;word-break:break-word}
-    .member-tags{display:flex;flex-wrap:wrap;gap:8px}
-    .member-tags span,.record-tags span{display:inline-flex;align-items:center;justify-content:center;padding:7px 10px;border-radius:999px;border:1px solid var(--line-2);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.03)}
-    .record-tags{display:flex;flex-wrap:wrap;gap:8px}
-    .record-row{padding:14px;border-radius:18px;border:1px solid var(--line-3);background:rgba(255,255,255,.025);display:grid;gap:8px}
-    .record-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    @media (max-width:1180px){.admin-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-board-grid{grid-template-columns:1fr}}
-    @media (max-width:680px){.admin-metric-grid{grid-template-columns:1fr}}
-
-    @media (max-width:980px){.supabase-grid,.field-grid{grid-template-columns:1fr}}
-
-
-    @media (max-width:1280px){.top-grid{grid-template-columns:1fr 1fr}.authority-card{grid-column:1/-1}.membership-hero-grid,.workspace-grid,.compare-hint,.sticky-cta{grid-template-columns:1fr}.layout{grid-template-columns:1fr}.topbar{height:auto;min-height:var(--header-h)}aside{position:relative;top:0;max-height:none}.modal-grid,.role-grid{grid-template-columns:1fr}}
-    @media (max-width:860px){.top-actions,.hero-actions,.compare-actions,.composer-actions,.plan-actions,.sticky-actions,.modal-actions{display:grid;grid-template-columns:1fr}.topbar{padding:14px}.top-actions{width:100%;justify-content:flex-start}.membership-hero-grid,.plan-grid,.analytics-grid,.top-grid{grid-template-columns:1fr}.compare-hint,.sticky-cta,.composer{grid-template-columns:1fr}.role-chip{min-width:0}.title{font-size:22px}.hero-panel h2,.funnel-copy h3{font-size:32px}.revenue-big,.price-main,.modal-price{font-size:38px}.sticky-cta{left:8px;right:8px;width:auto;transform:none;bottom:8px}.modal-card h2{font-size:28px}}
-  </style>
 
   <script>
     const THEMES = {
-      glyph:{id:'glyph',name:'GLYPH MATRIX',subtitle:'黒曜石の司令室 × 文字雨 × 古代ホログラム',badge:'Current Theme / GLYPH MATRIX',heroHeadline:'売るための没入感を持った、AI司令室の完成形。',heroCopy:'GLYPH MATRIX を標準テーマとして固定し、ブランド訴求・比較導線・上位権限の匂わせを最も整ったSaaS顔として見せます。',shot:'https://www.genspark.ai/api/files/s/MSY2PUgP?cache_control=3600',css:{'--bg':'#071019','--bg2':'#09141d','--panel':'rgba(12,18,30,.76)','--panel-2':'rgba(10,16,26,.58)','--line':'rgba(255,255,255,.10)','--line-2':'rgba(255,255,255,.06)','--text':'#f4f8ff','--muted':'#a8b7cd','--soft':'#73819a','--acc':'#8cff61','--acc2':'#22e3a5','--warn':'#ffd977','--danger':'#ff6891','--violet':'#aa89ff','--hero-overlay':'linear-gradient(180deg,rgba(5,10,16,.88),rgba(5,9,14,.96))','--hero':'url("https://www.genspark.ai/api/files/s/MSY2PUgP?cache_control=3600")'},agents:[['MUSK / 統括AI','第一原理の総司令'],['VECTOR','市場捕捉と流入生成'],['SCRIBE','noteと高単価記事生成'],['REVENANT','販売導線と訴求変換'],['SIGNAL','告知とSNS拡散'],['FORGE','受託提案とデザイン制作']],commands:[['/theme sanctum','FF7寄りの神殿司令室へ切替'],['/theme prime','加入者専用テーマへ遷移'],['/deploy note','note販売導線を起動']],tasks:[['GLYPH MATRIX を標準UIとして固定','販売LP・デモ動画・スクショの基準画面にする。','高'],['世界観を壊さない design token 化','背景、グロー、ガラス濃度、ライン色を量産しやすくする。','中'],['加入者限定の見せ方を薄く匂わせる','非加入時でも PRIME の存在が気になるよう1〜2個のロックモジュールだけ可視化する。','中']],exclusiveTitle:'PRIME予告',exclusiveBody:'非加入ユーザーにも限定AIの存在を感じさせる程度に見せ、完全開放はしない。アップセル圧を静かに掛ける。'},
-      sanctum:{id:'sanctum',name:'NEURAL SANCTUM // REACTOR',subtitle:'FF7的テクノ神殿 × 魔晄炉心 × キャラクター司令室',badge:'Current Theme / NEURAL SANCTUM',heroHeadline:'ゲーム的な昂揚感で、操作そのものを報酬化する。',heroCopy:'NEURAL SANCTUM は FF7 を思わせる都市魔晄SFの重さと神殿的UIの神秘を統合。エージェント名もパーティーのようなキャラクター感へ寄せます。',shot:'https://www.genspark.ai/api/files/s/tYA5RPTj?cache_control=3600',css:{'--bg':'#090d12','--bg2':'#111723','--panel':'rgba(16,20,30,.78)','--panel-2':'rgba(12,16,26,.64)','--line':'rgba(117,255,196,.14)','--line-2':'rgba(255,255,255,.08)','--text':'#eef7ff','--muted':'#aab8c8','--soft':'#7f92a8','--acc':'#6fffc2','--acc2':'#44d0ff','--warn':'#ffd36e','--danger':'#ff7da5','--violet':'#7ed1ff','--hero-overlay':'linear-gradient(180deg,rgba(6,10,14,.80),rgba(8,12,19,.96))','--hero':'url("https://www.genspark.ai/api/files/s/tYA5RPTj?cache_control=3600")'},agents:[['ARCHON MUSK','司令塔 / 起動権限保持者'],['VESPER','敵性市場の索敵役'],['LYRA','記事生成と物語設計'],['KAEL','契約・提案・交渉の前衛'],['NYRA','告知連撃とSNS連鎖'],['SOLVEIG','深層解析と炉心KPI監視']],commands:[['/theme glyph','標準SaaS司令室へ戻る'],['/reactor sync','炉心同期エフェクトを強化'],['/party brief','キャラクター別に任務分解']],tasks:[['エージェント名をキャラクター寄りに変換','部署名ではなく、物語性のあるコールサインを前面に出す。','高'],['ゲーム的な任務UIを増やす','TASK を Quest、週次目標を Mission、成果を Relic として再構成する。','高'],['世界観に見合う報酬演出を入れる','達成時のグロー、昇格バッジ、解放ログを用意し、操作の快感を上げる。','中']],exclusiveTitle:'Reactor Class Perk',exclusiveBody:'加入者限定で高難度コマンドや自動化AIを解放すると、ゲームの上位ジョブを得た感覚を作りやすい。'},
-      prime:{id:'prime',name:'PRIME ACCESS // INNER VAULT',subtitle:'加入者限定の黒金司令室 × 排他的AI権限',badge:'Current Theme / PRIME ACCESS',heroHeadline:'加入しないと惜しい、を視覚だけで成立させる。',heroCopy:'PRIME ACCESS は加入者だけが触れる秘密の司令室。限定AI、コマンドマクロ、売上直結の自動化、そして通常版では先に進みにくい導線を意図的に可視化します。',shot:'https://www.genspark.ai/api/files/s/pQkH1umc?cache_control=3600',css:{'--bg':'#09070f','--bg2':'#130f1d','--panel':'rgba(18,12,26,.80)','--panel-2':'rgba(12,10,20,.66)','--line':'rgba(255,217,119,.16)','--line-2':'rgba(173,122,255,.10)','--text':'#fffaf0','--muted':'#d0c8dc','--soft':'#9687b0','--acc':'#f0d26c','--acc2':'#7dffbd','--warn':'#ffd977','--danger':'#ff83b0','--violet':'#b983ff','--hero-overlay':'linear-gradient(180deg,rgba(10,6,14,.78),rgba(8,5,12,.96))','--hero':'url("https://www.genspark.ai/api/files/s/dcp5Ap3T?cache_control=3600")'},agents:[['PRIME MUSK','最上位統括 / 権限: Ω'],['ORACLE','加入者限定の深層相談AI'],['AUTOPILOT','投稿・販売の自動巡航'],['ALCHEMY','商品化と単価最適化'],['CONVERTOR','一時購入者を加入へ転換'],['WATCHER','限定指標と解約予兆検知']],commands:[['/prime oracle','高単価相談AIを起動'],['/prime autopilot','投稿〜告知〜販売を半自動で回す'],['/prime convert-lead','単発売上を定期課金へ変換'],['/prime vault','限定テンプレ・プロンプト保管庫を開く']],tasks:[['加入者限定コマンドを明示する','非加入では押せないが魅力が伝わる位置に COMMAND MACRO を置く。','高'],['一時購入では完結しにくい構造を作る','深い相談・自動化・継続改善ログは PRIME でしか触れない設計にする。','高'],['加入継続の理由をUI上に常設する','Oracle・Autopilot・Convertor が毎月の手間削減と収益増に直結すると見せる。','高']],exclusiveTitle:'PRIME Core Enabled',exclusiveBody:'“加入しないと進みにくい”を嫌味なく作る鍵は、通常版では時間が掛かる作業を PRIME で一発短縮できる体験にすること。'}
-    };
-
-    const ROLES = {
-      standard:{id:'standard',name:'通常会員',meta:'標準機能と比較UIを体験する入口',kind:'user',badge:'User Tier / STANDARD',title:'まずはここから始める状態',copy:'標準機能と比較UIを使いながら、限定AIや自動化の必要性を自然に認識する段階です。',summary:[['解放テーマ','GLYPH MATRIX 基本利用'],['制限','PRIME / MASTER はプレビュー中心'],['推奨導線','PRIME へアップグレード']],ctaPlan:'prime',themeLock:'preview',grants:['標準UI','比較閲覧','デモモード']},
-      prime:{id:'prime',name:'PRIME 会員',meta:'限定AI・Autopilot・Vaultが解放された運用状態',kind:'user',badge:'User Tier / PRIME',title:'成果加速が解放された状態',copy:'限定AI・Autopilot・Inner Vault が使える一方、週次情報や月次ミーティングは MASTER で解放されます。',summary:[['解放テーマ','GLYPH / SANCTUM / PRIME 全利用'],['制限','MASTER 特典は未解放'],['推奨導線','MASTER へアップグレード']],ctaPlan:'master',themeLock:'open',grants:['限定AI','Autopilot','Vault']},
-      master:{id:'master',name:'MASTER 会員',meta:'PRIME全機能 + 週次情報 + 月次MTG + 優先支援',kind:'user',badge:'User Tier / MASTER',title:'伴走価値まで含めて解放された状態',copy:'PRIMEの全機能に加え、毎週の有益情報、毎月の個別ミーティング、優先サポート、先行アクセスが利用できます。',summary:[['解放テーマ','全テーマ + 伴走特典'],['制限','運用権限は持たない'],['推奨導線','継続率の最大化']],ctaPlan:'master',themeLock:'open',grants:['週次情報','月次MTG','優先支援']},
-      god:{id:'god',name:'GOD アカウント',meta:'唯一無二の全権限運用アカウント',kind:'ops',badge:'Ops Tier / GOD',title:'全権限・全実装を確認できる中枢',copy:'GOD は全設定変更、全会員状態制御、判定上書き、子アカウント管理、全データ閲覧を持つ絶対権限です。',summary:[['解放テーマ','全テーマ強制切替'],['制限','なし'],['推奨導線','権限設計を管理']],ctaPlan:'master',themeLock:'open',grants:['全権限','会員状態変更','子アカウント管理']},
-      opslead:{id:'opslead',name:'子アカウント / Lead',meta:'運用責任者向けの上位子アカウント',kind:'ops',badge:'Ops Tier / LEAD',title:'主要運用権限を持つ子アカウント',copy:'会員閲覧、限定承認、配信管理、レポート確認が可能。全権限ではなく、役職に必要な範囲に限定します。',summary:[['解放テーマ','全閲覧・一部編集'],['制限','GOD専用操作は不可'],['推奨導線','承認と配信を担当']],ctaPlan:'master',themeLock:'open',grants:['会員閲覧','配信管理','一部承認']},
-      opseditor:{id:'opseditor',name:'子アカウント / Editor',meta:'制作・編集中心の限定運用アカウント',kind:'ops',badge:'Ops Tier / EDITOR',title:'編集と制作に特化した子アカウント',copy:'UI編集・文面更新・一部テンプレ管理は可能ですが、会員状態変更や権限操作はできません。',summary:[['解放テーマ','全閲覧・編集限定'],['制限','会員状態変更不可'],['推奨導線','制作実務に集中']],ctaPlan:'master',themeLock:'open',grants:['編集','テンプレ管理','限定分析閲覧']},
-      opsanalyst:{id:'opsanalyst',name:'子アカウント / Analyst',meta:'分析閲覧専用の限定運用アカウント',kind:'ops',badge:'Ops Tier / ANALYST',title:'閲覧中心の分析子アカウント',copy:'ダッシュボード、CV計測、比較結果の閲覧は可能。編集・会員変更・権限変更は行いません。',summary:[['解放テーマ','全閲覧'],['制限','編集・変更操作不可'],['推奨導線','指標監視に集中']],ctaPlan:'master',themeLock:'open',grants:['分析閲覧','CV確認','レポート参照']}
-    };
-
-    const pricing = {monthly:{prime:'¥19,800',master:'¥59,800',suffix:'/ 月'},yearly:{prime:'¥198,000',master:'¥598,000',suffix:'/ 年 ・ 2か月分お得'}};
-    const variants = {
-      A:{chip:'Variant A / PRIME主導',headline:'通常会員の次の一歩を、PRIMEに集中させる。',copy:'限定AI・Autopilot・Inner Vault を“成果の加速装置”として前面化し、通常会員が最も自然に上がりたくなる導線を本体に組み込みます。',compareHeadline:'Variant A: PRIME主導の比較導線',compareText:'通常会員の次の一歩を PRIME に集中させ、MASTER は PRIME の先にある上位伴走プランとして見せます。',coreLabel:'Recommended Next Step',coreTitle:'PRIME ACCESS',coreSub:'今より速く進めるための最短アップグレード導線。',stickyKicker:'Recommended Next Step',stickyTitle:'PRIMEで、止まらず前に進む。',stickyText:'限定AI・Autopilot・Inner Vault を解放し、通常会員からの自然なアップグレード先として最も強く訴求します。',primeTagline:'もっと早く、もっと深く進めたい人のための中核プラン。',primeSummary:'限定AI、Oracle、Autopilot、Inner Vault を“成果の加速装置”として見せ、通常会員から最も自然に上がりたくなる導線にしています。',masterTagline:'PRIMEの全機能に、情報優位・伴走・優先権まで加えた最上位プラン。',masterSummary:'週次の有益情報、毎月の個別ミーティング、優先サポート、先行アクセスを明示し、“必要だから上がる”導線にしています。',primaryPlan:'prime'},
-      B:{chip:'Variant B / MASTER主導',headline:'最上位の伴走価値を、先に見せて納得させる。',copy:'PRIMEの全機能に加え、毎週の有益情報・毎月の個別ミーティング・優先サポートを前面に出し、高単価の納得感を先に作る設計です。',compareHeadline:'Variant B: MASTER主導の比較導線',compareText:'ヒーロー・固定CTA・比較補足を MASTER 中心へ切り替え、最上位プランの検討率を上げにいきます。',coreLabel:'High Value Route',coreTitle:'MASTER',coreSub:'成果を高め続けるための伴走型アップグレード。',stickyKicker:'High Value Route',stickyTitle:'MASTERで、成果を高め続ける。',stickyText:'週次インサイト、月次ミーティング、優先サポート、先行アクセスまで含む最上位の伴走プランです。',primeTagline:'まずは成果加速、その先でMASTERに自然接続する上位準備プラン。',primeSummary:'PRIMEは依然として重要ですが、Variant B では MASTER の価値理解のための土台として機能します。',masterTagline:'成果を高め続けたい人へ向けた、伴走・優先権込みの最上位会員プラン。',masterSummary:'継続運用で欲しくなる週次情報・個別ミーティング・優先支援を前面に出し、必要性ベースで上位移行を促します。',primaryPlan:'master'}
-    };
-
-    const modalPlans = {
-      prime:{eyebrow:'Prime upgrade',title:'PRIME ACCESS を解放',copy:'限定AI・Autopilot・Inner Vault を中心に、成果を早めるための装置をまとめて解放します。',benefits:['限定AI / Oracle / PRIME ACCESS テーマを利用可能','Autopilot と Inner Vault で運用速度を底上げ','通常会員からの最も自然な次の一歩として設計']},
-      master:{eyebrow:'Master upgrade',title:'MASTER で伴走価値まで解放',copy:'PRIME の全機能に加え、毎週の有益情報、毎月の個別ミーティング、優先サポート、先行アクセスを利用できます。',benefits:['PRIME の全機能を包含した最上位会員','週次インサイト / 月次MTG / 優先サポートを提供','継続的に成果を高め続けたい運用者向けの伴走プラン']}
+      glyph:{
+        id:'glyph',
+        name:'GLYPH MATRIX',
+        short:'Glyph',
+        subtitle:'黒曜石の司令室 × 文字雨 × 古代ホログラム',
+        badge:'Current Theme / GLYPH MATRIX',
+        heroHeadline:'売るためではなく、まず自分が毎日開きたくなる司令室へ。',
+        heroCopy:'GLYPH MATRIX は標準テーマ。もっともニュートラルで、日常的に開く基準画面として使いやすい状態にしています。',
+        modeLabel:'GLYPH',
+        modeDescription:'標準運用・執筆・思考整理の基準モード',
+        modeHint:'まず最初に戻ってくる基準画面として、情報密度と静けさのバランスを取ったテーマ',
+        bar:'56%',
+        shot:'https://www.genspark.ai/api/files/s/MSY2PUgP?cache_control=3600',
+        cardTag:'FLAGSHIP',
+        cardCopy:'黒曜石の司令室、文字雨、ホログラムの印象を持つ標準顔。迷ったらここに戻るためのベーステーマ。',
+        features:['標準UI','文字雨','基準画面'],
+        css:{'--bg':'#071019','--bg2':'#09141d','--panel':'rgba(12,18,30,.76)','--panel-2':'rgba(10,16,26,.58)','--line':'rgba(255,255,255,.10)','--line-2':'rgba(255,255,255,.06)','--text':'#f4f8ff','--muted':'#a8b7cd','--soft':'#73819a','--acc':'#8cff61','--acc2':'#22e3a5','--warn':'#ffd977','--danger':'#ff6891','--violet':'#aa89ff','--hero-overlay':'linear-gradient(180deg,rgba(5,10,16,.88),rgba(5,9,14,.96))','--hero':'url("https://www.genspark.ai/api/files/s/MSY2PUgP?cache_control=3600")'},
+        authorityTitle:'GLYPHを基準に切り替える',
+        authorityCopy:'GLYPH は標準、SANCTUM は集中用、PRIME は深い相談・構想・特別感のある作業用として切り替えます。',
+        authority:[['基準画面','まず最初に開く通常モード'],['向いている用途','執筆、設計、整理、日常運用'],['切替の意味','迷ったら戻るホーム画面']],
+        miniNotes:[['標準テーマ','日常運用の基準顔'],['静かな集中','情報密度を上げすぎない'],['戻り先','迷ったらここ']],
+        agents:[['MUSK / 統括AI','第一原理の総司令'],['VECTOR','構想と流れの整理'],['SCRIBE','執筆・要約・構成'],['SIGNAL','見出し・訴求・整理']],
+        commands:[['/theme sanctum','集中したい時に神殿モードへ切替'],['/theme prime','深掘り相談や特別感が欲しい時に切替'],['/deploy note','note草案や構成を考える']],
+        tasks:[['今日の主作業を1つ決める','執筆・整理・相談のどれに入るか決める。','高'],['情報を散らさず1画面で扱う','コマンドとログとタスクを同じ場で扱う。','中'],['迷ったらGLYPHに戻る','基準画面として使いやすいかを判断する。','低']]
+      },
+      sanctum:{
+        id:'sanctum',
+        name:'NEURAL SANCTUM // REACTOR',
+        short:'Sanctum',
+        subtitle:'FF7的テクノ神殿 × 魔晄炉心 × キャラクター司令室',
+        badge:'Current Theme / NEURAL SANCTUM',
+        heroHeadline:'ゲーム的な昂揚感で、集中スイッチを入れる。',
+        heroCopy:'NEURAL SANCTUM はテンションを変えたい時のモード。作業に入る気分を作るための、強めの演出テーマです。',
+        modeLabel:'SANCTUM',
+        modeDescription:'集中・演出・没入感を上げる高揚モード',
+        modeHint:'気分を切り替えたい時、作業の勢いを上げたい時に使うテーマ',
+        bar:'78%',
+        shot:'https://www.genspark.ai/api/files/s/tYA5RPTj?cache_control=3600',
+        cardTag:'GAME MODE',
+        cardCopy:'神殿的な重厚感とゲーム的な高揚感を持つ集中用テーマ。切り替えた瞬間に気分を変えたい時に向きます。',
+        features:['FF7寄り','高揚感','集中モード'],
+        css:{'--bg':'#090d12','--bg2':'#111723','--panel':'rgba(16,20,30,.78)','--panel-2':'rgba(12,16,26,.64)','--line':'rgba(117,255,196,.14)','--line-2':'rgba(255,255,255,.08)','--text':'#eef7ff','--muted':'#aab8c8','--soft':'#7f92a8','--acc':'#6fffc2','--acc2':'#44d0ff','--warn':'#ffd36e','--danger':'#ff7da5','--violet':'#7ed1ff','--hero-overlay':'linear-gradient(180deg,rgba(6,10,14,.80),rgba(8,12,19,.96))','--hero':'url("https://www.genspark.ai/api/files/s/tYA5RPTj?cache_control=3600")'},
+        authorityTitle:'集中用の演出テーマ',
+        authorityCopy:'考え込むより、勢いよく入って進めたい時に使うモード。作業のテンションを引き上げるための切替です。',
+        authority:[['演出用途','気分を上げて集中へ入る'],['向いている用途','作業突入、長時間集中、構想の勢い出し'],['切替の意味','気分を変えるトリガー']],
+        miniNotes:[['高揚感','集中の入口を作る'],['神殿UI','気分転換に効く'],['勢い重視','理屈より没入']],
+        agents:[['ARCHON MUSK','司令塔 / 起動権限保持者'],['VESPER','思考の索敵と論点抽出'],['LYRA','物語と文章の流れを整える'],['SOLVEIG','深層分析と炉心監視']],
+        commands:[['/theme glyph','標準司令室へ戻る'],['/reactor sync','炉心同期エフェクトを強化'],['/party brief','観点ごとに任務分解する']],
+        tasks:[['作業の入口を作る','気持ちが乗らない時の起動スイッチに使う。','高'],['長時間集中の空気を作る','静かな標準テーマより強く背中を押す。','中'],['考えるより先に手を動かす','勢いを出すための演出として使う。','中']]
+      },
+      prime:{
+        id:'prime',
+        name:'PRIME ACCESS // INNER VAULT',
+        short:'Prime',
+        subtitle:'加入者限定の黒金司令室 × 排他的AI権限',
+        badge:'Current Theme / PRIME ACCESS',
+        heroHeadline:'深く考えたい時だけ開く、特別な司令室。',
+        heroCopy:'PRIME ACCESS は一段深い相談や構想整理に入るためのテーマ。特別感を持って使うことで、思考の切り替えを明確にできます。',
+        modeLabel:'PRIME',
+        modeDescription:'深掘り相談・構想・特別感のある作業モード',
+        modeHint:'通常テーマでは浅く感じる時に、あえて切り替えて深く考えるための司令室',
+        bar:'66%',
+        shot:'https://www.genspark.ai/api/files/s/pQkH1umc?cache_control=3600',
+        cardTag:'INNER VAULT',
+        cardCopy:'黒金の排他的な雰囲気を持つ特別テーマ。相談の深さや思考の重みを変えたい時に使うパーソナル版の主役。',
+        features:['限定感','深掘り','特別モード'],
+        css:{'--bg':'#09070f','--bg2':'#130f1d','--panel':'rgba(18,12,26,.80)','--panel-2':'rgba(12,10,20,.66)','--line':'rgba(255,217,119,.16)','--line-2':'rgba(173,122,255,.10)','--text':'#fffaf0','--muted':'#d0c8dc','--soft':'#9687b0','--acc':'#f0d26c','--acc2':'#7dffbd','--warn':'#ffd977','--danger':'#ff83b0','--violet':'#b983ff','--hero-overlay':'linear-gradient(180deg,rgba(10,6,14,.78),rgba(8,5,12,.96))','--hero':'url("https://www.genspark.ai/api/files/s/dcp5Ap3T?cache_control=3600")'},
+        authorityTitle:'深掘り専用の特別モード',
+        authorityCopy:'普段使いではなく、深い相談、構想、意思決定、特別な整理の時にだけ切り替えることで効くテーマです。',
+        authority:[['特別用途','深い相談、構想、判断、言語化'],['向いている用途','思考整理、戦略、企画、世界観設計'],['切替の意味','深さを作るための儀式']],
+        miniNotes:[['深掘り相談','考えを一段深くする'],['特別感','普段と分けて使う'],['主役テーマ','序盤に話していた第三の核']],
+        agents:[['PRIME MUSK','最上位統括 / 深掘り相談の起点'],['ORACLE','考えを深くする相談AI'],['AUTOPILOT','反復作業を前に進める'],['WATCHER','抜け漏れと違和感の監視']],
+        commands:[['/prime oracle','深掘り相談AIを起動'],['/prime autopilot','作業を前へ押し出す'],['/theme glyph','標準テーマへ戻る']],
+        tasks:[['深く相談したいテーマを1つ決める','広げすぎず、まず1テーマに集中する。','高'],['構想を言語化する','頭の中の輪郭をことばに落とす。','高'],['通常画面との差を確かめる','本当に特別モードとして効いているかを見る。','中']]
+      }
     };
 
     const els = {
-      brandTitle:document.getElementById('brandTitle'),brandSubtitle:document.getElementById('brandSubtitle'),themeBadge:document.getElementById('themeBadge'),heroHeadline:document.getElementById('heroHeadline'),heroCopy:document.getElementById('heroCopy'),agentList:document.getElementById('agentList'),commandList:document.getElementById('commandList'),taskList:document.getElementById('taskList'),chatLog:document.getElementById('chatLog'),accessList:document.getElementById('accessList'),themeGrid:document.getElementById('themeGrid'),roleGrid:document.getElementById('roleGrid'),activeRoleName:document.getElementById('activeRoleName'),activeRoleMeta:document.getElementById('activeRoleMeta'),authorityBadge:document.getElementById('authorityBadge'),authorityTitle:document.getElementById('authorityTitle'),authorityCopy:document.getElementById('authorityCopy'),authorityGrid:document.getElementById('authorityGrid'),variantChip:document.getElementById('variantChip'),funnelHeadline:document.getElementById('funnelHeadline'),funnelCopy:document.getElementById('funnelCopy'),compareHeadline:document.getElementById('compareHeadline'),compareText:document.getElementById('compareText'),coreStageLabel:document.getElementById('coreStageLabel'),coreTitle:document.getElementById('coreTitle'),coreSub:document.getElementById('coreSub'),stickyKicker:document.getElementById('stickyKicker'),stickyTitle:document.getElementById('stickyTitle'),stickyText:document.getElementById('stickyText'),stickyActions:document.getElementById('stickyActions'),pricePrime:document.getElementById('pricePrime'),pricePrimeSub:document.getElementById('pricePrimeSub'),priceMaster:document.getElementById('priceMaster'),priceMasterSub:document.getElementById('priceMasterSub'),primeTagline:document.getElementById('primeTagline'),primeSummary:document.getElementById('primeSummary'),masterTagline:document.getElementById('masterTagline'),masterSummary:document.getElementById('masterSummary'),primeCard:document.getElementById('primeCard'),masterCard:document.getElementById('masterCard'),primePrimaryCta:document.getElementById('primePrimaryCta'),masterPrimaryCta:document.getElementById('masterPrimaryCta'),modalEyebrow:document.getElementById('modalEyebrow'),modalTitle:document.getElementById('modalTitle'),modalCopy:document.getElementById('modalCopy'),modalPrice:document.getElementById('modalPrice'),modalBenefits:document.getElementById('modalBenefits'),confirmUpgradeBtn:document.getElementById('confirmUpgradeBtn'),switchPlanBtn:document.getElementById('switchPlanBtn'),upgradeModal:document.getElementById('upgradeModal'),themeModal:document.getElementById('themeModal'),accessModal:document.getElementById('accessModal'),commandInput:document.getElementById('commandInput'),statCta:document.getElementById('statCta'),statModal:document.getElementById('statModal'),statFaq:document.getElementById('statFaq'),statVariant:document.getElementById('statVariant'),scrollLabel:document.getElementById('scrollLabel'),scrollBar:document.getElementById('scrollBar'),depthGrid:document.getElementById('depthGrid'),eventLog:document.getElementById('eventLog')
+      brandTitle:document.getElementById('brandTitle'), brandSubtitle:document.getElementById('brandSubtitle'), currentThemeShort:document.getElementById('currentThemeShort'),
+      themeBadge:document.getElementById('themeBadge'), heroHeadline:document.getElementById('heroHeadline'), heroCopy:document.getElementById('heroCopy'),
+      modeLabel:document.getElementById('modeLabel'), modeDescription:document.getElementById('modeDescription'), modeHint:document.getElementById('modeHint'), modeBar:document.getElementById('modeBar'),
+      authorityTitle:document.getElementById('authorityTitle'), authorityCopy:document.getElementById('authorityCopy'), authorityGrid:document.getElementById('authorityGrid'),
+      themeMiniList:document.getElementById('themeMiniList'), agentList:document.getElementById('agentList'), commandList:document.getElementById('commandList'), taskList:document.getElementById('taskList'),
+      themeGallery:document.getElementById('themeGallery'), chatLog:document.getElementById('chatLog'), commandInput:document.getElementById('commandInput')
     };
 
-    const state = {theme:'glyph',role:'prime',billing:'monthly',variant:'A',currentModalPlan:'prime',events:[],counters:{cta:0,modal:0,faq:0,scroll:0},scrollMarks:new Set(),endpoint:null,application:null};
-    const qs = s => document.querySelector(s); const qsa = s => [...document.querySelectorAll(s)];
+    const state = { theme:'glyph' };
+    const qs = s => document.querySelector(s);
+    const qsa = s => [...document.querySelectorAll(s)];
 
-    function appendLog(role, html){const div=document.createElement('div');div.className='bubble '+(role==='user'?'user':'ai');div.innerHTML=html;els.chatLog.appendChild(div);els.chatLog.scrollTop=els.chatLog.scrollHeight;}
-    function track(event,payload={}){const item={event,payload,ts:new Date().toISOString(),variant:state.variant,billing:state.billing,role:state.role,theme:state.theme};state.events.unshift(item);if(state.events.length>22)state.events.pop();if(event==='cta_click')state.counters.cta++;if(event==='modal_open')state.counters.modal++;if(event==='faq_open')state.counters.faq++;if(event==='scroll_depth_hit')state.counters.scroll++;renderAnalytics();if(state.endpoint&&navigator.sendBeacon){try{navigator.sendBeacon(state.endpoint,JSON.stringify(item));}catch(e){}}console.log('[mission-control-analytics]',item);}
-    function renderAnalytics(){els.statCta.textContent=state.counters.cta;els.statModal.textContent=state.counters.modal;els.statFaq.textContent=state.counters.faq;els.statVariant.textContent=state.variant;els.eventLog.innerHTML=state.events.length?state.events.map(i=>`<div class="event-item"><strong>${i.event}</strong><br>${i.payload.label||i.payload.plan||i.payload.depth||'-'} · ${i.variant} · ${new Date(i.ts).toLocaleTimeString('ja-JP')}</div>`).join(''):'<div class="event-item">イベントはまだありません。</div>';}
-
-    function buildGlyphRain(){const host=document.getElementById('glyphRain');const chars='01アイウエオカキクケコサシスセソABCDEFGHIJKLMNOPQRSTUVWXYZ$#@%✦✧◉';const cols=Math.min(28,Math.floor(window.innerWidth/55));host.innerHTML='';for(let i=0;i<cols;i++){let str='';const len=24+Math.floor(Math.random()*26);for(let j=0;j<len;j++)str+=chars[Math.floor(Math.random()*chars.length)]+'\n';const el=document.createElement('div');el.className='glyph-col';el.textContent=str;el.style.left=(i*(100/cols))+'%';el.style.animationDuration=(12+Math.random()*14)+'s';el.style.animationDelay=(-Math.random()*14)+'s';el.style.opacity=.4+Math.random()*.45;host.appendChild(el);}}
-
-    function setTheme(themeId,log=true){const theme=THEMES[themeId]||THEMES.glyph;state.theme=theme.id;Object.entries(theme.css).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));localStorage.setItem('mc-theme-integrated',theme.id);els.brandTitle.textContent=theme.name;els.brandSubtitle.textContent=theme.subtitle;els.themeBadge.textContent=theme.badge;els.heroHeadline.textContent=theme.heroHeadline;els.heroCopy.textContent=theme.heroCopy;renderAgents(theme);renderCommands(theme);renderTasks(theme);renderThemeCards(theme.id);if(log)appendLog('ai','<strong>統括AI:</strong> テーマを <b>'+theme.name+'</b> に切り替えました。');}
-    function renderAgents(theme){els.agentList.innerHTML=theme.agents.map((a,i)=>`<div class="agent-card ${i===0?'active':''}"><div class="avatar">${(a[0]||'A').slice(0,1)}</div><div><div class="agent-name">${a[0]}</div><div class="agent-role">${a[1]}</div></div><div class="status on">LIVE</div></div>`).join('');}
-    function renderCommands(theme){const role=ROLES[state.role];els.commandList.innerHTML=theme.commands.map((c,idx)=>`<div class="command-card ${role.kind==='user'&&role.id==='standard'&&theme.id==='prime'&&idx<3?'locked':''}"><b>${c[0]}</b><span>${c[1]}</span></div>`).join('');}
-    function renderTasks(theme){const role=ROLES[state.role];const extra=`<div class="theme-extra access-card"><b>${theme.exclusiveTitle}</b><span>${theme.exclusiveBody}</span></div>`;els.taskList.innerHTML=theme.tasks.map((t,idx)=>`<div class="task ${(role.id==='standard'&&idx===2)||(role.id==='prime'&&theme.id!=='prime'&&idx===2)?'locked':''}"><div class="task-check"></div><div><div class="task-title">${t[0]}</div><div class="task-meta">${t[1]}</div></div><div class="task-pri ${t[2]==='高'?'high':t[2]==='中'?'mid':'low'}">${t[2]}</div></div>`).join('')+extra;}
-    function renderThemeCards(activeId){els.themeGrid.innerHTML=Object.values(THEMES).map(t=>`<div class="theme-card ${t.id===activeId?'active':''}" data-theme="${t.id}"><div class="theme-shot" style="background-image:url('${t.shot}')">${t.id==='prime'?'<div class="theme-lock">Members Only</div>':'<div class="theme-lock">Switchable</div>'}</div><div class="theme-body"><div class="theme-name">${t.name}</div><div class="theme-tag">${t.id==='glyph'?'FLAGSHIP':t.id==='sanctum'?'GAME MODE':'SUBSCRIPTION'}</div><div class="theme-copy">${t.heroCopy}</div><div class="theme-features">${(t.id==='glyph'?['標準UI','文字雨','販売向け顔']:(t.id==='sanctum'?['FF7寄り','キャラ感','Quest演出']:['限定AI','加入導線','高ARPU'])).map(x=>`<span>${x}</span>`).join('')}</div></div></div>`).join('');qsa('.theme-card').forEach(card=>card.addEventListener('click',()=>setTheme(card.dataset.theme)));}
-
-    function setRole(roleId,log=true){const role=ROLES[roleId]||ROLES.prime;state.role=role.id;localStorage.setItem('mc-role-integrated',role.id);els.activeRoleName.textContent=role.name;els.activeRoleMeta.textContent=role.meta;els.authorityBadge.textContent=role.badge;els.authorityTitle.textContent=role.title;els.authorityCopy.textContent=role.copy;els.authorityGrid.innerHTML=role.summary.map(([a,b],idx)=>`<div class="authority-row"><div><strong>${a}</strong><span>${b}</span></div><div class="authority-mark">${idx===0?'ACCESS':idx===1?'LIMIT':'FLOW'}</div></div>`).join('');renderAccessList();renderRoleCards(role.id);renderCommands(THEMES[state.theme]);renderTasks(THEMES[state.theme]);updateSticky();if(log)appendLog('ai','<strong>権限AI:</strong> 現在の権限を <b>'+role.name+'</b> に切り替えました。');}
-    function renderAccessList(){els.accessList.innerHTML=Object.values(ROLES).map(r=>`<div class="access-card ${r.id===state.role?'active':''}"><b>${r.name}</b><span>${r.meta}</span><small>${r.kind==='user'?'USER LAYER':'OPS LAYER'}</small></div>`).join('');}
-    function renderRoleCards(activeId){els.roleGrid.innerHTML=Object.values(ROLES).map(r=>`<div class="role-card ${r.id===activeId?'active':''}" data-role="${r.id}"><div class="role-body"><div class="role-name">${r.name}</div><div class="role-tag">${r.kind==='user'?'Member':'Operations'}</div><div class="role-copy">${r.copy}</div><div class="role-features">${r.grants.map(x=>`<span>${x}</span>`).join('')}</div></div></div>`).join('');qsa('.role-card').forEach(card=>card.addEventListener('click',()=>setRole(card.dataset.role)));}
-
-    function setBilling(mode,log=true){state.billing=mode;qsa('[data-billing]').forEach(btn=>btn.classList.toggle('active',btn.dataset.billing===mode));els.pricePrime.textContent=pricing[mode].prime;els.pricePrimeSub.textContent=pricing[mode].suffix;els.priceMaster.textContent=pricing[mode].master;els.priceMasterSub.textContent=pricing[mode].suffix;if(log)track('billing_change',{label:mode});if(els.upgradeModal.classList.contains('open'))openUpgradeModal(state.currentModalPlan,'billing-refresh',false);}
-    function setVariant(variant,log=true){state.variant=variant;const c=variants[variant];qsa('[data-variant]').forEach(btn=>btn.classList.toggle('active',btn.dataset.variant===variant));els.variantChip.textContent=c.chip;els.funnelHeadline.textContent=c.headline;els.funnelCopy.textContent=c.copy;els.compareHeadline.textContent=c.compareHeadline;els.compareText.textContent=c.compareText;els.coreStageLabel.textContent=c.coreLabel;els.coreTitle.textContent=c.coreTitle;els.coreSub.textContent=c.coreSub;els.stickyKicker.textContent=c.stickyKicker;els.stickyTitle.textContent=c.stickyTitle;els.stickyText.textContent=c.stickyText;els.primeTagline.textContent=c.primeTagline;els.primeSummary.textContent=c.primeSummary;els.masterTagline.textContent=c.masterTagline;els.masterSummary.textContent=c.masterSummary;els.primeCard.classList.toggle('recommended',variant==='A');els.primeCard.classList.toggle('dimmed',variant==='B');els.masterCard.classList.toggle('recommended',variant==='B');els.primePrimaryCta.textContent=variant==='A'?'PRIMEを解放して成果を加速する':'まずはPRIMEから成果を加速する';els.masterPrimaryCta.textContent=variant==='B'?'MASTERで成果を高め続ける':'MASTERにアップグレードする';updateSticky();bindDynamicButtons();if(log)track('variant_change',{label:variant});}
-    function updateSticky(){const role=ROLES[state.role];const variant=variants[state.variant];let primaryPlan=variant.primaryPlan;let primaryLabel=primaryPlan==='prime'?'PRIMEを解放する':'MASTERを見る';let secondaryPlan=primaryPlan==='prime'?'master':'prime';let secondaryLabel=secondaryPlan==='master'?'MASTERを見る':'PRIMEを見る';if(role.kind==='ops'){primaryPlan='master';primaryLabel='権限設計を見る';secondaryPlan='prime';secondaryLabel='比較UIを確認';els.stickyTitle.textContent='運用権限と会員導線を同時に管理する。';els.stickyText.textContent='GOD / 子アカウント視点では、会員導線・計測・テーマ切替・権限制御を同じ中枢で確認できます。';}else if(role.id==='prime'){primaryPlan='master';primaryLabel='MASTER特典を見る';secondaryPlan='prime';secondaryLabel='PRIMEを維持';}
-      if(role.id==='master'){primaryPlan='master';primaryLabel='MASTER特典を確認';secondaryPlan='prime';secondaryLabel='PRIME比較を見る';els.stickyTitle.textContent='MASTERで、成果を高め続ける。';}
-      els.stickyActions.innerHTML=`<button class="plan-btn ${primaryPlan==='master'?'master':'prime'} js-open-upgrade" data-plan="${primaryPlan}" data-placement="sticky-primary">${primaryLabel}</button><button class="btn ${secondaryPlan==='master'?'gold':'ghost'} js-open-upgrade" data-plan="${secondaryPlan}" data-placement="sticky-secondary">${secondaryLabel}</button>`;bindDynamicButtons();}
-
-    function openUpgradeModal(plan,placement='unknown',log=true){state.currentModalPlan=plan;const content=modalPlans[plan];const price=plan==='prime'?pricing[state.billing].prime:pricing[state.billing].master;els.modalEyebrow.textContent=content.eyebrow;els.modalTitle.textContent=content.title;els.modalCopy.textContent=content.copy;els.modalPrice.textContent=`${price} ${pricing[state.billing].suffix}`;els.modalBenefits.innerHTML=content.benefits.map(text=>`<div class="modal-benefit">${text}</div>`).join('');els.confirmUpgradeBtn.textContent=plan==='prime'?'PRIMEで進む':'MASTERで進む';els.switchPlanBtn.textContent=plan==='prime'?'MASTERも確認する':'PRIMEも確認する';els.upgradeModal.classList.add('open');if(log)track('modal_open',{plan,placement});}
-    function closeModal(modal){modal.classList.remove('open');}
-
-    function bindDynamicButtons(){qsa('.js-open-upgrade').forEach(btn=>{btn.onclick=()=>{const plan=btn.dataset.plan||'prime';const placement=btn.dataset.placement||'unknown';track('cta_click',{plan,placement,label:btn.textContent.trim()});openUpgradeModal(plan,placement,true);};});qsa('.js-track-cta').forEach(btn=>{btn.onclick=()=>{track('cta_click',{plan:btn.dataset.plan||'standard',placement:btn.dataset.placement||'unknown',label:btn.textContent.trim()});appendLog('ai','<strong>統括AI:</strong> STANDARD導線を選択しました。ここから PRIME 比較へ自然に接続できます。');};});qsa('[data-scroll]').forEach(btn=>{btn.onclick=()=>{const target=document.querySelector(btn.dataset.scroll);if(target)target.scrollIntoView({behavior:'smooth',block:'start'});};});}
-
-    function handleScroll(){const scrollTop=window.scrollY||document.documentElement.scrollTop;const max=Math.max(document.body.scrollHeight-window.innerHeight,1);const percent=Math.max(0,Math.min(100,Math.round((scrollTop/max)*100)));els.scrollBar.style.width=percent+'%';els.scrollLabel.textContent=percent+'%';[25,50,75,100].forEach(mark=>{if(percent>=mark&&!state.scrollMarks.has(mark)){state.scrollMarks.add(mark);const node=qs(`#depthGrid span[data-depth="${mark}"]`);if(node)node.classList.add('hit');track('scroll_depth_hit',{depth:mark});}});}
-
-    function runCommand(raw){const cmd=raw.trim();if(!cmd)return;appendLog('user',cmd.replace(/</g,'&lt;'));if(cmd.startsWith('/theme ')){const target=cmd.split(' ')[1];if(THEMES[target])setTheme(target);else appendLog('ai','<strong>統括AI:</strong> 未知のテーマです。 /theme glyph / sanctum / prime を使ってください。');}
-      else if(cmd.startsWith('/account ')){const target=cmd.split(' ')[1];if(ROLES[target])setRole(target);else appendLog('ai','<strong>権限AI:</strong> /account standard / prime / master / god / opslead / opseditor / opsanalyst を使ってください。');}
-      else if(cmd.startsWith('/variant ')){const target=cmd.split(' ')[1].toUpperCase();if(variants[target])setVariant(target);else appendLog('ai','<strong>統括AI:</strong> /variant a または /variant b を使ってください。');}
-      else if(cmd.startsWith('/billing ')){const target=cmd.split(' ')[1];if(pricing[target])setBilling(target);else appendLog('ai','<strong>統括AI:</strong> /billing monthly または /billing yearly を使ってください。');}
-      else if(cmd==='/prime oracle'){setTheme('prime');setRole('prime');appendLog('ai','<strong>ORACLE:</strong> 加入者限定の深層相談AIを疑似起動。通常版では見えないボトルネックと月次改善ループを提示できます。');}
-      else if(cmd==='/prime autopilot'){setTheme('prime');setRole('prime');appendLog('ai','<strong>AUTOPILOT:</strong> 投稿→告知→販売→改善の連鎖を自動巡航モードとして開示。これが定額課金の主力価値です。');}
-      else if(cmd==='/master briefing'){setRole('master');appendLog('ai','<strong>MASTER DESK:</strong> 今週の有益情報・月次ミーティング・優先サポートの価値を強調する状態へ切り替えました。');}
-      else if(cmd==='/god override'){setRole('god');appendLog('ai','<strong>GOD CLEARANCE:</strong> 会員状態・テーマ・比較導線を横断確認できる全権限状態です。');}
-      else if(cmd==='/reactor sync'){setTheme('sanctum');appendLog('ai','<strong>REACTOR CORE:</strong> 神殿炉心の同期率を上げ、ゲーム的な達成演出を強めました。');}
-      else appendLog('ai','<strong>統括AI:</strong> 受理しました。次は <b>/theme prime</b>、<b>/account master</b>、<b>/variant b</b> のように、テーマ・権限・訴求軸を連動させるのが有効です。');
-      els.commandInput.value='';}
-
-
-
-    const PLAN_META = {
-      standard:{name:'STANDARD',role:'通常会員',copy:'まずは無料で使い始め、比較UIから PRIME / MASTER を検討する入口プラン。',badges:['無料登録','標準UI','比較起点'],billing:{monthly:'Free',yearly:'Free'},completion:'STANDARD登録が完了しました。必要になったタイミングで PRIME / MASTER へアップグレードできます。'},
-      prime:{name:'PRIME ACCESS',role:'PRIME 会員',copy:'限定AI・Autopilot・Inner Vault を中心に、成果を加速するための中核プラン。',badges:['限定AI','Autopilot','Vault'],billing:{monthly:'¥19,800 / 月',yearly:'¥198,000 / 年'},completion:'PRIME申込を受け付けました。Stripe決済完了後、自動で PRIME 会員状態へ反映する想定です。'},
-      master:{name:'MASTER',role:'MASTER 会員',copy:'PRIME全機能に加え、週次インサイト・月次MTG・優先支援を含む伴走プラン。',badges:['週次情報','月次MTG','優先支援'],billing:{monthly:'¥59,800 / 月',yearly:'¥598,000 / 年'},completion:'MASTER申込を受け付けました。Stripe決済完了と同時に伴走特典・優先導線を有効化する想定です。'}
-    };
-
-    state.application = {
-      plan:'prime',
-      billing:'monthly',
-      name:'',
-      email:'',
-      company:'',
-      phone:'',
-      goal:'',
-      teamSize:'1',
-      marketing:false,
-      terms:false,
-      stage:'form',
-      completedAt:null,
-      orderId:''
-    };
-
-    Object.assign(els, {
-      applicationPlan:document.getElementById('applicationPlan'),
-      applicationBilling:document.getElementById('applicationBilling'),
-      applicantName:document.getElementById('applicantName'),
-      applicantEmail:document.getElementById('applicantEmail'),
-      applicantCompany:document.getElementById('applicantCompany'),
-      applicantPhone:document.getElementById('applicantPhone'),
-      applicantGoal:document.getElementById('applicantGoal'),
-      applicationTeamSize:document.getElementById('applicationTeamSize'),
-      termsAgreement:document.getElementById('termsAgreement'),
-      marketingAgreement:document.getElementById('marketingAgreement'),
-      stageForm:document.getElementById('stageForm'),
-      stageConfirm:document.getElementById('stageConfirm'),
-      stageComplete:document.getElementById('stageComplete'),
-      confirmSummary:document.getElementById('confirmSummary'),
-      checkoutPlanName:document.getElementById('checkoutPlanName'),
-      checkoutPlanPrice:document.getElementById('checkoutPlanPrice'),
-      checkoutPlanCopy:document.getElementById('checkoutPlanCopy'),
-      checkoutBadges:document.getElementById('checkoutBadges'),
-      statusPlan:document.getElementById('statusPlan'),
-      statusBilling:document.getElementById('statusBilling'),
-      statusRole:document.getElementById('statusRole'),
-      statusStripe:document.getElementById('statusStripe'),
-      completeHeadline:document.getElementById('completeHeadline'),
-      completeCopy:document.getElementById('completeCopy'),
-      completeMeta:document.getElementById('completeMeta')
-    });
-
-    function billingLabel(mode){return mode==='yearly'?'年額':'月額';}
-    function currentPlanMeta(){return PLAN_META[state.application.plan] || PLAN_META.prime;}
-
-    function syncApplicationFromUi(){
-      state.application.plan = els.applicationPlan.value;
-      state.application.billing = els.applicationBilling.value;
-      state.application.name = els.applicantName.value.trim();
-      state.application.email = els.applicantEmail.value.trim();
-      state.application.company = els.applicantCompany.value.trim();
-      state.application.phone = els.applicantPhone.value.trim();
-      state.application.goal = els.applicantGoal.value.trim();
-      state.application.teamSize = els.applicationTeamSize.value;
-      state.application.terms = els.termsAgreement.checked;
-      state.application.marketing = els.marketingAgreement.checked;
-      state.billing = state.application.billing;
-      qsa('[data-billing]').forEach(btn=>btn.classList.toggle('active',btn.dataset.billing===state.application.billing));
-      const summary = currentPlanMeta();
-      els.checkoutPlanName.textContent = summary.name;
-      els.checkoutPlanPrice.textContent = summary.billing[state.application.billing];
-      els.checkoutPlanCopy.textContent = summary.copy;
-      els.checkoutBadges.innerHTML = summary.badges.map(x=>`<span>${x}</span>`).join('');
-      els.statusPlan.textContent = summary.name;
-      els.statusBilling.textContent = billingLabel(state.application.billing);
-      els.statusRole.textContent = summary.role;
-      els.statusStripe.textContent = state.application.plan==='standard' ? '不要' : '準備済み';
-      setBilling(state.application.billing,false);
+    function appendLog(role, html){
+      const div=document.createElement('div');
+      div.className='bubble '+(role==='user'?'user':'ai');
+      div.innerHTML=html;
+      els.chatLog.appendChild(div);
+      els.chatLog.scrollTop=els.chatLog.scrollHeight;
     }
 
-    function setCheckoutStage(stage){
-      state.application.stage = stage;
-      ['form','confirm','complete'].forEach(key=>{
-        const node = document.querySelector(`[data-stage="${key}"]`);
-        if(node) node.classList.toggle('stage-live', key===stage);
-        const indicator = document.querySelector(`[data-step-indicator="${key}"]`);
-        if(indicator) indicator.classList.toggle('active', key===stage);
-      });
-      track('checkout_stage_change',{label:stage,plan:state.application.plan});
-    }
-
-    function validateApplication(){
-      syncApplicationFromUi();
-      const errors = [];
-      if(!state.application.name) errors.push('氏名を入力してください。');
-      if(!state.application.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.application.email)) errors.push('有効なメールアドレスを入力してください。');
-      if(!state.application.goal) errors.push('利用目的を入力してください。');
-      if(!state.application.terms) errors.push('利用規約への同意が必要です。');
-      const old = document.getElementById('applicationError');
-      if(old) old.remove();
-      if(errors.length){
-        const box = document.createElement('div');
-        box.className = 'error-banner';
-        box.id = 'applicationError';
-        box.innerHTML = errors.join('<br>');
-        els.stageForm.appendChild(box);
-        track('application_validation_error',{label:errors.join(' / '),plan:state.application.plan});
-        return false;
+    function buildGlyphRain(){
+      const host=document.getElementById('glyphRain');
+      const chars='01アイウエオカキクケコサシスセソABCDEFGHIJKLMNOPQRSTUVWXYZ$#@%✦✧◉';
+      const cols=Math.min(28,Math.floor(window.innerWidth/55));
+      host.innerHTML='';
+      for(let i=0;i<cols;i++){
+        let str='';
+        const len=24+Math.floor(Math.random()*26);
+        for(let j=0;j<len;j++) str+=chars[Math.floor(Math.random()*chars.length)]+'\n';
+        const el=document.createElement('div');
+        el.className='glyph-col';
+        el.textContent=str;
+        el.style.left=(i*(100/cols))+'%';
+        el.style.animationDuration=(12+Math.random()*14)+'s';
+        el.style.animationDelay=(-Math.random()*14)+'s';
+        el.style.opacity=.4+Math.random()*.45;
+        host.appendChild(el);
       }
-      return true;
     }
 
-    function renderConfirmSummary(){
-      const meta = currentPlanMeta();
-      const price = meta.billing[state.application.billing];
-      els.confirmSummary.innerHTML = `
-        <div class="panel-head" style="margin-bottom:0">
-          <div>
-            <h3 style="margin:0">申込内容の確認</h3>
-            <div class="mini">送信前に内容を確認し、Stripe決済または無料登録へ進みます。</div>
-          </div>
-          <div class="tag">${meta.name}</div>
-        </div>
-        <div class="confirm-grid">
-          <div class="confirm-item"><div class="k">プラン</div><div class="v">${meta.name}</div></div>
-          <div class="confirm-item"><div class="k">請求サイクル</div><div class="v">${billingLabel(state.application.billing)} / ${price}</div></div>
-          <div class="confirm-item"><div class="k">氏名</div><div class="v">${escapeHtml(state.application.name)}</div></div>
-          <div class="confirm-item"><div class="k">メール</div><div class="v">${escapeHtml(state.application.email)}</div></div>
-          <div class="confirm-item"><div class="k">会社名 / 屋号</div><div class="v">${escapeHtml(state.application.company || '未入力')}</div></div>
-          <div class="confirm-item"><div class="k">電話番号</div><div class="v">${escapeHtml(state.application.phone || '未入力')}</div></div>
-          <div class="confirm-item"><div class="k">チーム人数</div><div class="v">${escapeHtml(state.application.teamSize)}</div></div>
-          <div class="confirm-item"><div class="k">案内配信</div><div class="v">${state.application.marketing ? '受け取る' : '受け取らない'}</div></div>
-          <div class="confirm-item" style="grid-column:1/-1"><div class="k">利用目的</div><div class="v">${escapeHtml(state.application.goal)}</div></div>
-        </div>
-      `;
+    function renderThemeMini(theme){
+      els.themeMiniList.innerHTML = theme.miniNotes.map((n,idx)=>`<div class="theme-mini-card ${idx===0?'active':''}"><b>${n[0]}</b><span>${n[1]}</span></div>`).join('');
     }
 
-    function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    function renderAgents(theme){
+      els.agentList.innerHTML = theme.agents.map((a,i)=>`<div class="agent-card ${i===0?'active':''}"><div class="avatar">${(a[0]||'A').slice(0,1)}</div><div><div class="agent-name">${a[0]}</div><div class="agent-role">${a[1]}</div></div><div class="status on">LIVE</div></div>`).join('');
     }
 
-    async function submitApplication(){
-      syncApplicationFromUi();
-      const orderId = `MC-${state.application.plan.toUpperCase()}-${Date.now().toString().slice(-8)}`;
-      state.application.orderId = orderId;
-      state.application.completedAt = new Date().toISOString();
-      const meta = currentPlanMeta();
+    function renderCommands(theme){
+      els.commandList.innerHTML = theme.commands.map(c=>`<div class="command-card"><b>${c[0]}</b><span>${c[1]}</span></div>`).join('');
+    }
 
-      const payload = {
-        plan: state.application.plan,
-        billing: state.application.billing,
-        applicant: {
-          name: state.application.name,
-          email: state.application.email,
-          company: state.application.company,
-          phone: state.application.phone,
-          goal: state.application.goal,
-          teamSize: state.application.teamSize,
-          marketing: state.application.marketing
-        },
-        stripe: state.application.plan === 'standard'
-          ? {mode:'free_signup'}
-          : {
-              mode:'checkout_session',
-              publishableKey:'pk_test_xxxxx_replace_me',
-              priceId: state.application.plan === 'prime'
-                ? (state.application.billing === 'monthly' ? 'price_prime_monthly' : 'price_prime_yearly')
-                : (state.application.billing === 'monthly' ? 'price_master_monthly' : 'price_master_yearly'),
-              successUrl: 'https://example.com/mission-control/success',
-              cancelUrl: 'https://example.com/mission-control/cancel'
-            },
-        orderId
-      };
+    function renderTasks(theme){
+      els.taskList.innerHTML = theme.tasks.map(t=>`<div class="task"><div class="task-check"></div><div><div class="task-title">${t[0]}</div><div class="task-meta">${t[1]}</div></div><div class="task-pri ${t[2]==='高'?'high':t[2]==='中'?'mid':'low'}">${t[2]}</div></div>`).join('');
+    }
 
-      track('application_submit',{plan:state.application.plan,billing:state.application.billing,label:orderId});
-      console.log('[mission-control-application-payload]', payload);
+    function renderGallery(activeId){
+      els.themeGallery.innerHTML = Object.values(THEMES).map(t=>`<article class="theme-card ${t.id===activeId?'active':''}" data-theme-card="${t.id}"><div class="theme-shot" style="background-image:url('${t.shot}')"><div class="theme-lock">${t.cardTag}</div></div><div class="theme-body"><div class="theme-name">${t.name}</div><div class="theme-tag">${t.cardTag}</div><div class="theme-card-copy">${t.cardCopy}</div><div class="theme-features">${t.features.map(x=>`<span>${x}</span>`).join('')}</div></div></article>`).join('');
+      qsa('[data-theme-card]').forEach(card=>card.addEventListener('click',()=>setTheme(card.dataset.themeCard)));
+    }
 
-      if(state.endpoint && navigator.sendBeacon){
-        try{navigator.sendBeacon(state.endpoint, JSON.stringify({event:'application_payload', payload}));}catch(e){}
-      }
+    function setTheme(themeId,log=true){
+      const theme = THEMES[themeId] || THEMES.glyph;
+      state.theme = theme.id;
+      Object.entries(theme.css).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
+      localStorage.setItem('mc-three-theme-switcher', theme.id);
+      els.brandTitle.textContent = theme.name;
+      els.brandSubtitle.textContent = theme.subtitle;
+      els.currentThemeShort.textContent = theme.short;
+      els.themeBadge.textContent = theme.badge;
+      els.heroHeadline.textContent = theme.heroHeadline;
+      els.heroCopy.textContent = theme.heroCopy;
+      els.modeLabel.textContent = theme.modeLabel;
+      els.modeDescription.textContent = theme.modeDescription;
+      els.modeHint.textContent = theme.modeHint;
+      els.modeBar.style.width = theme.bar;
+      els.authorityTitle.textContent = theme.authorityTitle;
+      els.authorityCopy.textContent = theme.authorityCopy;
+      els.authorityGrid.innerHTML = theme.authority.map((a,idx)=>`<div class="authority-row"><div><strong>${a[0]}</strong><span>${a[1]}</span></div><div class="authority-mark">${idx===0?'USE':idx===1?'FIT':'WHY'}</div></div>`).join('');
+      renderThemeMini(theme); renderAgents(theme); renderCommands(theme); renderTasks(theme); renderGallery(theme.id);
+      qsa('[data-theme-switch]').forEach(btn=>btn.classList.toggle('active', btn.dataset.themeSwitch===theme.id));
+      if(log) appendLog('ai',`<strong>統括AI:</strong> テーマを <b>${theme.name}</b> に切り替えました。`);
+    }
 
-      if(state.application.plan === 'standard'){
-        setRole('standard', false);
-      } else if(state.application.plan === 'prime'){
-        setRole('prime', false);
+    function runCommand(raw){
+      const cmd = raw.trim();
+      if(!cmd) return;
+      appendLog('user', cmd.replace(/</g,'&lt;'));
+      if(cmd.startsWith('/theme ')){
+        const target = cmd.split(' ')[1];
+        if(THEMES[target]) setTheme(target);
+        else appendLog('ai','<strong>統括AI:</strong> 未知のテーマです。 /theme glyph / sanctum / prime を使ってください。');
+      } else if(cmd==='/prime oracle'){
+        setTheme('prime', false);
+        appendLog('ai','<strong>ORACLE:</strong> PRIME ACCESS に切り替えました。深い相談や構想整理に向くモードです。');
+      } else if(cmd==='/prime autopilot'){
+        setTheme('prime', false);
+        appendLog('ai','<strong>AUTOPILOT:</strong> PRIME で作業を前に進めるモードに入りました。反復作業や構成整理に向いています。');
+      } else if(cmd==='/reactor sync'){
+        setTheme('sanctum', false);
+        appendLog('ai','<strong>REACTOR CORE:</strong> SANCTUM に切り替えました。集中スイッチを強めるための高揚モードです。');
+      } else if(cmd==='/deploy note'){
+        setTheme('glyph', false);
+        appendLog('ai','<strong>SCRIBE:</strong> GLYPH を基準に、noteや文章構成の整理に入りやすい状態へ戻しました。');
       } else {
-        setRole('master', false);
+        appendLog('ai','<strong>統括AI:</strong> 受理しました。おすすめは <b>/theme prime</b>、<b>/reactor sync</b>、<b>/deploy note</b> です。');
       }
-
-      els.completeHeadline.textContent = `${meta.name} の申込を受け付けました`;
-      els.completeCopy.textContent = meta.completion;
-      els.completeMeta.innerHTML = `
-        <div class="confirm-item"><div class="k">申込ID</div><div class="v">${orderId}</div></div>
-        <div class="confirm-item"><div class="k">会員状態</div><div class="v">${meta.role}</div></div>
-        <div class="confirm-item"><div class="k">決済方式</div><div class="v">${state.application.plan==='standard'?'無料登録':'Stripe連携想定'}</div></div>
-      `;
-
-      appendLog('ai', `<strong>申込AI:</strong> <b>${meta.name}</b> の申込データを生成しました。${state.application.plan==='standard'?'無料会員登録として即時反映可能です。':'Stripe Checkout / Payment Element への接続ポイントを含めてあります。'}`);
-      setCheckoutStage('complete');
+      els.commandInput.value='';
     }
 
-    function presetApplication(plan){
-      els.applicationPlan.value = plan;
-      state.application.plan = plan;
-      if(plan !== 'standard'){
-        els.applicationBilling.value = state.billing || 'monthly';
-      }
-      syncApplicationFromUi();
-    }
-
-    function fillDemoApplication(){
-      els.applicationPlan.value = 'prime';
-      els.applicationBilling.value = 'monthly';
-      els.applicantName.value = '山田 太郎';
-      els.applicantEmail.value = 'taro.yamada@example.com';
-      els.applicantCompany.value = 'Mission Control Studio';
-      els.applicantPhone.value = '090-1234-5678';
-      els.applicantGoal.value = 'AI運用の自動化と会員アップグレード導線の強化を進めたい';
-      els.applicationTeamSize.value = '2-5';
-      els.termsAgreement.checked = true;
-      els.marketingAgreement.checked = true;
-      syncApplicationFromUi();
-      track('application_demo_fill',{plan:'prime'});
-    }
-
-
-
-
-    state.supabase = {client:null,session:null,profile:null,subscription:null,payments:[],requests:[],config:null,authMode:'signup',authListenerBound:false};
-
-    Object.assign(els, {
-      supabaseUrlInput:document.getElementById('supabaseUrlInput'),
-      supabaseAnonKeyInput:document.getElementById('supabaseAnonKeyInput'),
-      supabaseFunctionsInput:document.getElementById('supabaseFunctionsInput'),
-      authEmailInput:document.getElementById('authEmailInput'),
-      authPasswordInput:document.getElementById('authPasswordInput'),
-      authStatusBox:document.getElementById('authStatusBox'),
-      authActionBtn:document.getElementById('authActionBtn'),
-      profileNameInput:document.getElementById('profileNameInput'),
-      profileCompanyInput:document.getElementById('profileCompanyInput'),
-      profilePhoneInput:document.getElementById('profilePhoneInput'),
-      profileTeamInput:document.getElementById('profileTeamInput'),
-      profileGoalInput:document.getElementById('profileGoalInput'),
-      profileMarketingInput:document.getElementById('profileMarketingInput'),
-      memberIdText:document.getElementById('memberIdText'),
-      memberPlanText:document.getElementById('memberPlanText'),
-      memberStatusText:document.getElementById('memberStatusText'),
-      memberPeriodText:document.getElementById('memberPeriodText'),
-      requestedPlanInput:document.getElementById('requestedPlanInput'),
-      requestedBillingInput:document.getElementById('requestedBillingInput'),
-      planChangeNoteInput:document.getElementById('planChangeNoteInput'),
-      billingStatusBox:document.getElementById('billingStatusBox'),
-      paymentHistoryList:document.getElementById('paymentHistoryList'),
-      requestHistoryList:document.getElementById('requestHistoryList'),
-      adminMembershipCard:document.getElementById('adminMembershipCard'),
-      adminTargetUserIdInput:document.getElementById('adminTargetUserIdInput'),
-      adminTargetEmailInput:document.getElementById('adminTargetEmailInput'),
-      adminPlanInput:document.getElementById('adminPlanInput'),
-      adminStatusInput:document.getElementById('adminStatusInput'),
-      adminBillingInput:document.getElementById('adminBillingInput'),
-      adminNoteInput:document.getElementById('adminNoteInput'),
-      adminStatusBox:document.getElementById('adminStatusBox')
-    });
-
-    function inferFunctionsBase(url){
-      if(!url) return '';
-      return `${url.replace(/\/$/, '')}/functions/v1`;
-    }
-    function formatDateTime(value){
-      if(!value) return '-';
-      try{return new Date(value).toLocaleString('ja-JP');}catch(_){return value;}
-    }
-    function planLabel(code){return (PLAN_META[code] && PLAN_META[code].name) || String(code || '-').toUpperCase();}
-    function statusTone(status){
-      const v = String(status || '').toLowerCase();
-      if(['active','paid','succeeded','completed','trialing'].includes(v)) return 'success';
-      if(['pending','pending_checkout','open','past_due','processing'].includes(v)) return 'warn';
-      if(['failed','cancelled','canceled','error'].includes(v)) return 'error';
-      return 'warn';
-    }
-    function flashBox(el, message, tone='warn'){
-      if(!el) return;
-      el.className = `status-console ${tone}`;
-      el.innerHTML = message;
-    }
-    function loadSupabaseConfig(){
-      try{
-        const saved = JSON.parse(localStorage.getItem('mc-supabase-config') || '{}');
-        if(saved.url) els.supabaseUrlInput.value = saved.url;
-        if(saved.anonKey) els.supabaseAnonKeyInput.value = saved.anonKey;
-        if(saved.functionsBase) els.supabaseFunctionsInput.value = saved.functionsBase;
-        state.supabase.config = saved;
-      }catch(_){ }
-    }
-    function getSupabaseConfigFromUi(){
-      const url = els.supabaseUrlInput.value.trim();
-      const anonKey = els.supabaseAnonKeyInput.value.trim();
-      const functionsBase = (els.supabaseFunctionsInput.value.trim() || inferFunctionsBase(url)).replace(/\/$/, '');
-      return {url, anonKey, functionsBase};
-    }
-    function saveSupabaseConfig(){
-      const cfg = getSupabaseConfigFromUi();
-      localStorage.setItem('mc-supabase-config', JSON.stringify(cfg));
-      state.supabase.config = cfg;
-      if(!els.supabaseFunctionsInput.value.trim() && cfg.functionsBase) els.supabaseFunctionsInput.value = cfg.functionsBase;
-      flashBox(els.authStatusBox, '接続設定を保存しました。認証または接続テストを続けてください。', 'success');
-      track('supabase_config_saved',{label:cfg.url});
-      return cfg;
-    }
-    async function getSupabaseClient(force=false){
-      const cfg = state.supabase.config || getSupabaseConfigFromUi();
-      if(!cfg.url || !cfg.anonKey){
-        flashBox(els.authStatusBox, 'Supabase URL と Anon Key を入力してください。', 'error');
-        return null;
-      }
-      const currentSig = `${cfg.url}::${cfg.anonKey}`;
-      if(!force && state.supabase.client && state.supabase.signature === currentSig) return state.supabase.client;
-      if(!window.supabase || !window.supabase.createClient){
-        flashBox(els.authStatusBox, 'Supabase CDN の読み込みに失敗しました。ネットワークを確認してください。', 'error');
-        return null;
-      }
-      state.supabase.client = window.supabase.createClient(cfg.url, cfg.anonKey, {
-        auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}
-      });
-      state.supabase.signature = currentSig;
-      state.supabase.config = cfg;
-      bindSupabaseAuthListener();
-      return state.supabase.client;
-    }
-    function setSupabaseAuthMode(mode){
-      state.supabase.authMode = mode;
-      qsa('[data-auth-mode]').forEach(btn=>btn.classList.toggle('active', btn.dataset.authMode===mode));
-      els.authActionBtn.textContent = mode === 'signup' ? '会員登録する' : 'ログインする';
-    }
-    function renderAuthState(message){
-      const session = state.supabase.session;
-      if(session?.user){
-        flashBox(els.authStatusBox, `${message || '認証済みです。'}<br>ログイン中: <b>${escapeHtml(session.user.email || '')}</b><br>User ID: <b>${escapeHtml(session.user.id)}</b>`, 'success');
-      } else if(message){
-        flashBox(els.authStatusBox, message, 'warn');
-      }
-    }
-    async function testSupabaseConnection(){
-      const client = await getSupabaseClient(true);
-      if(!client) return;
-      const { error } = await client.from('plan_catalog').select('code').limit(1);
-      if(error){
-        flashBox(els.authStatusBox, `接続はできましたが、plan_catalog 取得でエラー: ${escapeHtml(error.message)}`, 'warn');
-      } else {
-        flashBox(els.authStatusBox, 'Supabase 接続テストに成功しました。schema / RLS もこのまま検証できます。', 'success');
-      }
-      track('supabase_connection_test',{label:error ? 'warning' : 'success'});
-    }
-    function bindSupabaseAuthListener(){
-      if(!state.supabase.client || state.supabase.authListenerBound) return;
-      state.supabase.client.auth.onAuthStateChange(async (event, session)=>{
-        state.supabase.session = session || null;
-        track('supabase_auth_change',{label:event});
-        if(session?.user){
-          renderAuthState('セッションを取得しました。');
-          await ensureProfileSkeleton(session.user);
-          await loadSupabaseData();
-        } else {
-          renderAuthState('ログアウト状態です。');
-          resetSupabasePanels();
-        }
-      });
-      state.supabase.authListenerBound = true;
-    }
-    function resetSupabasePanels(){
-      state.supabase.profile = null;
-      state.supabase.subscription = null;
-      state.supabase.payments = [];
-      state.supabase.requests = [];
-      els.memberIdText.textContent = '-';
-      els.memberPlanText.textContent = 'STANDARD';
-      els.memberStatusText.textContent = 'inactive';
-      els.memberPeriodText.textContent = '-';
-      els.paymentHistoryList.innerHTML = '<div class="history-empty">まだ決済履歴はありません。</div>';
-      els.requestHistoryList.innerHTML = '<div class="history-empty">まだ変更リクエストはありません。</div>';
-      els.adminMembershipCard.hidden = true;
-      els.adminDashboardCard.hidden = true;
-      if(els.adminMembersList) els.adminMembersList.innerHTML = '<div class="history-empty">管理者データを読み込むと一覧表示されます。</div>';
-      if(els.adminRequestsList) els.adminRequestsList.innerHTML = '<div class="history-empty">履歴はまだありません。</div>';
-      if(els.adminPaymentsList) els.adminPaymentsList.innerHTML = '<div class="history-empty">決済履歴はまだありません。</div>';
-    }
-    async function ensureProfileSkeleton(user){
-      const client = await getSupabaseClient();
-      if(!client || !user) return;
-      const payload = {
-        id:user.id,
-        email:user.email || '',
-        full_name:els.profileNameInput.value.trim() || user.user_metadata?.full_name || '',
-        company_name:els.profileCompanyInput.value.trim() || '',
-        phone:els.profilePhoneInput.value.trim() || '',
-        desired_goal:els.profileGoalInput.value.trim() || '',
-        team_size:els.profileTeamInput.value || '1',
-        marketing_opt_in:!!els.profileMarketingInput.checked
-      };
-      await client.from('member_profiles').upsert(payload, {onConflict:'id'});
-    }
-    async function handleSupabaseAuth(){
-      const client = await getSupabaseClient();
-      if(!client) return;
-      const email = els.authEmailInput.value.trim();
-      const password = els.authPasswordInput.value.trim();
-      if(!email || !password){
-        flashBox(els.authStatusBox, 'メールアドレスとパスワードを入力してください。', 'error');
-        return;
-      }
-      try{
-        if(state.supabase.authMode === 'signup'){
-          const { data, error } = await client.auth.signUp({ email, password, options:{ data:{ full_name: els.profileNameInput.value.trim() || '' } } });
-          if(error) throw error;
-          if(data.user) await ensureProfileSkeleton(data.user);
-          state.supabase.session = data.session || state.supabase.session;
-          renderAuthState('会員登録を送信しました。メール確認が有効な場合は受信トレイを確認してください。');
-          if(data.session?.user) await loadSupabaseData();
-        } else {
-          const { data, error } = await client.auth.signInWithPassword({ email, password });
-          if(error) throw error;
-          state.supabase.session = data.session;
-          renderAuthState('ログインに成功しました。');
-          await loadSupabaseData();
-        }
-        track('supabase_auth_submit',{label:state.supabase.authMode});
-      } catch(err){
-        flashBox(els.authStatusBox, `認証エラー: ${escapeHtml(err.message || String(err))}`, 'error');
-      }
-    }
-    async function handleSignOut(){
-      const client = await getSupabaseClient();
-      if(!client) return;
-      await client.auth.signOut();
-      state.supabase.session = null;
-      resetSupabasePanels();
-      renderAuthState('ログアウトしました。');
-      track('supabase_sign_out',{label:'done'});
-    }
-    function renderProfile(profile){
-      if(!profile) return;
-      els.profileNameInput.value = profile.full_name || '';
-      els.profileCompanyInput.value = profile.company_name || '';
-      els.profilePhoneInput.value = profile.phone || '';
-      els.profileGoalInput.value = profile.desired_goal || '';
-      els.profileTeamInput.value = profile.team_size || '1';
-      els.profileMarketingInput.checked = !!profile.marketing_opt_in;
-      els.memberIdText.textContent = profile.id || '-';
-    }
-    function renderSubscription(subscription){
-      const profile = state.supabase.profile || {};
-      const plan = subscription?.plan_code || profile.current_plan_code || 'standard';
-      const status = subscription?.status || profile.membership_status || 'inactive';
-      els.memberPlanText.textContent = planLabel(plan);
-      els.memberStatusText.textContent = status;
-      els.memberPeriodText.textContent = formatDateTime(subscription?.current_period_end);
-      els.requestedPlanInput.value = plan;
-      els.requestedBillingInput.value = subscription?.billing_cycle || 'monthly';
-    }
-    function renderPayments(payments){
-      if(!payments?.length){
-        els.paymentHistoryList.innerHTML = '<div class="history-empty">まだ決済履歴はありません。</div>';
-        return;
-      }
-      els.paymentHistoryList.innerHTML = payments.map(item=>`
-        <div class="history-item">
-          <div class="history-top">
-            <div>
-              <div class="history-main">${escapeHtml(planLabel(item.plan_code))} / ${escapeHtml(item.amount ? `¥${Number(item.amount).toLocaleString('ja-JP')}` : '¥0')}</div>
-              <div class="history-sub">${escapeHtml(item.billing_cycle || '-')} · ${escapeHtml(item.currency || 'jpy').toUpperCase()}</div>
-            </div>
-            <span class="history-pill ${statusTone(item.status)}">${escapeHtml(item.status || 'pending')}</span>
-          </div>
-          <div class="history-meta">${formatDateTime(item.paid_at || item.created_at)}</div>
-          <div class="history-meta">Invoice: ${escapeHtml(item.stripe_invoice_id || '-')} / Checkout: ${escapeHtml(item.stripe_checkout_session_id || '-')}</div>
-        </div>
-      `).join('');
-    }
-    function renderRequests(requests){
-      if(!requests?.length){
-        els.requestHistoryList.innerHTML = '<div class="history-empty">まだ変更リクエストはありません。</div>';
-        return;
-      }
-      els.requestHistoryList.innerHTML = requests.map(item=>`
-        <div class="history-item">
-          <div class="history-top">
-            <div>
-              <div class="history-main">${escapeHtml(planLabel(item.to_plan_code))}</div>
-              <div class="history-sub">from ${escapeHtml(planLabel(item.from_plan_code || 'standard'))} → ${escapeHtml(planLabel(item.to_plan_code || 'standard'))}</div>
-            </div>
-            <span class="history-pill ${statusTone(item.status)}">${escapeHtml(item.status || 'pending')}</span>
-          </div>
-          <div class="history-meta">${formatDateTime(item.created_at)}</div>
-          <div class="history-meta">${escapeHtml(item.note || 'メモなし')}</div>
-        </div>
-      `).join('');
-    }
-    async function loadSupabaseData(){
-      const client = await getSupabaseClient();
-      if(!client) return;
-      const session = state.supabase.session || (await client.auth.getSession()).data.session;
-      state.supabase.session = session;
-      if(!session?.user){
-        renderAuthState('ログインしてください。');
-        return;
-      }
-      const userId = session.user.id;
-      const [profileRes, subscriptionRes, paymentsRes, requestsRes] = await Promise.all([
-        client.from('member_profiles').select('*').eq('id', userId).maybeSingle(),
-        client.from('membership_subscriptions').select('*').eq('user_id', userId).order('updated_at', {ascending:false}).limit(1).maybeSingle(),
-        client.from('payment_history').select('*').eq('user_id', userId).order('created_at', {ascending:false}).limit(12),
-        client.from('plan_change_requests').select('*').eq('user_id', userId).order('created_at', {ascending:false}).limit(12)
-      ]);
-      if(profileRes.error){ flashBox(els.authStatusBox, `profile 読み込みエラー: ${escapeHtml(profileRes.error.message)}`, 'error'); return; }
-      if(subscriptionRes.error && subscriptionRes.error.code !== 'PGRST116'){ flashBox(els.authStatusBox, `subscription 読み込みエラー: ${escapeHtml(subscriptionRes.error.message)}`, 'error'); }
-      state.supabase.profile = profileRes.data || null;
-      state.supabase.subscription = subscriptionRes.data || null;
-      state.supabase.payments = paymentsRes.data || [];
-      state.supabase.requests = requestsRes.data || [];
-      renderProfile(state.supabase.profile);
-      renderSubscription(state.supabase.subscription);
-      renderPayments(state.supabase.payments);
-      renderRequests(state.supabase.requests);
-      els.adminMembershipCard.hidden = !state.supabase.profile?.is_admin;
-      els.adminDashboardCard.hidden = !state.supabase.profile?.is_admin;
-      if(state.supabase.profile?.is_admin){ await loadAdminDashboardData(); }
-      renderAuthState('Supabase データを読み込みました。');
-      track('supabase_data_loaded',{label:userId});
-    }
-    async function saveMemberProfile(){
-      const client = await getSupabaseClient();
-      if(!client) return;
-      const session = state.supabase.session || (await client.auth.getSession()).data.session;
-      if(!session?.user){ flashBox(els.authStatusBox, '先にログインしてください。', 'error'); return; }
-      const payload = {
-        id:session.user.id,
-        email:session.user.email || '',
-        full_name:els.profileNameInput.value.trim(),
-        company_name:els.profileCompanyInput.value.trim(),
-        phone:els.profilePhoneInput.value.trim(),
-        desired_goal:els.profileGoalInput.value.trim(),
-        team_size:els.profileTeamInput.value,
-        marketing_opt_in:!!els.profileMarketingInput.checked
-      };
-      const { error } = await client.from('member_profiles').upsert(payload, {onConflict:'id'});
-      if(error){ flashBox(els.authStatusBox, `保存エラー: ${escapeHtml(error.message)}`, 'error'); return; }
-      flashBox(els.authStatusBox, 'プロフィールを保存しました。', 'success');
-      track('member_profile_saved',{label:session.user.id});
-      await loadSupabaseData();
-    }
-    async function callMembershipFunction(name, body){
-      const client = await getSupabaseClient();
-      if(!client) throw new Error('Supabase client not ready');
-      const session = state.supabase.session || (await client.auth.getSession()).data.session;
-      if(!session?.access_token) throw new Error('ログインセッションがありません');
-      const cfg = state.supabase.config || getSupabaseConfigFromUi();
-      const endpoint = `${cfg.functionsBase.replace(/\/$/, '')}/${name}`;
-      const res = await fetch(endpoint, {
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'Authorization':`Bearer ${session.access_token}`,
-          'apikey':cfg.anonKey
-        },
-        body:JSON.stringify(body || {})
-      });
-      const text = await res.text();
-      let data = {};
-      try{ data = text ? JSON.parse(text) : {}; }catch(_){ data = { raw:text }; }
-      if(!res.ok) throw new Error(data.error || data.message || text || 'Edge Function error');
-      return data;
-    }
-    async function startPlanChange(){
-      const session = state.supabase.session;
-      if(!session?.user){ flashBox(els.billingStatusBox, '先にログインしてください。', 'error'); return; }
-      await saveMemberProfile();
-      const requestedPlan = els.requestedPlanInput.value;
-      const requestedBilling = els.requestedBillingInput.value;
-      const note = els.planChangeNoteInput.value.trim();
-      try{
-        flashBox(els.billingStatusBox, 'プラン変更を作成しています…', 'warn');
-        const result = await callMembershipFunction('create-checkout-session', {
-          plan_code: requestedPlan,
-          billing_cycle: requestedBilling,
-          note,
-          profile: {
-            full_name: els.profileNameInput.value.trim(),
-            company_name: els.profileCompanyInput.value.trim(),
-            phone: els.profilePhoneInput.value.trim(),
-            desired_goal: els.profileGoalInput.value.trim(),
-            team_size: els.profileTeamInput.value,
-            marketing_opt_in: !!els.profileMarketingInput.checked
-          }
-        });
-        if(result.checkout_url){
-          flashBox(els.billingStatusBox, `Checkout Session を作成しました。<br><a href="${escapeHtml(result.checkout_url)}" target="_blank" rel="noopener">Stripe Checkout を開く</a>`, 'success');
-          window.open(result.checkout_url, '_blank', 'noopener');
-        } else {
-          flashBox(els.billingStatusBox, escapeHtml(result.message || '無料プラン登録を反映しました。'), 'success');
-        }
-        track('supabase_plan_change_created',{plan:requestedPlan,billing:requestedBilling});
-        await loadSupabaseData();
-      } catch(err){
-        flashBox(els.billingStatusBox, `プラン変更エラー: ${escapeHtml(err.message || String(err))}`, 'error');
-      }
-    }
-    async function adminUpdateMembership(){
-      try{
-        const result = await callMembershipFunction('admin-membership-update', {
-          target_user_id: els.adminTargetUserIdInput.value.trim(),
-          target_email: els.adminTargetEmailInput.value.trim(),
-          plan_code: els.adminPlanInput.value,
-          billing_cycle: els.adminBillingInput.value,
-          status: els.adminStatusInput.value,
-          note: els.adminNoteInput.value.trim()
-        });
-        flashBox(els.adminStatusBox, `会員ステータスを更新しました。<br>${escapeHtml(result.message || 'completed')}`, 'success');
-        track('admin_membership_update',{plan:els.adminPlanInput.value,status:els.adminStatusInput.value});
-        await loadSupabaseData();
-      } catch(err){
-        flashBox(els.adminStatusBox, `管理更新エラー: ${escapeHtml(err.message || String(err))}`, 'error');
-      }
-    }
-
-
-
-
-    state.supabase.admin = { members:[], requests:[], payments:[], filteredMembers:[] };
-
-    Object.assign(els, {
-      adminDashboardCard:document.getElementById('adminDashboardCard'),
-      adminMetricMembers:document.getElementById('adminMetricMembers'),
-      adminMetricPrime:document.getElementById('adminMetricPrime'),
-      adminMetricMaster:document.getElementById('adminMetricMaster'),
-      adminMetricPending:document.getElementById('adminMetricPending'),
-      adminMembersList:document.getElementById('adminMembersList'),
-      adminRequestsList:document.getElementById('adminRequestsList'),
-      adminPaymentsList:document.getElementById('adminPaymentsList'),
-      adminMemberSearchInput:document.getElementById('adminMemberSearchInput')
-    });
-
-    function memberStatusTone(status){ return statusTone(status); }
-    function subscriptionTone(plan){ return plan === 'master' ? 'warn' : plan === 'prime' ? 'success' : 'warn'; }
-
-    function renderAdminMetrics(){
-      const members = state.supabase.admin.members || [];
-      const requests = state.supabase.admin.requests || [];
-      const activePrime = members.filter(m => m.current_plan_code === 'prime' && ['active','trialing'].includes(String(m.membership_status || '').toLowerCase())).length;
-      const activeMaster = members.filter(m => m.current_plan_code === 'master' && ['active','trialing'].includes(String(m.membership_status || '').toLowerCase())).length;
-      const pending = requests.filter(r => ['pending','pending_checkout','checkout_created','checkout_completed','processing'].includes(String(r.status || '').toLowerCase())).length;
-      els.adminMetricMembers.textContent = String(members.length);
-      els.adminMetricPrime.textContent = String(activePrime);
-      els.adminMetricMaster.textContent = String(activeMaster);
-      els.adminMetricPending.textContent = String(pending);
-    }
-
-    function renderAdminMembers(){
-      const query = (els.adminMemberSearchInput?.value || '').trim().toLowerCase();
-      const all = state.supabase.admin.members || [];
-      const rows = !query ? all : all.filter(item => {
-        const hay = [item.email, item.full_name, item.company_name, item.current_plan_code, item.membership_status].join(' ').toLowerCase();
-        return hay.includes(query);
-      });
-      state.supabase.admin.filteredMembers = rows;
-      if(!rows.length){
-        els.adminMembersList.innerHTML = '<div class="history-empty">条件に一致する会員がいません。</div>';
-        return;
-      }
-      els.adminMembersList.innerHTML = rows.map(item => `
-        <button class="member-row" type="button" data-admin-member="${item.id}">
-          <div class="member-top">
-            <div>
-              <div class="member-main">${escapeHtml(item.full_name || '未設定')}<br><span class="member-sub">${escapeHtml(item.email || '-')}</span></div>
-            </div>
-            <span class="history-pill ${memberStatusTone(item.membership_status)}">${escapeHtml(item.membership_status || 'inactive')}</span>
-          </div>
-          <div class="member-sub">${escapeHtml(item.company_name || '会社名未設定')} / Team ${escapeHtml(item.team_size || '-')}</div>
-          <div class="member-tags">
-            <span>${escapeHtml(planLabel(item.current_plan_code || 'standard'))}</span>
-            <span>${escapeHtml(item.is_admin ? 'ADMIN' : 'MEMBER')}</span>
-            <span>${escapeHtml(item.phone || 'phone unset')}</span>
-          </div>
-        </button>
-      `).join('');
-      qsa('[data-admin-member]').forEach(btn => btn.addEventListener('click',()=>selectAdminMember(btn.dataset.adminMember)));
-    }
-
-    function renderAdminRequests(){
-      const rows = state.supabase.admin.requests || [];
-      if(!rows.length){
-        els.adminRequestsList.innerHTML = '<div class="history-empty">全体プラン変更履歴はまだありません。</div>';
-        return;
-      }
-      els.adminRequestsList.innerHTML = rows.map(item => `
-        <div class="record-row">
-          <div class="record-head">
-            <div>
-              <div class="member-main">${escapeHtml(item.member_email || item.user_id || '-')}</div>
-              <div class="member-sub">${escapeHtml(planLabel(item.from_plan_code || 'standard'))} → ${escapeHtml(planLabel(item.to_plan_code || 'standard'))}</div>
-            </div>
-            <span class="history-pill ${statusTone(item.status)}">${escapeHtml(item.status || 'pending')}</span>
-          </div>
-          <div class="record-tags">
-            <span>${escapeHtml(item.to_billing_cycle || '-')}</span>
-            <span>${escapeHtml(formatDateTime(item.created_at))}</span>
-          </div>
-          <div class="member-sub">${escapeHtml(item.note || 'メモなし')}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderAdminPayments(){
-      const rows = state.supabase.admin.payments || [];
-      if(!rows.length){
-        els.adminPaymentsList.innerHTML = '<div class="history-empty">全体決済履歴はまだありません。</div>';
-        return;
-      }
-      els.adminPaymentsList.innerHTML = rows.map(item => `
-        <div class="record-row">
-          <div class="record-head">
-            <div>
-              <div class="member-main">${escapeHtml(item.member_email || item.user_id || '-')}</div>
-              <div class="member-sub">${escapeHtml(planLabel(item.plan_code || 'standard'))} / ${escapeHtml(item.billing_cycle || '-')}</div>
-            </div>
-            <span class="history-pill ${statusTone(item.status)}">${escapeHtml(item.status || 'pending')}</span>
-          </div>
-          <div class="record-tags">
-            <span>¥${Number(item.amount || 0).toLocaleString('ja-JP')}</span>
-            <span>${escapeHtml((item.currency || 'jpy').toUpperCase())}</span>
-            <span>${escapeHtml(formatDateTime(item.paid_at || item.created_at))}</span>
-          </div>
-          <div class="member-sub">Invoice: ${escapeHtml(item.stripe_invoice_id || '-')} / Checkout: ${escapeHtml(item.stripe_checkout_session_id || '-')}</div>
-        </div>
-      `).join('');
-    }
-
-    function selectAdminMember(memberId){
-      const member = (state.supabase.admin.members || []).find(item => item.id === memberId);
-      if(!member) return;
-      qsa('[data-admin-member]').forEach(el => el.classList.toggle('active', el.dataset.adminMember === memberId));
-      els.adminTargetUserIdInput.value = member.id || '';
-      els.adminTargetEmailInput.value = member.email || '';
-      els.adminPlanInput.value = member.current_plan_code || 'standard';
-      els.adminStatusInput.value = member.membership_status || 'active';
-      const sub = member.latest_subscription || {};
-      els.adminBillingInput.value = sub.billing_cycle || 'monthly';
-      els.adminNoteInput.value = `選択会員: ${member.email || member.id}`;
-      flashBox(els.adminStatusBox, `会員 <b>${escapeHtml(member.email || member.id)}</b> を選択しました。右フォームからステータス更新できます。`, 'success');
-      document.getElementById('adminMembershipCard')?.scrollIntoView({behavior:'smooth',block:'center'});
-      track('admin_member_selected',{label:member.id, plan:member.current_plan_code});
-    }
-
-    async function loadAdminDashboardData(){
-      if(!state.supabase.profile?.is_admin || !state.supabase.client) return;
-      const client = state.supabase.client;
-      const [membersRes, requestsRes, paymentsRes, subsRes] = await Promise.all([
-        client.from('member_profiles').select('id,email,full_name,company_name,phone,team_size,current_plan_code,membership_status,is_admin,created_at').order('created_at',{ascending:false}).limit(200),
-        client.from('plan_change_requests').select('id,user_id,from_plan_code,to_plan_code,to_billing_cycle,status,note,created_at').order('created_at',{ascending:false}).limit(100),
-        client.from('payment_history').select('id,user_id,plan_code,billing_cycle,amount,currency,status,paid_at,created_at,stripe_invoice_id,stripe_checkout_session_id').order('created_at',{ascending:false}).limit(100),
-        client.from('membership_subscriptions').select('id,user_id,plan_code,billing_cycle,status,current_period_end,updated_at').order('updated_at',{ascending:false}).limit(200)
-      ]);
-
-      if(membersRes.error){ flashBox(els.adminStatusBox, `管理データ取得エラー: ${escapeHtml(membersRes.error.message)}`, 'error'); return; }
-      const members = membersRes.data || [];
-      const subs = subsRes.data || [];
-      const subMap = new Map();
-      subs.forEach(sub => { if(!subMap.has(sub.user_id)) subMap.set(sub.user_id, sub); });
-
-      state.supabase.admin.members = members.map(member => ({ ...member, latest_subscription: subMap.get(member.id) || null }));
-      const emailMap = new Map(members.map(m => [m.id, m.email]));
-      state.supabase.admin.requests = (requestsRes.data || []).map(item => ({ ...item, member_email: emailMap.get(item.user_id) || '' }));
-      state.supabase.admin.payments = (paymentsRes.data || []).map(item => ({ ...item, member_email: emailMap.get(item.user_id) || '' }));
-
-      els.adminDashboardCard.hidden = false;
-      els.adminMembershipCard.hidden = false;
-      renderAdminMetrics();
-      renderAdminMembers();
-      renderAdminRequests();
-      renderAdminPayments();
-      flashBox(els.adminStatusBox, '管理者ダッシュボードを更新しました。', 'success');
-      track('admin_dashboard_loaded',{label:String(state.supabase.admin.members.length)});
-    }
-
-
-    function setupFaqTracking(){qsa('.faq-item').forEach(item=>item.addEventListener('toggle',()=>{if(item.open)track('faq_open',{label:item.querySelector('summary').textContent.trim()});}));}
-    function detectVariantFromQuery(){const p=new URLSearchParams(location.search);const v=(p.get('ab')||'A').toUpperCase();return variants[v]?v:'A';}
-
-    document.getElementById('themeBtn').addEventListener('click',()=>els.themeModal.classList.add('open'));
-    document.getElementById('accessBtn').addEventListener('click',()=>els.accessModal.classList.add('open'));
-    document.getElementById('closeThemeBtn').addEventListener('click',()=>closeModal(els.themeModal));
-    document.getElementById('closeAccessBtn').addEventListener('click',()=>closeModal(els.accessModal));
-    document.getElementById('closeUpgradeBtn').addEventListener('click',()=>closeModal(els.upgradeModal));
-    document.getElementById('applyCurrentBtn').addEventListener('click',()=>closeModal(els.themeModal));
-    document.getElementById('applyRoleBtn').addEventListener('click',()=>closeModal(els.accessModal));
-    [els.themeModal,els.accessModal,els.upgradeModal].forEach(modal=>modal.addEventListener('click',e=>{if(e.target===modal)closeModal(modal);}));
+    document.getElementById('themeGlyphBtn').addEventListener('click',()=>setTheme('glyph'));
+    document.getElementById('themeSanctumBtn').addEventListener('click',()=>setTheme('sanctum'));
+    document.getElementById('themePrimeBtn').addEventListener('click',()=>setTheme('prime'));
+    document.getElementById('heroGlyphBtn').addEventListener('click',()=>setTheme('glyph'));
+    document.getElementById('heroSanctumBtn').addEventListener('click',()=>setTheme('sanctum'));
+    document.getElementById('heroPrimeBtn').addEventListener('click',()=>runCommand('/prime oracle'));
     document.getElementById('sendBtn').addEventListener('click',()=>runCommand(els.commandInput.value));
     document.getElementById('primeBtn').addEventListener('click',()=>runCommand('/prime oracle'));
-    document.getElementById('masterBtn').addEventListener('click',()=>runCommand('/master briefing'));
-    els.commandInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();runCommand(els.commandInput.value);}});
-    qsa('[data-billing]').forEach(btn=>btn.addEventListener('click',()=>setBilling(btn.dataset.billing)));
-    qsa('[data-variant]').forEach(btn=>btn.addEventListener('click',()=>setVariant(btn.dataset.variant)));
-    document.getElementById('confirmUpgradeBtn').addEventListener('click',()=>{track('upgrade_confirm',{plan:state.currentModalPlan});presetApplication(state.currentModalPlan);closeModal(els.upgradeModal);setCheckoutStage('form');document.getElementById('paymentFlowSection')?.scrollIntoView({behavior:'smooth',block:'start'});appendLog('ai',`<strong>申込AI:</strong> <b>${state.currentModalPlan==='prime'?'PRIME':'MASTER'}</b> の申込フォームを下部にプリセットしました。内容確認後、そのまま確定できます。`);});
-    document.getElementById('switchPlanBtn').addEventListener('click',()=>{const next=state.currentModalPlan==='prime'?'master':'prime';track('modal_switch_plan',{from:state.currentModalPlan,to:next});openUpgradeModal(next,'modal-switch',false);});
+    document.getElementById('sanctumBtn').addEventListener('click',()=>runCommand('/reactor sync'));
+    els.commandInput.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); runCommand(els.commandInput.value); } });
+    qsa('[data-theme-switch]').forEach(btn=>btn.addEventListener('click',()=>setTheme(btn.dataset.themeSwitch)));
 
-
-    document.getElementById('adminRefreshAllBtn').addEventListener('click',loadAdminDashboardData);
-    document.getElementById('adminMemberSearchInput').addEventListener('input',renderAdminMembers);
-    document.getElementById('saveSupabaseConfigBtn').addEventListener('click',saveSupabaseConfig);
-    document.getElementById('testSupabaseBtn').addEventListener('click',testSupabaseConnection);
-    document.getElementById('authActionBtn').addEventListener('click',handleSupabaseAuth);
-    document.getElementById('signOutBtn').addEventListener('click',handleSignOut);
-    document.getElementById('saveProfileBtn').addEventListener('click',saveMemberProfile);
-    document.getElementById('loadProfileBtn').addEventListener('click',loadSupabaseData);
-    document.getElementById('startPlanChangeBtn').addEventListener('click',startPlanChange);
-    document.getElementById('refreshBillingDataBtn').addEventListener('click',loadSupabaseData);
-    document.getElementById('adminUpdateBtn').addEventListener('click',adminUpdateMembership);
-    document.getElementById('scrollToAuthBtn').addEventListener('click',()=>document.getElementById('authSection')?.scrollIntoView({behavior:'smooth',block:'center'}));
-    document.getElementById('scrollToBillingBtn').addEventListener('click',()=>document.getElementById('billingSection')?.scrollIntoView({behavior:'smooth',block:'center'}));
-    document.getElementById('refreshSupabaseBtn').addEventListener('click',loadSupabaseData);
-    qsa('[data-auth-mode]').forEach(btn=>btn.addEventListener('click',()=>setSupabaseAuthMode(btn.dataset.authMode)));
-
-    document.getElementById('fillDemoBtn').addEventListener('click',fillDemoApplication);
-    document.getElementById('goConfirmBtn').addEventListener('click',()=>{if(!validateApplication())return;renderConfirmSummary();setCheckoutStage('confirm');});
-    document.getElementById('backToFormBtn').addEventListener('click',()=>setCheckoutStage('form'));
-    document.getElementById('submitApplicationBtn').addEventListener('click',submitApplication);
-    document.getElementById('restartFlowBtn').addEventListener('click',()=>{setCheckoutStage('form');});
-    qsa('[data-plan-shortcut]').forEach(btn=>btn.addEventListener('click',()=>{presetApplication(btn.dataset.planShortcut);setCheckoutStage('form');track('application_plan_shortcut',{plan:btn.dataset.planShortcut});}));
-    ['applicationPlan','applicationBilling','applicantName','applicantEmail','applicantCompany','applicantPhone','applicantGoal','applicationTeamSize'].forEach(id=>document.getElementById(id).addEventListener('input',syncApplicationFromUi));
-    document.getElementById('applicationPlan').addEventListener('change',syncApplicationFromUi);
-    document.getElementById('applicationBilling').addEventListener('change',syncApplicationFromUi);
-    document.getElementById('termsAgreement').addEventListener('change',syncApplicationFromUi);
-    document.getElementById('marketingAgreement').addEventListener('change',syncApplicationFromUi);
-
-    document.getElementById('clearLogBtn').addEventListener('click',()=>{state.events=[];state.counters={cta:0,modal:0,faq:0,scroll:0};state.scrollMarks=new Set();qsa('#depthGrid span').forEach(el=>el.classList.remove('hit'));renderAnalytics();handleScroll();});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal(els.themeModal);closeModal(els.accessModal);closeModal(els.upgradeModal);}});
-    window.addEventListener('resize',buildGlyphRain); window.addEventListener('scroll',handleScroll,{passive:true});
-
-    buildGlyphRain(); setTheme(localStorage.getItem('mc-theme-integrated')||'glyph',false); setRole(localStorage.getItem('mc-role-integrated')||'prime',false); setBilling('monthly',false); setVariant(detectVariantFromQuery(),false); bindDynamicButtons(); setupFaqTracking(); loadSupabaseConfig(); setSupabaseAuthMode('signup'); presetApplication('prime'); setCheckoutStage('form'); renderAnalytics(); handleScroll(); getSupabaseClient().then(async client=>{ if(client){ const { data } = await client.auth.getSession(); state.supabase.session = data.session; if(data.session?.user){ await loadSupabaseData(); } } }).catch(()=>{}); track('page_view',{label:'mission_control_supabase_full'});
+    buildGlyphRain();
+    setTheme(localStorage.getItem('mc-three-theme-switcher') || 'glyph', false);
+    window.addEventListener('resize', buildGlyphRain);
   </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
