@@ -279,6 +279,41 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',
 .mt{font-size:8px;color:var(--txt3);margin-top:3px;text-align:right}
 #typ{display:none;gap:7px;align-items:center}
 #typ.on{display:flex}
+
+/* CONSULTATION CARD */
+.consult-card{
+  background:linear-gradient(135deg,rgba(244,63,94,.08),rgba(245,158,11,.05));
+  border:1px solid rgba(244,63,94,.25);border-radius:12px;
+  padding:14px 16px;margin:8px 0;max-width:90%;
+}
+.consult-card-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.consult-card-icon{font-size:14px}
+.consult-card-title{font-size:11px;font-weight:800;color:#f59e0b;letter-spacing:.04em}
+.consult-card-q{font-size:12px;color:var(--txt);line-height:1.7;margin-bottom:12px}
+.consult-card-input{
+  width:100%;background:rgba(0,0,0,.3);border:1px solid var(--brd);
+  border-radius:8px;padding:9px 12px;color:var(--txt);font-size:12px;
+  font-family:inherit;outline:none;resize:vertical;min-height:50px;margin-bottom:8px;
+}
+.consult-card-input:focus{border-color:#f59e0b}
+.consult-card-actions{display:flex;gap:8px}
+.consult-card-btn{
+  border:none;border-radius:7px;padding:8px 14px;font-size:11px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.consult-card-btn.primary{background:#f59e0b;color:#1a1206}
+.consult-card-btn.primary:hover{background:#fbbf24}
+.consult-card-pending{font-size:10px;color:#f59e0b;display:flex;align-items:center;gap:5px}
+
+/* HEADER NOTIFICATION BADGE */
+#consult-badge{
+  display:none;align-items:center;gap:5px;background:rgba(244,63,94,.12);
+  border:1px solid rgba(244,63,94,.3);border-radius:999px;padding:3px 10px;
+  font-size:10px;font-weight:700;color:#f59e0b;cursor:pointer;
+}
+#consult-badge.on{display:flex}
+@keyframes consultPulse{0%,100%{opacity:.7}50%{opacity:1}}
+#consult-badge.on{animation:consultPulse 1.5s ease-in-out infinite}
 .d{width:5px;height:5px;border-radius:50%;animation:dp 1.2s ease-in-out infinite;opacity:.5}
 .d:nth-child(2){animation-delay:.2s}.d:nth-child(3){animation-delay:.4s}
 @keyframes dp{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.5);opacity:1}}
@@ -650,7 +685,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div id="hdr">
   <div class="logo">
     <div class="logo-dot"></div>
-    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-8</span></span>
+    <span class="logo-txt">乗数ラボ — MISSION CONTROL <span style="opacity:.4;font-weight:400">v20260621-10</span></span>
   </div>
   <div class="hdr-rev">
     <span class="rev-s">月商</span>
@@ -658,6 +693,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <span class="rev-s">/ 1,000万円</span>
     <span class="rev-b" id="tpct">0%</span>
   </div>
+  <div id="consult-badge" onclick="scrollToConsultation()">🔔 マスクが相談中</div>
   <div class="hdr-date" id="tday"></div>
 </div>
 
@@ -1565,14 +1601,14 @@ async function send() {
     if(isCEO) {
       requestBody.tools = [{
         name: 'dispatch_tasks',
-        description: '恭介さんへの返答テキストと、各エージェントへ振り分けるタスク一覧を出力する',
+        description: '恭介さんへの返答テキストと、各エージェントへ振り分けるタスク一覧を出力する。あなたはCEOとして自律的に判断・実行する権限を持つ。恭介さんは経営者として方針確認・重要判断のみ行う立場であり、日々の実行判断にはいちいち介入しない',
         input_schema: {
           type: 'object',
           properties: {
             message: { type: 'string', description: '恭介さんへ表示する説明文（根本課題の特定・状況説明など）' },
             tasks: {
               type: 'array',
-              description: '各エージェントへの指示。タスクが不要な場合は空配列でよい',
+              description: '各エージェントへの指示。タスクが不要な場合は空配列でよい。needs_consultationがtrueの場合でも、相談と並行して進められるタスクがあればここに含めてよい',
               items: {
                 type: 'object',
                 properties: {
@@ -1581,9 +1617,17 @@ async function send() {
                 },
                 required: ['agent_id', 'instruction']
               }
+            },
+            needs_consultation: {
+              type: 'boolean',
+              description: '恭介さん本人の判断が本当に必要な場合のみtrue。判断基準：①予算・金額に関わる重大判断 ②事業の方向性そのものを変える決定 ③外部（クライアント・取引先）との約束に関わる事項 ④恭介さんしか知らない情報が必要な場合。それ以外（記事のテーマ選定、文章のトーン、優先順位の調整など）はCEOであるあなたが自律的に判断し、falseにすること。安易にtrueにしない'
+            },
+            consultation_question: {
+              type: 'string',
+              description: 'needs_consultationがtrueの場合のみ。恭介さんに何を確認したいか、簡潔で具体的な質問文'
             }
           },
-          required: ['message', 'tasks']
+          required: ['message', 'tasks', 'needs_consultation']
         }
       }];
       requestBody.tool_choice = { type: 'tool', name: 'dispatch_tasks' };
@@ -1607,37 +1651,41 @@ async function send() {
     }
 
     if(isCEO) {
-      console.log('CEO API response:', JSON.stringify(data, null, 2));
       const toolBlock = data.content?.find(b => b.type === 'tool_use');
       let displayText = '';
       let tasks = [];
+      let needsConsultation = false;
+      let consultationQuestion = '';
       if(toolBlock && toolBlock.input) {
         displayText = toolBlock.input.message || '（メッセージなし）';
         tasks = (toolBlock.input.tasks || [])
           .filter(t => t.agent_id && AG.find(ag => ag.id === t.agent_id))
           .map(t => ({ agentId: t.agent_id, instruction: t.instruction }));
-        console.log('Extracted tasks:', tasks);
+        needsConsultation = !!toolBlock.input.needs_consultation;
+        consultationQuestion = toolBlock.input.consultation_question || '';
       } else {
-        // フォールバック：tool_useが無い場合はテキストから旧式タグも一応試す
         const rep = data.content?.map(b => b.text || '').join('') || 'レスポンスが空です。';
         displayText = stripTaskTags(rep);
         tasks = parseTasksFromCEO(rep);
-        console.log('No tool_use block found. Fallback text:', rep.substring(0,200));
-        console.log('Fallback tasks:', tasks);
-      }
-      if(tasks.length === 0) {
-        displayText += '\n\n[デバッグ] tool_use検出: ' + (toolBlock ? 'あり' : 'なし') + ' / stop_reason: ' + (data.stop_reason || '不明');
       }
       hist[a.id].push({r:'assistant', c:displayText});
       styp(false);
-      bubble('assistant', displayText);
+      if(needsConsultation && consultationQuestion) {
+        bubble('assistant', displayText);
+        showConsultationCard(consultationQuestion, tasks);
+      } else {
+        bubble('assistant', displayText);
+        attachedFiles = [];
+        renderFileChips();
+        saveToLS();
+        detectOrUpdateGoal(userTxt, key);
+        if(tasks.length > 0) {
+          dispatchTasksFromCEO(tasks);
+        }
+      }
       attachedFiles = [];
       renderFileChips();
       saveToLS();
-      detectOrUpdateGoal(userTxt, key);
-      if(tasks.length > 0) {
-        dispatchTasksFromCEO(tasks);
-      }
     } else {
       const rep = data.content?.map(b => b.text || '').join('') || 'レスポンスが空です。';
       hist[a.id].push({r:'assistant', c:rep});
@@ -2640,7 +2688,7 @@ function updateTaskBar() {
 
 let currentTaskDetailText = '';
 
-async // ══════════════════════════════════════
+// ══════════════════════════════════════
 // 目標（GOALS）管理
 // ══════════════════════════════════════
 const LS_GOALS = 'josulab_goals_v1';
@@ -2800,6 +2848,82 @@ async function detectOrUpdateGoal(userMessage, apiKey) {
     }
   } catch(e) {
     console.error('Goal detection error:', e);
+  }
+}
+
+// ══════════════════════════════════════
+// CEO相談カード（恭介さんの判断が必要な場面のみ）
+// ══════════════════════════════════════
+let pendingConsultation = null; // { question, tasks, timestamp }
+
+function showConsultationCard(question, parallelTasks) {
+  pendingConsultation = { question, tasks: parallelTasks || [], timestamp: Date.now() };
+
+  // 相談と並行で進められるタスクは先に流す
+  if(parallelTasks && parallelTasks.length > 0) {
+    dispatchTasksFromCEO(parallelTasks);
+  }
+
+  const ch = g('chat');
+  const ty = g('typ');
+  const card = document.createElement('div');
+  card.className = 'consult-card';
+  card.id = 'active-consult-card';
+  card.innerHTML = '<div class="consult-card-hd"><span class="consult-card-icon">⚠</span><span class="consult-card-title">マスクから確認したいことがあります</span></div>'
+    + '<div class="consult-card-q">' + question + '</div>'
+    + '<textarea class="consult-card-input" id="consult-input" placeholder="回答を入力…（Enterで送信）"></textarea>'
+    + '<div class="consult-card-actions">'
+    + '<button class="consult-card-btn primary" onclick="answerConsultation()">回答してマスクを再開させる</button>'
+    + '</div>';
+  ch.insertBefore(card, ty);
+  scr();
+
+  const badge = g('consult-badge');
+  if(badge) badge.classList.add('on');
+
+  const inputEl = g('consult-input');
+  if(inputEl) {
+    inputEl.focus();
+    inputEl.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        answerConsultation();
+      }
+    });
+  }
+}
+
+function scrollToConsultation() {
+  const card = g('active-consult-card');
+  if(card) {
+    if(aid !== 'coo') selAg('coo');
+    setTimeout(() => {
+      const c = g('active-consult-card');
+      if(c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
+}
+
+async function answerConsultation() {
+  const inputEl = g('consult-input');
+  const answer = inputEl ? inputEl.value.trim() : '';
+  if(!answer) { if(inputEl) inputEl.focus(); return; }
+  if(!pendingConsultation) return;
+
+  const card = g('active-consult-card');
+  if(card) card.remove();
+  const badge = g('consult-badge');
+  if(badge) badge.classList.remove('on');
+
+  const question = pendingConsultation.question;
+  pendingConsultation = null;
+
+  // 恭介さんの回答をマスクへの通常メッセージとして送信し、再開させる
+  const mi = g('msg-in');
+  if(mi) {
+    mi.value = '【相談への回答】質問：' + question + '\n回答：' + answer;
+    if(aid !== 'coo') selAg('coo');
+    send();
   }
 }
 
